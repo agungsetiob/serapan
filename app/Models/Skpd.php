@@ -16,7 +16,7 @@ class Skpd extends Model
         return $this->belongsToMany(Kabupaten::class, 'skpd_tahun');
     }
 
-    public function skpdTahun()
+    public function tahunAnggaran()
     {
         return $this->hasMany(SkpdTahun::class);
     }

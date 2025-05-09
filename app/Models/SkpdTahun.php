@@ -9,7 +9,7 @@ class SkpdTahun extends Model
     use HasFactory;
 
     protected $table = 'skpd_tahun';
-    protected $fillable = ['skpd_id', 'kabupaten_id'];
+    protected $fillable = ['skpd_id', 'kabupaten_id', 'tahun_anggaran'];
 
     public function skpd()
     {

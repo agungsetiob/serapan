@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('skpd_id')->constrained('skpds')->onDelete('cascade');
             $table->foreignId('kabupaten_id')->constrained('kabupatens')->onDelete('cascade');
+            $table->year('tahun_anggaran');
             $table->timestamps();
+
+            // Mencegah duplikasi data SKPD per tahun
+            $table->unique(['skpd_id', 'tahun_anggaran']);
         });
         
     }

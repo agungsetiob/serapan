@@ -4,41 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\NotaDinas;
 use App\Models\NotaLampiran;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Models\SubKegiatan;
+use App\Models\Kegiatan;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class NotaDinasController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $user = Auth::user();
-        $search = $request->input('search');
+        $query = NotaDinas::with('subKegiatan.kegiatan.skpd')
+            ->orderByDesc('created_at');
 
-        $query = NotaDinas::query();
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nomor_nota', 'like', "%$search%")
-                ->orWhere('perihal', 'like', "%$search%");
+        if (request()->filled('search')) {
+            $searchTerm = request('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nomor_nota', 'like', "%{$searchTerm}%")
+                ->orWhere('perihal', 'like', "%{$searchTerm}%");
             });
         }
+        
+        $notas = $query->paginate(10);
+        $subKegiatans = SubKegiatan::with('kegiatan.skpd')->get();
 
-        switch ($user->role) {
-            case 'admin':
-                // Admin can see all data
-                break;
-            default:
-                return abort(403, 'Akses tidak diizinkan');
-        }
-
-        $notas = $query->latest()->paginate(10)->withQueryString();
-
-        return Inertia::render('NotaDinas/Index', [
+        return inertia('NotaDinas/Index', [
             'notas' => $notas,
-            'search' => $search,
+            'subKegiatans' => $subKegiatans,
         ]);
     }
 
@@ -47,79 +39,70 @@ class NotaDinasController extends Controller
         $validated = $request->validate([
             'nomor_nota' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
-            'anggaran' => 'nullable|numeric',
+            'anggaran' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
-            //'lampiran.*' => 'nullable|file|mimes:pdf|max:2048',
+            'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
+            'lampirans.*' => 'nullable|file|max:2048',
         ]);
 
-        NotaDinas::create([
-            'skpd_id' => auth()->user()->skpd_id,
-            'nomor_nota' => $validated['nomor_nota'],
-            'perihal' => $validated['perihal'],
-            'anggaran' => $validated['anggaran'],
-            'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
-            'status' => 'draft',
-            'tahap_saat_ini' => 'skpd',
-            'asisten_id' => auth()->user()->skpd->asisten_id ?? null,
-        ]);
-
-        return redirect()->route('nota-dinas.index')
-                         ->with('success', 'Nota berhasil dibuat.');
-    }
-
-    public function update(Request $request, NotaDinas $notaDina)
-    {
-        if (!in_array($notaDina->status, ['draft', 'dikembalikan'])) {
-            return redirect()->route('nota-dinas.index')
-                             ->with('error', 'Nota hanya bisa diperbarui jika berstatus draft atau dikembalikan.');
-        }
-    
-        $validated = $request->validate([
-            'nomor_nota' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'anggaran' => 'nullable|numeric',
-            'tanggal_pengajuan' => 'required|date',
-            //'lampiran.*' => 'nullable|file|mimes:pdf|max:2048',
-        ]);
-    
-        DB::transaction(function () use ($notaDina, $validated, $request) {
-            $notaDina->update([
+        DB::transaction(function () use ($validated, $request) {
+            $nota = NotaDinas::create([
                 'nomor_nota' => $validated['nomor_nota'],
                 'perihal' => $validated['perihal'],
                 'anggaran' => $validated['anggaran'],
                 'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
-                'asisten_id' => auth()->user()->skpd->asisten_id ?? null,
+                'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
             ]);
-    
-            if ($request->hasFile('lampiran')) {
-                foreach ($request->file('lampiran') as $file) {
-                    $path = $file->store('lampiran_nota', 'public');
-    
+
+            // Simpan lampiran
+            if ($request->hasFile('lampirans')) {
+                foreach ($request->file('lampirans') as $file) {
+                    $path = $file->store('lampirans');
                     NotaLampiran::create([
-                        'nota_dinas_id' => $notaDina->id,
+                        'nota_dinas_id' => $nota->id,
                         'nama_file' => $file->getClientOriginalName(),
                         'path' => $path,
                     ]);
                 }
             }
+
+            // Update serapan sub_kegiatan
+            $sub = SubKegiatan::find($nota->sub_kegiatan_id);
+            $total = NotaDinas::where('sub_kegiatan_id', $sub->id)->sum('anggaran');
+            $sub->update([
+                'total_serapan' => $total,
+                'presentase_serapan' => $sub->pagu > 0 ? ($total / $sub->pagu) * 100 : 0,
+            ]);
+
+            // Update serapan kegiatan
+            $kegiatan = $sub->kegiatan;
+            $subTotals = $kegiatan->subKegiatans()->sum('total_serapan');
+            $kegiatan->update([
+                'total_serapan' => $subTotals,
+                'presentase_serapan' => $kegiatan->pagu > 0 ? ($subTotals / $kegiatan->pagu) * 100 : 0,
+            ]);
+
+            // Update serapan kabupaten
+            $kabupaten = $kegiatan->skpd->kabupatens()
+                ->where('tahun_anggaran', $kegiatan->tahun_anggaran)
+                ->first();
+
+            if ($kabupaten) {
+                $skpdIds = $kabupaten->skpds->pluck('id');
+                $kegiatanIds = Kegiatan::whereIn('skpd_id', $skpdIds)
+                    ->where('tahun_anggaran', $kegiatan->tahun_anggaran)
+                    ->pluck('id');
+
+                $subTotal = SubKegiatan::whereIn('kegiatan_id', $kegiatanIds)->sum('total_serapan');
+
+                $kabupaten->update([
+                    'total_serapan' => $subTotal,
+                    'presentase_serapan' => $kabupaten->pagu > 0 ? ($subTotal / $kabupaten->pagu) * 100 : 0,
+                ]);
+            }
         });
-        return redirect()->route('nota-dinas.index')
-                         ->with('success', 'Nota berhasil diperbarui.');
-    }    
 
-    public function destroy(NotaDinas $notaDina)
-    {
-        if (!in_array($notaDina->status, ['draft', 'dikembalikan'])) {
-            return redirect()->route('nota-dinas.index')
-                             ->with('error', 'Nota hanya bisa dihapus jika berstatus draft atau dikembalikan.');
-        }
-        foreach ($notaDina->lampirans as $lampiran) {
-            Storage::delete('storage/' . $lampiran->path);
-        }
-        $notaDina->delete();
-
-        return redirect()->route('nota-dinas.index')
-                         ->with('success', 'Nota berhasil dihapus');
+        return back()->with('success', 'Nota dinas berhasil ditambahkan.');
     }
 
     public function getLampiran($id)

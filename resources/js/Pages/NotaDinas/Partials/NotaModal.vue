@@ -8,29 +8,37 @@ const props = defineProps({
   isEdit: Boolean,
   notaData: Object,
   errors: Object,
+  // Tambahkan prop untuk daftar sub kegiatan
+  subKegiatans: {
+    type: Array,
+    default: () => []
+  }
 });
 
 const emit = defineEmits(['close']);
 
-// Inisialisasi form tanpa mengisi nilai awal
+// Inisialisasi form dengan field sesuai controller
 const form = useForm({
   id: '',
   nomor_nota: '',
   perihal: '',
   anggaran: '',
   tanggal_pengajuan: '',
+  sub_kegiatan_id: '',
+  lampirans: []
 });
 
-// Fungsi untuk memperbarui nilai form sesuai dengan props.notaData
+// Fungsi untuk mengupdate nilai form berdasarkan notaData (jika mode edit)
 const updateFormWithNotaData = () => {
   form.id = props.notaData?.id || '';
   form.nomor_nota = props.notaData?.nomor_nota || '';
   form.perihal = props.notaData?.perihal || '';
   form.anggaran = props.notaData?.anggaran || '';
   form.tanggal_pengajuan = props.notaData?.tanggal_pengajuan || '';
+  form.sub_kegiatan_id = props.notaData?.sub_kegiatan_id || '';
+  // Lampirans tidak otomatis diupdate karena file input tidak bisa di-bind secara langsung
 };
 
-// Watcher yang akan memperbarui form setiap kali notaData berubah
 watch(
   () => props.notaData,
   () => {
@@ -38,6 +46,11 @@ watch(
   },
   { immediate: true }
 );
+
+// Tangani perubahan pada file input untuk lampirans
+const handleFileChange = (event) => {
+  form.lampirans = event.target.files;
+};
 
 const closeModal = () => {
   emit('close');
@@ -71,6 +84,7 @@ const handleSubmit = () => {
         {{ isEdit ? 'Edit Nota Dinas' : 'Tambah Nota Dinas' }}
       </h3>
       
+      <!-- Pesan Error Umum -->
       <div
         v-if="Object.keys(form.errors).length > 0"
         class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
@@ -104,6 +118,7 @@ const handleSubmit = () => {
           </div>
         </div>
       </div>
+      
       <form @submit.prevent="handleSubmit">
         <input type="hidden" v-model="form.id">
         
@@ -169,6 +184,45 @@ const handleSubmit = () => {
             {{ form.errors.tanggal_pengajuan }}
           </p>
         </div>
+
+        <!-- Field untuk sub_kegiatan_id -->
+        <div class="mb-4">
+          <label for="sub_kegiatan_id" class="block text-sm font-medium text-gray-700">Sub Kegiatan</label>
+          <select
+            v-model="form.sub_kegiatan_id"
+            required
+            :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm sm:text-base',
+              form.errors.sub_kegiatan_id ? 'border-red-500' : 'border-gray-300'
+            ]"
+          >
+            <option value="">Pilih Sub Kegiatan</option>
+            <option v-for="option in subKegiatans" :key="option.id" :value="option.id">
+              {{ option.nama }}
+            </option>
+          </select>
+          <p v-if="form.errors.sub_kegiatan_id" class="mt-1 text-sm text-red-600">
+            {{ form.errors.sub_kegiatan_id }}
+          </p>
+        </div>
+
+        <!-- Field untuk Lampiran -->
+        <div class="mb-4">
+          <label for="lampirans" class="block text-sm font-medium text-gray-700">Lampiran (optional)</label>
+          <input
+            type="file"
+            multiple
+            @change="handleFileChange"
+            :class="[
+              'mt-1 block w-full',
+              form.errors['lampirans.*'] ? 'border-red-500' : 'border-gray-300'
+            ]"
+          >
+          <p v-if="form.errors['lampirans.*']" class="mt-1 text-sm text-red-600">
+            {{ form.errors['lampirans.*'] }}
+          </p>
+        </div>
+
         <div class="flex justify-end gap-2">
           <button
             type="button"

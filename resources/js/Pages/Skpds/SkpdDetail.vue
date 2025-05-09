@@ -67,10 +67,9 @@ function formatNumber(value) {
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <div class="container mx-auto px-4 py-8">
       <!-- Header Section -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">SKPD Management</h1>
+      <div class="pt-6 sm:pt-16 mx-2 sm:px-2 mb-6">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-700">
+          <h2 class="text-xl font-semibold text-white bg-blue-700 rounded-full px-3">
             {{ skpd.nama_skpd }}
           </h2>
           <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">

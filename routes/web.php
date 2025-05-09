@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/nota-per-year', [DashboardController::class, 'getNotaPerYear']);
     Route::get('/approved-nota-dinas', [DashboardController::class, 'getApprovedNotaDinasBySkpd']);
     Route::get('/nota-dinas-stage', [DashboardController::class, 'getNotaDinasByStage']);
+    Route::post('/skpds/{skpd}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatans.store');
+    Route::post('/kegiatan/{kegiatan}/sub', [SubKegiatanController::class, 'store'])->name('subkegiatans.store');
 
 });
 
@@ -42,9 +44,6 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('skpds/{skpd}/toggle-status', [SkpdController::class, 'toggleStatus'])->name('skpds.toggle-status');
 
         Route::resource('kabupaten', KabupatenController::class);
-
-        Route::post('/skpds/{skpd}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatans.store');
-        Route::post('/kegiatan/{kegiatan}/sub', [SubKegiatanController::class, 'store'])->name('subkegiatans.store');
 
     });
     
