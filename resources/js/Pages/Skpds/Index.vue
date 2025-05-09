@@ -1,5 +1,5 @@
 <script setup>
-import { Head, useForm, usePage, router } from '@inertiajs/vue3';
+import { Head, useForm, usePage, router, Link } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -80,9 +80,12 @@ function toggleStatus(skpdId, currentStatus) {
                             <tbody>
                                 <tr v-for="skpd in skpds.data" :key="skpd.id" class="hover:bg-red-50 transition even:bg-gray-100">
                                     <td class="px-4 py-2">
-                                        <button class="text-blue-600 hover:text-green-600" @click="openModal(skpd)">
+                                        <Link
+                                            :href="route('skpds.show', skpd.id)"
+                                            preserve-scroll
+                                            class="text-blue-600 hover:text-green-600">
                                             {{ skpd.nama_skpd }}
-                                        </button>
+                                        </Link>
                                     </td>
                                     <td class="px-4 py-2">
                                         <button

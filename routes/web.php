@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KabupatenController;
+use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\SkpdController;
+use App\Http\Controllers\SubKegiatanController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('skpds/{skpd}/toggle-status', [SkpdController::class, 'toggleStatus'])->name('skpds.toggle-status');
 
         Route::resource('kabupaten', KabupatenController::class);
+
+        Route::post('/skpds/{skpd}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatans.store');
+        Route::post('/kegiatan/{kegiatan}/sub', [SubKegiatanController::class, 'store'])->name('subkegiatans.store');
 
     });
     

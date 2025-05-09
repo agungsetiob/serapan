@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Skpd;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,6 +59,14 @@ class SkpdController extends Controller
         ]);
 
         return back()->with('success', 'SKPD berhasil diupdate.');
+    }
+
+    public function show(SKPD $skpd)
+    {
+        $skpd->load(['kegiatans.subKegiatans']);
+        return Inertia::render('Skpds/SkpdDetail', [
+            'skpd' => $skpd
+        ]);
     }
 
     /**
