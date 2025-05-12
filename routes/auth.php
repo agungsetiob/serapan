@@ -55,8 +55,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
+    Route::get('users/register', [RegisteredUserController::class, 'create'])
+        ->name('users.register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 });

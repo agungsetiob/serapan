@@ -14,17 +14,20 @@ class NotaDinasController extends Controller
 {
     public function index()
     {
-        $query = NotaDinas::with('subKegiatan.kegiatan.skpd')
+        $query = NotaDinas::with(['subKegiatan' => ['kegiatan' => ['skpd']]])
             ->orderByDesc('created_at');
 
         if (request()->filled('search')) {
             $searchTerm = request('search');
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nomor_nota', 'like', "%{$searchTerm}%")
-                ->orWhere('perihal', 'like', "%{$searchTerm}%");
+                    ->orWhere('perihal', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('subKegiatan.kegiatan.skpd', function ($skpdQuery) use ($searchTerm) {
+                        $skpdQuery->where('nama_skpd', 'like', "%{$searchTerm}%");
+                    });
             });
         }
-        
+
         $notas = $query->paginate(10);
         $subKegiatans = SubKegiatan::with('kegiatan.skpd')->get();
 
@@ -33,7 +36,6 @@ class NotaDinasController extends Controller
             'subKegiatans' => $subKegiatans,
         ]);
     }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -42,67 +44,93 @@ class NotaDinasController extends Controller
             'anggaran' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
-            'lampirans.*' => 'nullable|file|max:2048',
+            'lampirans.*' => 'nullable|file|max:2048|mimes:pdf,doc,docx,xls,xlsx',
         ]);
-
-        DB::transaction(function () use ($validated, $request) {
-            $nota = NotaDinas::create([
-                'nomor_nota' => $validated['nomor_nota'],
-                'perihal' => $validated['perihal'],
-                'anggaran' => $validated['anggaran'],
-                'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
-                'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
-            ]);
-
-            // Simpan lampiran
-            if ($request->hasFile('lampirans')) {
-                foreach ($request->file('lampirans') as $file) {
-                    $path = $file->store('lampirans');
-                    NotaLampiran::create([
-                        'nota_dinas_id' => $nota->id,
-                        'nama_file' => $file->getClientOriginalName(),
-                        'path' => $path,
-                    ]);
-                }
-            }
-
-            // Update serapan sub_kegiatan
-            $sub = SubKegiatan::find($nota->sub_kegiatan_id);
-            $total = NotaDinas::where('sub_kegiatan_id', $sub->id)->sum('anggaran');
-            $sub->update([
-                'total_serapan' => $total,
-                'presentase_serapan' => $sub->pagu > 0 ? ($total / $sub->pagu) * 100 : 0,
-            ]);
-
-            // Update serapan kegiatan
-            $kegiatan = $sub->kegiatan;
-            $subTotals = $kegiatan->subKegiatans()->sum('total_serapan');
-            $kegiatan->update([
-                'total_serapan' => $subTotals,
-                'presentase_serapan' => $kegiatan->pagu > 0 ? ($subTotals / $kegiatan->pagu) * 100 : 0,
-            ]);
-
-            // Update serapan kabupaten
-            $kabupaten = $kegiatan->skpd->kabupatens()
-                ->where('tahun_anggaran', $kegiatan->tahun_anggaran)
-                ->first();
-
-            if ($kabupaten) {
-                $skpdIds = $kabupaten->skpds->pluck('id');
-                $kegiatanIds = Kegiatan::whereIn('skpd_id', $skpdIds)
-                    ->where('tahun_anggaran', $kegiatan->tahun_anggaran)
-                    ->pluck('id');
-
-                $subTotal = SubKegiatan::whereIn('kegiatan_id', $kegiatanIds)->sum('total_serapan');
-
-                $kabupaten->update([
-                    'total_serapan' => $subTotal,
-                    'presentase_serapan' => $kabupaten->pagu > 0 ? ($subTotal / $kabupaten->pagu) * 100 : 0,
+    
+        try {
+            return DB::transaction(function () use ($validated, $request) {
+                $nota = NotaDinas::create([
+                    'nomor_nota' => $validated['nomor_nota'],
+                    'perihal' => $validated['perihal'],
+                    'anggaran' => $validated['anggaran'],
+                    'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+                    'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
                 ]);
-            }
-        });
-
-        return back()->with('success', 'Nota dinas berhasil ditambahkan.');
+    
+                if ($request->hasFile('lampirans')) {
+                    $attachments = [];
+                    foreach ($request->file('lampirans') as $file) {
+                        $path = $file->store('nota_lampirans');
+                        $attachments[] = [
+                            'nota_dinas_id' => $nota->id,
+                            'nama_file' => $file->getClientOriginalName(),
+                            'path' => $path,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    NotaLampiran::insert($attachments);
+                }
+    
+                $this->updateBudgetAbsorption($nota);
+    
+                return redirect()->back()->with('success', 'Nota dinas berhasil ditambahkan.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan nota dinas: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    
+    protected function updateBudgetAbsorption(NotaDinas $nota)
+    {
+        // Hitung Sub Kegiatan
+        $subKegiatan = $nota->subKegiatan()->with(['kegiatan.skpd.kabupatens'])->first();
+        
+        $subKegiatan->update([
+            'total_serapan' => $subKegiatan->notaDinas()->sum('anggaran'),
+            'presentase_serapan' => $subKegiatan->pagu > 0 
+                ? ($subKegiatan->notaDinas()->sum('anggaran') / $subKegiatan->pagu) * 100 
+                : 0,
+        ]);
+    
+        // Hitung Kegiatan
+        $kegiatan = $subKegiatan->kegiatan;
+        $kegiatan->update([
+            'total_serapan' => $kegiatan->subKegiatans()->sum('total_serapan'),
+            'presentase_serapan' => $kegiatan->pagu > 0 
+                ? ($kegiatan->subKegiatans()->sum('total_serapan') / $kegiatan->pagu) * 100 
+                : 0,
+        ]);
+    
+        $skpd = $kegiatan->skpd;
+        
+        // Get Tahun Anggaran
+        $kabupaten = $skpd->kabupatens()
+            ->wherePivot('tahun_anggaran', $kegiatan->tahun_anggaran)
+            ->first();
+    
+        if ($kabupaten) {
+            // Hitung serapan skpd tahun anggaran berjalan
+            $totalSerapan = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $kegiatan) {
+                    $query->whereHas('skpd', function ($q) use ($kabupaten) {
+                        $q->whereHas('kabupatens', function ($k) use ($kabupaten) {
+                            $k->where('kabupatens.id', $kabupaten->id);
+                        });
+                    })
+                    ->where('tahun_anggaran', $kegiatan->tahun_anggaran);
+                })
+                ->sum('total_serapan');
+    
+            // Update serapan kabupaten
+            $kabupaten->update([
+                'total_serapan' => $totalSerapan,
+                'presentase_serapan' => $kabupaten->pagu > 0 
+                    ? ($totalSerapan / $kabupaten->pagu) * 100 
+                    : 0,
+            ]);
+        }
     }
 
     public function getLampiran($id)

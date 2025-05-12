@@ -21,7 +21,7 @@
     </body>
     <script>
         console.log(
-            "%cSelamat Datang di EPENDI!\n\n%cElektronik Pengajuan Nota Dinas, merupakan sebuah project yang bertujuan untuk belajar lebih dalam tentang Laravel 12.\n\nVersi EPENDI ini menggunakan vue.js, terdapat versi lain yang menggunakan blade templating Laravel.\n\nUntuk informasi lebih lanjut silahkan ke: https://agungsetio.com",
+            "%cSelamat Datang di MONALISA!\n\n%cMonitoring dan Analisa Serapan Anggaran, merupakan sebuah project yang bertujuan untuk belajar lebih dalam tentang Laravel 12.\n\nVersi ini menggunakan vue.js, terdapat versi lain yang menggunakan blade templating Laravel.\n\nUntuk informasi lebih lanjut silahkan ke: https://agungsetio.com",
             "font-size: 25px;",
             "font-size: 12px;"
         );

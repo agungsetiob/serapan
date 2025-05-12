@@ -12,7 +12,9 @@ class Kabupaten extends Model
 
     public function skpds()
     {
-        return $this->belongsToMany(Skpd::class, 'skpd_tahun')->withTimestamps();
+        return $this->belongsToMany(Skpd::class, 'skpd_tahun')
+            ->withPivot('tahun_anggaran')
+            ->withTimestamps();
     }
 
     public function skpdTahun()

@@ -70,15 +70,6 @@ function closeDeleteModal() {
   selectedNota.value = null;
   showDeleteModal.value = false;
 }
-
-function openSendModal(nota) {
-  if (confirm(`Kirim nota "${nota.nomor_nota}" ke Asisten?`)) {
-    router.post(route('nota-dinas.send', nota.id), {}, {
-      preserveScroll: true,
-      onSuccess: () => selectedNota.value = null,
-    });
-  }
-}
 </script>
 
 <template>
@@ -90,17 +81,10 @@ function openSendModal(nota) {
         <div class="bg-white shadow-sm sm:rounded-lg p-6 overflow-x-auto">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Nota Dinas</h2>
-            <template v-if="authUser.role === 'admin'">
-              <button @click="openCreateModal"
-                class="inline-flex items-center px-3 sm:px-4 py-2 bg-indigo-500 text-white text-sm sm:text-base font-medium rounded hover:bg-indigo-700">
-                + Tambah Nota
-              </button>
-            </template>
           </div>
 
           <div class="space-y-3">
             <SearchInput v-model:search="search" />
-
             <div v-for="nota in notas.data" :key="nota.id" class="border rounded-lg p-4 hover:shadow-md transition">
               <div class="grid grid-cols-2 md:grid-cols-12 gap-4">
                 <div class="md:col-span-2">
@@ -110,6 +94,14 @@ function openSendModal(nota) {
                 <div class="md:col-span-3">
                   <div class="text-xs text-gray-500">Perihal</div>
                   <div class="font-medium">{{ nota.perihal }}</div>
+                </div>
+                <div class="md:col-span-3">
+                  <div class="text-xs text-gray-500">SKPD</div>
+                  <div class="font-medium">{{ nota.sub_kegiatan.kegiatan.skpd.nama_skpd }}</div>
+                </div>
+                <div class="md:col-span-1">
+                  <div class="text-xs text-gray-500">Anggaran</div>
+                  <div class="font-medium">{{ nota.anggaran }}</div>
                 </div>
                 <div class="md:col-span-1">
                   <div class="text-xs text-gray-500">Tanggal</div>
@@ -129,11 +121,6 @@ function openSendModal(nota) {
                   <Tooltip text="Delete Nota Dinas" bgColor="bg-red-500">
                     <button @click="openDeleteModal(nota)" class="px-2 py-1 text-xs sm:text-sm font-semibold rounded border text-red-500 hover:bg-red-100">
                       <font-awesome-icon icon="trash" />
-                    </button>
-                  </Tooltip>
-                  <Tooltip text="Kirim ke Asisten" bgColor="bg-green-500">
-                    <button @click="openSendModal(nota)" class="px-2 py-1 text-xs sm:text-sm font-semibold rounded border text-green-600 hover:bg-green-100">
-                      <font-awesome-icon icon="paper-plane" :transform="{ rotate: 42 }" />
                     </button>
                   </Tooltip>
                 </div>

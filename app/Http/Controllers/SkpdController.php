@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kegiatan;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -63,12 +64,31 @@ class SkpdController extends Controller
 
     public function show(SKPD $skpd)
     {
-        $skpd->load(['kegiatans.subKegiatans']);
+        $currentYear = date('Y');
+
+        $skpd->load([
+            'kegiatans' => function ($query) use ($currentYear) {
+                $query->where('tahun_anggaran', $currentYear)
+                    ->with([
+                        'subKegiatans' => fn($q) => $q->where('tahun_anggaran', $currentYear)
+                    ]);
+            }
+        ]);
+
+        $totalPagu = $skpd->kegiatans->sum('pagu');
+        $totalSerapan = $skpd->kegiatans->sum('total_serapan');
+        $persentaseSerapan = $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0;
+
         return Inertia::render('Skpds/SkpdDetail', [
-            'skpd' => $skpd
+            'skpd' => $skpd,
+            'tahunSelected' => (int) $currentYear,
+            'rekap' => [
+                'totalPagu' => $totalPagu,
+                'totalSerapan' => $totalSerapan,
+                'persentaseSerapan' => $persentaseSerapan,
+            ],
         ]);
     }
-
     /**
      * Toggle the status of a SKPD.
      */
@@ -78,4 +98,26 @@ class SkpdController extends Controller
 
         return back()->with('success', 'Status SKPD berhasil diubah.');
     }
+
+    public function showByYear(Skpd $skpd, $tahun = null)
+    {
+        $tahun = $tahun ?: date('Y');
+
+        $skpd->load(['kegiatans' => function ($query) use ($tahun) {
+            $query->where('tahun_anggaran', $tahun)
+                ->with(['subKegiatans' => fn($q) => $q->where('tahun_anggaran', $tahun)]);
+        }]);
+
+        $tahunTersedia = Kegiatan::where('skpd_id', $skpd->id)
+                                ->distinct()
+                                ->pluck('tahun_anggaran')
+                                ->sortDesc();
+
+        return inertia('Skpds/ShowByYear', [
+            'skpd' => $skpd,
+            'tahunSelected' => (int)$tahun,
+            'tahunTersedia' => $tahunTersedia,
+        ]);
+    }
+
 }

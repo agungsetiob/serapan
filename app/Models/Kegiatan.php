@@ -10,7 +10,8 @@ class Kegiatan extends Model
 
     protected $fillable = [
         'skpd_id', 
-        'nama', 'pagu', 
+        'nama', 
+        'pagu', 
         'tahun_anggaran', 
         'total_serapan', 
         'presentase_serapan'];

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('skpd_id')->constrained('skpds')->onDelete('cascade');
             $table->string('nama');
-            $table->decimal('pagu', 15,2);
+            $table->decimal('pagu', 15,2)->default(0);
             $table->year('tahun_anggaran');
             $table->decimal('total_serapan', 15, 2)->default(0);
             $table->decimal('presentase_serapan', 5, 2)->default(0);

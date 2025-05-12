@@ -24,7 +24,7 @@ class KabupatenController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|integer|min:2000',
-            'pagu' => 'required|numeric|min:0',
+            //'pagu' => 'required|numeric|min:0',
         ]);
 
         // Buat pagu kabupaten baru
@@ -50,7 +50,7 @@ class KabupatenController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|integer|min:2000',
-            'pagu' => 'required|numeric|min:0',
+            //'pagu' => 'required|numeric|min:0',
         ]);
 
         $kabupaten->update($validated);

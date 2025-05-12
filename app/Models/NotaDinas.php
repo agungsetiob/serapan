@@ -18,7 +18,7 @@ class NotaDinas extends Model
 
     public function subKegiatan()
     {
-        return $this->belongsTo(SubKegiatan::class);
+        return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id');
     }
     public function lampirans()
     {

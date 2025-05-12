@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 library.add(fas, far, fab);
 
-const appName = import.meta.env.VITE_APP_NAME || 'EPENDI';
+const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

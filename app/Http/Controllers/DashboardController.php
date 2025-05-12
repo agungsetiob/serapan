@@ -3,35 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotaDinas;
-use App\Models\User;
 use App\Models\Skpd;
+use App\Models\Kabupaten;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
+use Ramsey\Uuid\Type\Decimal;
 
 class DashboardController extends Controller
 {
     public function index(): Response
     {
         $role = auth()->user()->role;
-        $totalUsers = User::count();
         $totalSkpds = Skpd::count();
         $notaDinas = NotaDinas::count();
-        $notaSelesai = NotaDinas::count();
-        //sleep(1);
+        $tahunSekarang = date('Y');
+
+        $kabupaten = Kabupaten::where('tahun_anggaran', $tahunSekarang)->first();
+
         return match ($role) {
-            'admin' => Inertia::render('Dashboard/Admin', [
-                'totalUsers' => $totalUsers,
+            'admin' => inertia('Dashboard/Admin', [
                 'totalSkpds' => $totalSkpds,
                 'notaDinas' => $notaDinas,
-                'notaSelesai' => $notaSelesai,
+                'presentaseSerapan' => (float)$kabupaten?->presentase_serapan ?? 0,
+                'totalSerapan' => (float)$kabupaten?->total_serapan ?? 0,
+                'kabupaten' => $kabupaten 
             ]),
             default => abort(403),
         };
-    }
-    public function getNotaPerYear()
+    }  
+    public function getNotaPerYear():JsonResponse
     {
         $startYear = Carbon::now()->subYears(4)->year;
     
@@ -43,6 +45,32 @@ class DashboardController extends Controller
             ->get();
     
         return response()->json($data);
+    }
+    public function topSkpdSerapan()
+    {
+        $skpds = Skpd::with(['kegiatans' => function($query) {
+                $query->select('skpd_id', 'total_serapan', 'pagu');
+            }])
+            ->where('status', true)
+            ->get()
+            ->map(function($skpd) {
+                $totalSerapan = $skpd->kegiatans->sum('total_serapan');
+                $totalPagu = $skpd->kegiatans->sum('pagu');
+                
+                return [
+                    'id' => $skpd->id,
+                    'nama_skpd' => $skpd->nama_skpd,
+                    'total_serapan' => $totalSerapan,
+                    'pagu' => $totalPagu,
+                    'presentase_serapan' => $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0
+                ];
+            })
+            ->sortByDesc('presentase_serapan')
+            ->take(10)
+            ->values()
+            ->all();
+
+        return response()->json($skpds);
     }
 
 }

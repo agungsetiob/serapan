@@ -37,6 +37,12 @@ document.addEventListener('inertia:finish', () => {
 
 const currentYear = computed(() => new Date().getFullYear());
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+function isActive(routeName) {
+  const current = route().current();
+  const prefix = routeName.split('.')[0];
+  return current.startsWith(prefix);
+}
+
 </script>
 
 <template>
@@ -143,13 +149,15 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
               <Link
                 :href="route(menu.route)"
                 class="flex flex-col items-center text-sm sm:text-base"
-                :class="{ 'border-b-2 border-green-500': route().current(menu.route) }"
+                :class="{ 
+                  'border-b-2 border-green-500': isActive(menu.route)
+                }"
               >
                 <font-awesome-icon
                   :icon="menu.icon"
                   :class="[
                     'text-lg sm:text-xl',
-                    route().current(menu.route) ? 'text-green-500' : 'text-gray-800'
+                    isActive(menu.route) ? 'text-green-500' : 'text-gray-800'
                   ]"
                 />
                 <span class="mt-2 font-medium text-gray-800 hover:text-blue-700">{{ menu.label }}</span>

@@ -39,7 +39,7 @@ function toggleStatus(userId, currentStatus) {
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Daftar Pengguna</h2>
                         <Link
-                           :href="route('register')"
+                           :href="route('users.register')"
                            preserve-scroll
                            class="inline-flex items-center px-3 sm:px-4 py-2 bg-indigo-500 text-white text-sm sm:text-base font-medium rounded hover:bg-indigo-700">
                             + Tambah Pengguna

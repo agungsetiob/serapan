@@ -16,7 +16,6 @@ const emit = defineEmits(['close']);
 const form = useForm({
   nama: 'Tanah Bumbu',
   tahun_anggaran: '',
-  pagu: ''
 });
 
 watch(() => props.show, (show) => {
@@ -58,21 +57,15 @@ function submit() {
       </h2>
       <form @submit.prevent="submit">
         <div class="mb-4">
-          <InputLabel value="Nama Kabupaten" />
-          <TextInput v-model="form.nama" class="w-full" readonly />
+          <InputLabel value="Nama Anggaran" />
+          <TextInput v-model="form.nama" class="w-full" />
           <InputError :message="form.errors.nama" />
         </div>
 
         <div class="mb-4">
           <InputLabel value="Tahun Anggaran" />
-          <TextInput v-model="form.tahun_anggaran" type="number" class="w-full" />
+          <TextInput v-model="form.tahun_anggaran" type="number" class="w-full" readonly/>
           <InputError :message="form.errors.tahun_anggaran" />
-        </div>
-
-        <div class="mb-4">
-          <InputLabel value="Pagu (Rp)" />
-          <TextInput v-model="form.pagu" type="text" class="w-full" />
-          <InputError :message="form.errors.pagu" />
         </div>
 
         <div class="flex justify-end gap-2">

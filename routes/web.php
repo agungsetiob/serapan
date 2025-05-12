@@ -23,11 +23,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/nota/lampiran/{tipe}/{id}', [NotaDinasController::class, 'getLampiranHistori']);
     Route::resource('nota-dinas', NotaDinasController::class);
     Route::get('/nota/lampiran/{id}', [NotaDinasController::class, 'getLampiran']);
-    Route::get('/nota-per-year', [DashboardController::class, 'getNotaPerYear']);
-    Route::get('/approved-nota-dinas', [DashboardController::class, 'getApprovedNotaDinasBySkpd']);
-    Route::get('/nota-dinas-stage', [DashboardController::class, 'getNotaDinasByStage']);
+    Route::get('api/nota-per-year', [DashboardController::class, 'getNotaPerYear']);
+    Route::get('api/skpd/top-serapan', [DashboardController::class, 'topSkpdSerapan']);
     Route::post('/skpds/{skpd}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatans.store');
+    Route::put('/kegiatans/{kegiatan}', [KegiatanController::class, 'update'])->name('kegiatans.update');
+    Route::delete('/kegiatans/{kegiatan}', [KegiatanController::class, 'destroy'])->name('kegiatans.destroy');
     Route::post('/kegiatan/{kegiatan}/sub', [SubKegiatanController::class, 'store'])->name('subkegiatans.store');
+    Route::resource('kegiatans.subkegiatans', SubKegiatanController::class)->only(['update', 'destroy']);
+    Route::get('/skpds/{skpd}/tahun/{tahun?}', [SkpdController::class, 'showByYear'])->name('skpds.tahun');
+
 
 });
 
