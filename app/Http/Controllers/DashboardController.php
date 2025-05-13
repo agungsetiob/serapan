@@ -9,16 +9,15 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
-use Ramsey\Uuid\Type\Decimal;
 
 class DashboardController extends Controller
 {
     public function index(): Response
     {
         $role = auth()->user()->role;
-        $totalSkpds = Skpd::count();
-        $notaDinas = NotaDinas::count();
         $tahunSekarang = date('Y');
+        $totalSkpds = Skpd::count();
+        $notaDinas = NotaDinas::whereYear('tanggal_pengajuan', $tahunSekarang)->count();
 
         $kabupaten = Kabupaten::where('tahun_anggaran', $tahunSekarang)->first();
 
@@ -46,7 +45,7 @@ class DashboardController extends Controller
     
         return response()->json($data);
     }
-    public function topSkpdSerapan()
+    public function topSkpdSerapan(): JsonResponse
     {
         $skpds = Skpd::with(['kegiatans' => function($query) {
                 $query->select('skpd_id', 'total_serapan', 'pagu');
@@ -71,6 +70,18 @@ class DashboardController extends Controller
             ->all();
 
         return response()->json($skpds);
+    }
+    public function getKabupatenSerapanData(): JsonResponse
+    {
+        $data = Kabupaten::select('tahun_anggaran', 'total_serapan', 'presentase_serapan')
+            ->orderBy('tahun_anggaran')
+            ->get();
+
+        return response()->json([
+            'labels' => $data->pluck('tahun_anggaran'),
+            'total_serapan' => $data->pluck('total_serapan'),
+            'presentase_serapan' => $data->pluck('presentase_serapan')
+        ]);
     }
 
 }

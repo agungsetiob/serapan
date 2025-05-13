@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama_skpd');
             $table->boolean('status')->default(true);
-            $table->foreignId('kabupaten_id')->nullable()->constrained('kabupatens');
             $table->timestamps();
         });
     }

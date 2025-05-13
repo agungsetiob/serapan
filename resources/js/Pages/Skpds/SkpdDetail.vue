@@ -137,7 +137,7 @@ const handleSuccess = (message) => {
 </script>
 
 <template>
-  <Head title="SKPD" />
+  <Head title="Capaian SKPD" />
   <AuthenticatedLayout>
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <ErrorFlash :flash="flash" @clearFlash="clearFlash" />
