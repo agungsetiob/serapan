@@ -1,38 +1,19 @@
 <script setup>
 import { watch } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
 
 const props = defineProps({
   show: Boolean,
-  isEdit: Boolean,
   notaData: Object,
-  errors: Object,
-  subKegiatans: {
-    type: Array,
-    default: () => []
+  subKegiatan: {
+    type: Object,
+    required: false,
   }
 });
 
 const emit = defineEmits(['close']);
 
-const form = useForm({
-  id: '',
-  nomor_nota: '',
-  perihal: '',
-  anggaran: '',
-  tanggal_pengajuan: '',
-  sub_kegiatan_id: '',
-  lampirans: []
-});
-
 const updateFormWithNotaData = () => {
-  form.id = props.notaData?.id || '';
-  form.nomor_nota = props.notaData?.nomor_nota || '';
-  form.perihal = props.notaData?.perihal || '';
-  form.anggaran = props.notaData?.anggaran || '';
-  form.tanggal_pengajuan = props.notaData?.tanggal_pengajuan || '';
-  form.sub_kegiatan_id = props.notaData?.sub_kegiatan_id || '';
 };
 
 watch(
@@ -43,165 +24,24 @@ watch(
   { immediate: true }
 );
 
-const handleFileChange = (event) => {
-  form.lampirans = event.target.files;
-};
-
 const closeModal = () => {
   emit('close');
 };
 
-const handleSubmit = () => {
-  if (props.isEdit) {
-    form.put(route('nota-dinas.update', form.id), {
-      onSuccess: () => {
-        closeModal();
-        router.reload({ only: ['notas'] });
-      },
-      preserveScroll: true,
-    });
-  } else {
-    form.post(route('nota-dinas.store'), {
-      onSuccess: () => {
-        closeModal();
-        router.reload({ only: ['notas'] });
-      },
-      preserveScroll: true,
-    });
-  }
-};
 </script>
 
 <template>
   <Modal :show="show" @close="closeModal" maxWidth="5xl">
     <div class="bg-white p-4 sm:p-6 rounded-lg">
-      <h3 class="text-lg font-semibold mb-4">
-        {{ isEdit ? 'Edit Nota Dinas' : 'Tambah Nota Dinas' }}
-      </h3>
       
-      <!-- Pesan Error Umum -->
-      <div
-        v-if="Object.keys(form.errors).length > 0"
-        class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
-      >
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <font-awesome-icon :icon="['fas', 'triangle-exclamation']"/>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">
-              Terdapat {{ Object.keys(form.errors).length }} kesalahan yang harus diperbaiki
-            </h3>
-            <div class="mt-2 text-sm text-red-700">
-              <ul class="list-disc pl-5 space-y-1">
-                <li v-for="(error, field) in form.errors" :key="field">
-                  {{ error }}
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+      <!-- Sub Kegiatan Info -->
+      <div class="mb-4 p-4 bg-gray-50 rounded-md border">
+        <h4 class="text-sm font-medium text-gray-700 mb-1">Sub Kegiatan Terkait</h4>
+        <p class="font-medium">{{ subKegiatan.nama }}</p>
+        <p class="text-sm text-gray-600 mt-1">
+          Pagu: Rp {{ new Intl.NumberFormat('id-ID').format(subKegiatan.pagu) }}
+        </p>
       </div>
-      
-      <form @submit.prevent="handleSubmit">
-        <input type="hidden" v-model="form.id">
-        
-        <div class="mb-4">
-          <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota</label>
-          <input
-            type="text"
-            v-model="form.nomor_nota"
-            required
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm sm:text-base',
-              form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors.nomor_nota" class="mt-1 text-sm text-red-600">
-            {{ form.errors.nomor_nota }}
-          </p>
-        </div>
-
-        <div class="mb-4">
-          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal</label>
-          <input
-            type="text"
-            v-model="form.perihal"
-            required
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm sm:text-base',
-              form.errors.perihal ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors.perihal" class="mt-1 text-sm text-red-600">
-            {{ form.errors.perihal }}
-          </p>
-        </div>
-
-        <div class="mb-4">
-          <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran</label>
-          <input
-            type="number"
-            v-model="form.anggaran"
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm sm:text-base',
-              form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors.anggaran" class="mt-1 text-sm text-red-600">
-            {{ form.errors.anggaran }}
-          </p>
-        </div>
-
-        <div class="mb-4">
-          <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan</label>
-          <input
-            type="date"
-            v-model="form.tanggal_pengajuan"
-            required
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm sm:text-base',
-              form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors.tanggal_pengajuan" class="mt-1 text-sm text-red-600">
-            {{ form.errors.tanggal_pengajuan }}
-          </p>
-        </div>
-
-        <!-- Field untuk Lampiran -->
-        <div class="mb-4">
-          <label for="lampirans" class="block text-sm font-medium text-gray-700 mb-1">Lampiran (optional)</label>
-          <input
-            type="file"
-            accept="application/pdf"
-            multiple
-            @change="handleFileChange"
-            :class="[
-              'block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100',
-              form.errors['lampirans.*'] ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors['lampirans.*']" class="mt-1 text-sm text-red-600">
-            {{ form.errors['lampirans.*'] }}
-          </p>
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button
-            type="submit"
-            :disabled="form.processing"
-            class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
-          >
-            <span v-if="form.processing">
-              <font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan..
-            </span>
-            <span v-else>
-              Simpan
-            </span>
-          </button>
-        </div>
-      </form>
     </div>
   </Modal>
 </template>

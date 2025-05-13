@@ -17,11 +17,23 @@
             <div class="hidden md:block mx-2">|</div>
             <div class="flex items-center gap-1">
               <span class="font-semibold">Persentase:</span>
-              <span class="text-green-600 font-medium">{{ kegiatan.presentase_serapan }}%</span>
+              <span
+                class="font-medium"
+                :class="{
+                  'text-red-600': kegiatan.presentase_serapan < 50,
+                  'text-yellow-600': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
+                  'text-green-600': kegiatan.presentase_serapan >= 80,
+                }"
+              >{{ kegiatan.presentase_serapan }}%</span>
               <div class="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  class="h-full bg-green-500 transition-all duration-500 ease-out"
+                  class="h-full transition-all duration-500 ease-out"
                   :style="{ width: kegiatan.presentase_serapan + '%' }"
+                  :class="{
+                    'bg-red-500': kegiatan.presentase_serapan < 50,
+                    'bg-yellow-500': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
+                    'bg-green-500': kegiatan.presentase_serapan >= 80,
+                  }"
                 ></div>
               </div>
             </div>
@@ -41,7 +53,7 @@
             <Tooltip text="Edit" bgColor="bg-blue-500">
               <button
                 @click="editKegiatan(kegiatan)"
-                class="text-blue-600 hover:text-blue-800 p-1"
+                class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-200"
               >
                 <font-awesome-icon :icon="['far', 'edit']" class="text-sm sm:text-base" />
               </button>
@@ -49,7 +61,7 @@
             <Tooltip text="Hapus" bgColor="bg-red-500">
               <button
                 @click="deleteKegiatan(kegiatan)"
-                class="text-red-600 hover:text-red-800 p-1"
+                class="px-2 py-1 text-xs sm:text-sm  rounded text-red-600 hover:bg-red-100"
               >
                 <font-awesome-icon :icon="['far', 'trash-can']" class="text-sm sm:text-base" />
               </button>

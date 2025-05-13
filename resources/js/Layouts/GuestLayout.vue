@@ -27,7 +27,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
                 <Link href="/" class="inline-block">
                     <ApplicationLogo class="h-20 w-20 fill-current text-red-500" />
                 </Link>
-                <p class="font-bold">Monitoring dan Analisa Serapan Anggaran</p>
+                <p class="font-bold">Monitoring dan Analisis Serapan Anggaran</p>
             </div>
             <!-- <div v-if="isLoading" class="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
                 <font-awesome-icon icon="spinner" spin class="text-6xl text-green-400" />

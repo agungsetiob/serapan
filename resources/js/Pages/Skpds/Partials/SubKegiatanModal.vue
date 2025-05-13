@@ -2,7 +2,7 @@
     <Modal
       :show="showModal"
       :title="isEditing ? 'Edit Sub Kegiatan' : 'Hapus Sub Kegiatan'"
-      maxWidth="lg"
+      maxWidth="4xl"
       closeable
       @close="closeModal"
     >

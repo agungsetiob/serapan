@@ -39,10 +39,8 @@ const currentYear = computed(() => new Date().getFullYear());
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 function isActive(routeName) {
   const current = route().current();
-  const prefix = routeName.split('.')[0];
-  return current.startsWith(prefix);
+  return current.startsWith(routeName) || current.includes(routeName.split('.')[0]);
 }
-
 </script>
 
 <template>

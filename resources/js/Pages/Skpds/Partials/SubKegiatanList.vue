@@ -1,4 +1,5 @@
 <script setup>
+import {Link} from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import Tooltip from '@/Components/Tooltip.vue';
@@ -31,7 +32,12 @@ const emit = defineEmits(['createNotaDinas']);
         <div class="flex flex-col sm:flex-row justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start gap-2">
-              <span class="text-gray-800 font-medium truncate">{{ sub.nama }}</span>
+              <Link 
+                :href="route('sub-kegiatan.nota-dinas', sub.id)"
+                class="text-blue-600 hover:text-green-600"
+              >
+                {{ sub.nama }}
+              </Link>
             </div>
 
             <div class="mt-1 text-sm text-gray-600 space-y-1">
@@ -64,7 +70,7 @@ const emit = defineEmits(['createNotaDinas']);
             <Tooltip text="Nota Dinas" bgColor="bg-gray-500">
               <button 
                 @click="emit('createNotaDinas', sub)"
-                class="text-gray-600 hover:text-gray-800 px-1 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-500"
+                class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200"
               >
                 <font-awesome-icon :icon="['fas', 'file-circle-plus']" class="text-sm sm:text-base" />
               </button>
@@ -72,7 +78,7 @@ const emit = defineEmits(['createNotaDinas']);
             <Tooltip text="Edit" bgColor="bg-blue-500">
               <button 
                 @click="onEdit(sub, kegiatan)" 
-                class="text-blue-600 hover:text-blue-800 px-1 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500"
+                class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-200"
               >
                 <font-awesome-icon :icon="['fas', 'pen-to-square']" class="text-sm sm:text-base" />
               </button>
@@ -80,7 +86,7 @@ const emit = defineEmits(['createNotaDinas']);
             <Tooltip text="Hapus" bgColor="bg-red-500">
               <button 
                 @click="onDelete(sub, kegiatan)" 
-                class="text-red-600 hover:text-red-800 px-1 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500"
+                class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
               >
                 <font-awesome-icon :icon="['fas', 'trash-can']" class="text-sm sm:text-base" />
               </button>

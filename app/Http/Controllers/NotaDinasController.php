@@ -38,15 +38,33 @@ class NotaDinasController extends Controller
     }
     public function store(Request $request)
     {
+        $subKegiatan = SubKegiatan::find($request->sub_kegiatan_id);
+        
+        if (!$subKegiatan) {
+            return redirect()->back()->with('error', 'Sub kegiatan tidak ditemukan')->withInput();
+        }
+
+        $totalSerapan = $subKegiatan->notaDinas()->sum('anggaran');
+        $sisaPagu = $subKegiatan->pagu - $totalSerapan;
+
         $validated = $request->validate([
             'nomor_nota' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
-            'anggaran' => 'required|numeric|min:0',
+            'anggaran' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($sisaPagu) {
+                    if ($value > $sisaPagu) {
+                        $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
+                    }
+                },
+            ],
             'tanggal_pengajuan' => 'required|date',
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
-            'lampirans.*' => 'nullable|file|max:2048|mimes:pdf,doc,docx,xls,xlsx',
+            'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
         ]);
-    
+
         try {
             return DB::transaction(function () use ($validated, $request) {
                 $nota = NotaDinas::create([
@@ -56,11 +74,11 @@ class NotaDinasController extends Controller
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
                     'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
                 ]);
-    
+
                 if ($request->hasFile('lampirans')) {
                     $attachments = [];
                     foreach ($request->file('lampirans') as $file) {
-                        $path = $file->store('nota_lampirans');
+                        $path = $file->store('nota_lampirans', 'public');
                         $attachments[] = [
                             'nota_dinas_id' => $nota->id,
                             'nama_file' => $file->getClientOriginalName(),
@@ -71,9 +89,9 @@ class NotaDinasController extends Controller
                     }
                     NotaLampiran::insert($attachments);
                 }
-    
+
                 $this->updateBudgetAbsorption($nota);
-    
+
                 return redirect()->back()->with('success', 'Nota dinas berhasil ditambahkan.');
             });
         } catch (\Exception $e) {
@@ -82,7 +100,94 @@ class NotaDinasController extends Controller
                 ->withInput();
         }
     }
-    
+    public function update(Request $request, NotaDinas $nota)
+    {
+        $subKegiatan = $nota->subKegiatan;
+
+        if (!$subKegiatan) {
+            return redirect()->back()->with('error', 'Sub kegiatan tidak ditemukan')->withInput();
+        }
+
+        $totalSerapanLama = $subKegiatan->notaDinas()->sum('anggaran');
+        $sisaPagu = ($subKegiatan->pagu - $totalSerapanLama) + $nota->anggaran;
+
+        $validated = $request->validate([
+            'nomor_nota' => 'required|string|max:255',
+            'perihal' => 'required|string|max:255',
+            'anggaran' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($sisaPagu) {
+                    if ($value > $sisaPagu) {
+                        $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
+                    }
+                },
+            ],
+            'tanggal_pengajuan' => 'required|date',
+            'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($validated, $request, $nota) {
+                $nota->update([
+                    'nomor_nota' => $validated['nomor_nota'],
+                    'perihal' => $validated['perihal'],
+                    'anggaran' => $validated['anggaran'],
+                    'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+                ]);
+
+                if ($request->hasFile('lampirans')) {
+                    foreach ($nota->lampirans as $lampiran) {
+                        Storage::disk('public')->delete($lampiran->path); // Delete old files
+                        $lampiran->delete();
+                    }
+
+                    $attachments = [];
+                    foreach ($request->file('lampirans') as $file) {
+                        $path = $file->store('nota_lampirans', 'public');
+                        $attachments[] = [
+                            'nota_dinas_id' => $nota->id,
+                            'nama_file' => $file->getClientOriginalName(),
+                            'path' => $path,
+                        ];
+                    }
+                    $nota->lampirans()->createMany($attachments);
+                }
+
+                $this->updateBudgetAbsorption($nota);
+
+                return redirect()->back()->with('success', 'Nota dinas berhasil diperbarui.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    public function destroy(NotaDinas $nota)
+    {
+        try {
+            return DB::transaction(function () use ($nota) {
+                // Delete lampiran files first
+                foreach ($nota->lampirans as $lampiran) {
+                    Storage::disk('public')->delete($lampiran->path); // Delete file
+                    $lampiran->delete(); // Remove DB record
+                }
+
+                // Delete nota
+                $nota->delete();
+
+                // Update budget absorption
+                $this->updateBudgetAbsorption($nota);
+
+                return redirect()->back()->with('success', 'Nota dinas berhasil dihapus.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus nota dinas: ' . $e->getMessage());
+        }
+    }  
     protected function updateBudgetAbsorption(NotaDinas $nota)
     {
         // Hitung Sub Kegiatan
@@ -132,7 +237,6 @@ class NotaDinasController extends Controller
             ]);
         }
     }
-
     public function getLampiran($id)
     {
         $notaDinas = NotaDinas::with('lampirans')->findOrFail($id);

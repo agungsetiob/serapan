@@ -60,6 +60,7 @@ const handleFileChange = (event) => {
 
 const closeModal = () => {
   form.reset();
+  form.clearErrors();
   emit('close');
 };
 
@@ -105,7 +106,6 @@ const handleSubmit = () => {
       >
         <div class="flex">
           <div class="flex-shrink-0">
-            <font-awesome-icon :icon="['fas', 'triangle-exclamation']" class="text-red-500"/>
           </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
@@ -199,17 +199,17 @@ const handleSubmit = () => {
             multiple
             @change="handleFileChange"
             :class="[
-              'block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100',
+              'block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100',
               form.errors['lampirans.*'] ? 'border-red-500' : 'border-gray-300'
             ]"
           >
-          <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 5MB per file)</p>
+          <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 3MB per file)</p>
           <p v-if="form.errors['lampirans.*']" class="mt-1 text-sm text-red-600">
             {{ form.errors['lampirans.*'] }}
           </p>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4 border-t">
+        <div class="flex justify-end gap-2 pt-4">
           <button
             type="button"
             @click="closeModal"

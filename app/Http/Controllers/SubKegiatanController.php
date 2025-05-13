@@ -73,6 +73,14 @@ class SubKegiatanController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())->withInput();
         }
     }
+    public function show($id)
+    {
+        $subKegiatan = SubKegiatan::with('notaDinas')->findOrFail($id);
+
+        return inertia('SubKegiatan/Show', [
+            'subKegiatan' => $subKegiatan,
+        ]);
+    }
 
     public function destroy(Kegiatan $kegiatan, $subKegiatanId)
     {

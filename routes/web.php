@@ -20,7 +20,6 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/nota/lampiran/{tipe}/{id}', [NotaDinasController::class, 'getLampiranHistori']);
     Route::resource('nota-dinas', NotaDinasController::class);
     Route::get('/nota/lampiran/{id}', [NotaDinasController::class, 'getLampiran']);
     Route::get('api/nota-per-year', [DashboardController::class, 'getNotaPerYear']);
@@ -31,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/kegiatans/{kegiatan}', [KegiatanController::class, 'destroy'])->name('kegiatans.destroy');
     Route::post('/kegiatan/{kegiatan}/sub', [SubKegiatanController::class, 'store'])->name('subkegiatans.store');
     Route::resource('kegiatans.subkegiatans', SubKegiatanController::class)->only(['update', 'destroy']);
+    Route::get('/nota-dinas/sub-kegiatan/{id}', [SubKegiatanController::class, 'show'])->name('sub-kegiatan.nota-dinas');
     Route::get('/skpds/{skpd}/tahun/{tahun?}', [SkpdController::class, 'showByYear'])->name('skpds.tahun');
 
 

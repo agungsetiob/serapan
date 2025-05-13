@@ -126,7 +126,6 @@ const handleCreateNota = (subKegiatan) => {
   console.log('Modal should open for:', subKegiatan);
 };
 
-// Handle modal close
 const handleCloseModal = () => {
   showNotaModal.value = false;
 };

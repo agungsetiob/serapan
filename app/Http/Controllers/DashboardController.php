@@ -47,8 +47,11 @@ class DashboardController extends Controller
     }
     public function topSkpdSerapan(): JsonResponse
     {
-        $skpds = Skpd::with(['kegiatans' => function($query) {
-                $query->select('skpd_id', 'total_serapan', 'pagu');
+        $tahunSekarang = date('Y');
+        
+        $skpds = Skpd::with(['kegiatans' => function($query) use ($tahunSekarang) {
+                $query->select('skpd_id', 'total_serapan', 'pagu', 'tahun_anggaran')
+                    ->where('tahun_anggaran', $tahunSekarang);
             }])
             ->where('status', true)
             ->get()
@@ -61,7 +64,9 @@ class DashboardController extends Controller
                     'nama_skpd' => $skpd->nama_skpd,
                     'total_serapan' => $totalSerapan,
                     'pagu' => $totalPagu,
-                    'presentase_serapan' => $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0
+                    'presentase_serapan' => $totalPagu > 0 
+                        ? round(($totalSerapan / $totalPagu) * 100, 2) 
+                        : 0
                 ];
             })
             ->sortByDesc('presentase_serapan')

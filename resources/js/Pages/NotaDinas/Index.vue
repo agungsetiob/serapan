@@ -1,12 +1,11 @@
 <script setup>
-import { Head, usePage, router, Link } from '@inertiajs/vue3';
+import { Head, usePage, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import NotaModal from './Partials/NotaModal.vue';
 import LampiranModal from './Partials/LampiranModal.vue';
-import DeleteModal from './Partials/DeleteModal.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
 
@@ -16,7 +15,6 @@ const props = defineProps({
 });
 
 const page = usePage();
-const authUser = computed(() => page.props.auth.user);
 const flash = computed(() => page.props.flash || {});
 const clearFlash = () => (flash.value.success = null);
 
@@ -29,22 +27,17 @@ const isNotaModalOpen = ref(false);
 const isEditMode = ref(false);
 const selectedNota = ref(null);
 const isLampiranModalOpen = ref(false);
-const showDeleteModal = ref(false);
+const selectedSubKegiatan = ref(null);
 
 function formatDate(dateStr) {
   const date = new Date(dateStr);
   return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
 }
 
-function openCreateModal() {
-  isEditMode.value = false;
-  selectedNota.value = {};
-  isNotaModalOpen.value = true;
-}
-
 function openEditModal(nota) {
   isEditMode.value = true;
   selectedNota.value = nota;
+  selectedSubKegiatan.value = nota.sub_kegiatan;
   isNotaModalOpen.value = true;
 }
 
@@ -59,16 +52,6 @@ function openLampiranModal(nota) {
 
 function closeLampiranModal() {
   isLampiranModalOpen.value = false;
-}
-
-function openDeleteModal(nota) {
-  selectedNota.value = nota;
-  showDeleteModal.value = true;
-}
-
-function closeDeleteModal() {
-  selectedNota.value = null;
-  showDeleteModal.value = false;
 }
 </script>
 
@@ -101,7 +84,7 @@ function closeDeleteModal() {
                 </div>
                 <div class="md:col-span-1">
                   <div class="text-xs text-gray-500">Anggaran</div>
-                  <div class="font-medium">{{ nota.anggaran }}</div>
+                  <div class="font-medium">{{ new Intl.NumberFormat('id-ID').format(nota.anggaran) }}</div>
                 </div>
                 <div class="md:col-span-1">
                   <div class="text-xs text-gray-500">Tanggal</div>
@@ -109,18 +92,13 @@ function closeDeleteModal() {
                 </div>
                 <div class="flex justify-end gap-2 md:col-span-2 items-center">
                   <Tooltip text="List Lampiran" bgColor="bg-gray-500">
-                    <button @click="openLampiranModal(nota)" class="px-2 py-1 text-xs sm:text-sm font-semibold rounded border text-gray-600 hover:bg-gray-200">
+                    <button @click="openLampiranModal(nota)" class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200">
                       <font-awesome-icon icon="paperclip" />
                     </button>
                   </Tooltip>
-                  <Tooltip text="Edit Nota Dinas" bgColor="bg-blue-500">
-                    <button @click="openEditModal(nota)" class="px-2 py-1 text-xs sm:text-sm font-semibold rounded border text-blue-400 hover:bg-blue-100">
-                      <font-awesome-icon icon="edit" />
-                    </button>
-                  </Tooltip>
-                  <Tooltip text="Delete Nota Dinas" bgColor="bg-red-500">
-                    <button @click="openDeleteModal(nota)" class="px-2 py-1 text-xs sm:text-sm font-semibold rounded border text-red-500 hover:bg-red-100">
-                      <font-awesome-icon icon="trash" />
+                  <Tooltip text="Lihat Sub Kegiatan" bgColor="bg-yellow-400">
+                    <button @click="openEditModal(nota)" class="px-2 py-1 text-xs sm:text-sm rounded text-yellow-400 hover:bg-yellow-100">
+                      <font-awesome-icon icon="eye" />
                     </button>
                   </Tooltip>
                 </div>
@@ -141,6 +119,7 @@ function closeDeleteModal() {
       :show="isNotaModalOpen"
       :isEdit="isEditMode"
       :notaData="selectedNota"
+      :subKegiatan="selectedSubKegiatan"
       @close="closeNotaModal"
     />
 
@@ -148,12 +127,6 @@ function closeDeleteModal() {
       :show="isLampiranModalOpen"
       :notaId="selectedNota?.id"
       @close="closeLampiranModal"
-    />
-
-    <DeleteModal
-      :show="showDeleteModal"
-      :nota="selectedNota"
-      @close="closeDeleteModal"
     />
   </AuthenticatedLayout>
 </template>
