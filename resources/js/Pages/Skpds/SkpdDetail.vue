@@ -151,6 +151,7 @@ const handleCreateNota = (subKegiatan) => {
 };
 
 const handleEditNota = (nota) => {
+  console.log('Nota data:', nota);
   notaModalState.value = {
     show: true,
     isEditing: true,
