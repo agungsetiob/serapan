@@ -1,5 +1,6 @@
 <script setup>
-import {Link} from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import Tooltip from '@/Components/Tooltip.vue';
@@ -12,8 +13,25 @@ const props = defineProps({
   onEdit: Function,
   onDelete: Function
 });
-const emit = defineEmits(['createNotaDinas']);
 
+const emit = defineEmits(['createNotaDinas', 'editNota', 'deleteNota', 'viewAttachment']);
+
+// Track which sub-kegiatan's nota dinas are expanded
+const expandedSubKegiatans = ref([]);
+
+const toggleNotaDinas = (subKegiatanId) => {
+  const index = expandedSubKegiatans.value.indexOf(subKegiatanId);
+  if (index === -1) {
+    expandedSubKegiatans.value.push(subKegiatanId);
+  } else {
+    expandedSubKegiatans.value.splice(index, 1);
+  }
+};
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('id-ID', options);
+};
 </script>
 
 <template>
@@ -29,68 +47,158 @@ const emit = defineEmits(['createNotaDinas']);
         :key="sub.id"
         class="py-4 px-2 hover:bg-gray-50 rounded-lg transition-colors duration-150"
       >
-        <div class="flex flex-col sm:flex-row justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between items-start gap-2">
-              <Link 
-                :href="route('sub-kegiatan.nota-dinas', sub.id)"
-                class="text-blue-600 hover:text-green-600"
-              >
-                {{ sub.nama }}
-              </Link>
+        <div class="flex flex-col gap-3">
+          <!-- Sub Kegiatan Header -->
+          <div class="flex flex-col sm:flex-row justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start gap-2">
+                <button 
+                  @click="toggleNotaDinas(sub.id)"
+                  class="text-left text-blue-600 hover:text-green-600 font-medium"
+                >
+                  {{ sub.nama }}
+                  <font-awesome-icon 
+                    :icon="['fas', expandedSubKegiatans.includes(sub.id) ? 'chevron-up' : 'chevron-down']" 
+                    class="ml-2 text-sm"
+                  />
+                </button>
+              </div>
+
+              <div class="mt-1 text-sm text-gray-600 space-y-1">
+                <div class="flex flex-wrap gap-x-3 gap-y-1">
+                  <span>Pagu: Rp {{ formatNumber(sub.pagu) }}</span>
+                  <span>Serapan: Rp {{ formatNumber(sub.total_serapan) }}</span>
+                  <span class="font-medium" :class="{
+                    'text-green-600': sub.presentase_serapan >= 80,
+                    'text-yellow-600': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
+                    'text-red-600': sub.presentase_serapan < 50
+                  }">
+                    {{ sub.presentase_serapan }}%
+                  </span>
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="h-full rounded-full transition-all duration-500"
+                    :class="{
+                      'bg-green-500': sub.presentase_serapan >= 80,
+                      'bg-yellow-500': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
+                      'bg-red-500': sub.presentase_serapan < 50
+                    }"
+                    :style="{ width: sub.presentase_serapan + '%' }"
+                  ></div>
+                </div>
+              </div>
             </div>
-
-            <div class="mt-1 text-sm text-gray-600 space-y-1">
-              <div class="flex flex-wrap gap-x-3 gap-y-1">
-                <span>Pagu: Rp {{ formatNumber(sub.pagu) }}</span>
-                <span>Serapan: Rp {{ formatNumber(sub.total_serapan) }}</span>
-                <span class="font-medium" :class="{
-                  'text-green-600': sub.presentase_serapan >= 80,
-                  'text-yellow-600': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
-                  'text-red-600': sub.presentase_serapan < 50
-                }">
-                  {{ sub.presentase_serapan }}%
-                </span>
-              </div>
-
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  class="h-full rounded-full transition-all duration-500"
-                  :class="{
-                    'bg-green-500': sub.presentase_serapan >= 80,
-                    'bg-yellow-500': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
-                    'bg-red-500': sub.presentase_serapan < 50
-                  }"
-                  :style="{ width: sub.presentase_serapan + '%' }"
-                ></div>
-              </div>
+            <div class="flex items-center gap-3 sm:gap-2">
+              <Tooltip text="Nota Dinas" bgColor="bg-gray-500">
+                <button 
+                  @click="emit('createNotaDinas', sub)"
+                  class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200"
+                >
+                  <font-awesome-icon :icon="['fas', 'file-circle-plus']" class="text-sm sm:text-base" />
+                </button>
+              </Tooltip>
+              <Tooltip text="Edit" bgColor="bg-blue-500">
+                <button 
+                  @click="onEdit(sub, kegiatan)" 
+                  class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-200"
+                >
+                  <font-awesome-icon :icon="['fas', 'pen-to-square']" class="text-sm sm:text-base" />
+                </button>
+              </Tooltip>
+              <Tooltip text="Hapus" bgColor="bg-red-500">
+                <button 
+                  @click="onDelete(sub, kegiatan)" 
+                  class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
+                >
+                  <font-awesome-icon :icon="['fas', 'trash-can']" class="text-sm sm:text-base" />
+                </button>
+              </Tooltip>
             </div>
           </div>
-          <div class="flex items-center gap-3 sm:gap-2">
-            <Tooltip text="Nota Dinas" bgColor="bg-gray-500">
-              <button 
-                @click="emit('createNotaDinas', sub)"
-                class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200"
-              >
-                <font-awesome-icon :icon="['fas', 'file-circle-plus']" class="text-sm sm:text-base" />
-              </button>
-            </Tooltip>
-            <Tooltip text="Edit" bgColor="bg-blue-500">
-              <button 
-                @click="onEdit(sub, kegiatan)" 
-                class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-200"
-              >
-                <font-awesome-icon :icon="['fas', 'pen-to-square']" class="text-sm sm:text-base" />
-              </button>
-            </Tooltip>
-            <Tooltip text="Hapus" bgColor="bg-red-500">
-              <button 
-                @click="onDelete(sub, kegiatan)" 
-                class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
-              >
-                <font-awesome-icon :icon="['fas', 'trash-can']" class="text-sm sm:text-base" />
-              </button>
-            </Tooltip>
+
+          <!-- Nota Dinas List (Collapsible) -->
+          <div 
+            v-if="expandedSubKegiatans.includes(sub.id)"
+            class="mt-3 bg-gray-50 rounded-lg p-4 transition-all duration-300"
+          >
+            <div class="mb-4">
+              <h5 class="text-sm font-medium text-gray-700 mb-2">
+                Daftar Nota Dinas
+              </h5>
+              
+              <div v-if="sub.nota_dinas && sub.nota_dinas.length" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nomor
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tanggal
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Perihal
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nilai
+                      </th>
+                      <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Aksi
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr v-for="nota in sub.nota_dinas" :key="nota.id">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        {{ nota.nomor_nota }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        {{ formatDate(nota.tanggal_pengajuan) }}
+                      </td>
+                      <td class="px-4 py-3 text-sm">
+                        {{ nota.perihal }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        Rp {{ formatNumber(nota.anggaran) }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-2">
+                          <Tooltip text="Lampiran" bgColor="bg-gray-500">
+                            <button 
+                              @click="emit('viewAttachment', nota)" 
+                              class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200"
+                            >
+                              <font-awesome-icon icon="paperclip" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip text="Edit" bgColor="bg-blue-400">
+                            <button 
+                              @click="emit('editNota', nota)" 
+                              class="px-2 py-1 text-xs sm:text-sm rounded text-blue-400 hover:bg-blue-100"
+                            >
+                              <font-awesome-icon icon="edit" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip text="Hapus" bgColor="bg-red-500">
+                            <button 
+                              @click="emit('deleteNota', nota)" 
+                              class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
+                            >
+                              <font-awesome-icon icon="trash-can"/>
+                            </button>
+                          </Tooltip>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="text-center py-4 text-gray-500 text-sm">
+                Belum ada nota dinas untuk sub kegiatan ini.
+              </div>
+            </div>
           </div>
         </div>
       </li>

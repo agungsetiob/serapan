@@ -7,11 +7,8 @@ const props = defineProps({
   show: Boolean,
   isEdit: Boolean,
   notaData: Object,
-  errors: Object,
-  subKegiatan: {
-    type: Object,
-    default: null
-  }
+  subKegiatan: Object,
+  errors: Object
 });
 
 const emit = defineEmits(['close']);
@@ -22,25 +19,47 @@ const form = useForm({
   perihal: '',
   anggaran: '',
   tanggal_pengajuan: '',
-  sub_kegiatan_id: props.subKegiatan?.id || '',
+  sub_kegiatan_id: '',
   lampirans: []
 });
 
-const updateFormWithNotaData = () => {
-  form.id = props.notaData?.id || '';
-  form.nomor_nota = props.notaData?.nomor_nota || '';
-  form.perihal = props.notaData?.perihal || '';
-  form.anggaran = props.notaData?.anggaran || '';
-  form.tanggal_pengajuan = props.notaData?.tanggal_pengajuan;
-  form.sub_kegiatan_id = props.notaData?.sub_kegiatan_id || props.subKegiatan?.id || '';
+const currentSubKegiatan = ref(null);
+
+const initForm = () => {
+  if (props.isEdit && props.notaData) {
+    form.id = props.notaData.id;
+    form.nomor_nota = props.notaData.nomor_nota;
+    form.perihal = props.notaData.perihal;
+    form.anggaran = props.notaData.anggaran;
+    form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+    form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
+    currentSubKegiatan.value = props.notaData.sub_kegiatan || null;
+  } else if (props.subKegiatan) {
+    form.sub_kegiatan_id = props.subKegiatan.id;
+    form.anggaran = props.subKegiatan.pagu;
+    currentSubKegiatan.value = props.subKegiatan;
+  }
 };
+
+// Watch for changes in props
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      initForm();
+    }
+  },
+  { immediate: true }
+);
 
 watch(
   () => props.notaData,
-  () => {
-    updateFormWithNotaData();
+  (newNotaData) => {
+    if (newNotaData && props.isEdit) {
+      form.anggaran = newNotaData.anggaran;
+    }
   },
-  { immediate: true }
+  { deep: true }
 );
 
 watch(
@@ -51,7 +70,7 @@ watch(
       form.anggaran = newSubKegiatan.pagu;
     }
   },
-  { immediate: true }
+  { deep: true }
 );
 
 const handleFileChange = (event) => {
@@ -65,19 +84,31 @@ const closeModal = () => {
 };
 
 const handleSubmit = () => {
+  const payload = {
+    nomor_nota: form.nomor_nota,
+    perihal: form.perihal,
+    anggaran: form.anggaran,
+    tanggal_pengajuan: form.tanggal_pengajuan,
+    sub_kegiatan_id: form.sub_kegiatan_id,
+    lampirans: form.lampirans
+  };
+
   if (props.isEdit) {
-    form.put(route('nota-dinas.update', form.id), {
+    form.transform((data) => ({
+      ...payload,
+      _method: 'PUT'
+    })).post(route('nota-dinas.update', form.id), {
       onSuccess: () => {
         closeModal();
-        router.reload({ only: ['notas'] });
+        router.reload({ only: ['skpd'] });
       },
       preserveScroll: true,
     });
   } else {
-    form.post(route('nota-dinas.store'), {
+    form.transform(() => payload).post(route('nota-dinas.store'), {
       onSuccess: () => {
         closeModal();
-        router.reload({ only: ['notas'] });
+        router.reload({ only: ['skpd'] });
       },
       preserveScroll: true,
     });
@@ -92,11 +123,13 @@ const handleSubmit = () => {
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>
       
-      <!-- Sub Kegiatan Info -->
-      <div v-if="subKegiatan && !isEdit" class="mb-4 p-3 bg-gray-50 rounded-md">
+      <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-gray-50 rounded-md">
         <h4 class="text-sm font-medium text-gray-700 mb-1">Untuk Sub Kegiatan:</h4>
-        <p class="font-medium">{{ subKegiatan.nama }}</p>
-        <p class="text-sm text-gray-600">Pagu: Rp {{ subKegiatan.pagu?.toLocaleString('id-ID') }}</p>
+        <p class="font-medium">{{ currentSubKegiatan.nama }}</p>
+        <p class="text-sm text-gray-600">Pagu: Rp {{ currentSubKegiatan.pagu?.toLocaleString('id-ID') }}</p>
+      </div>
+      <div v-else class="mb-4 p-3 bg-red-50 rounded-md">
+        <p class="text-sm text-red-700">Sub Kegiatan tidak ditemukan</p>
       </div>
       
       <!-- Error Messages -->
@@ -105,8 +138,6 @@ const handleSubmit = () => {
         class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
       >
         <div class="flex">
-          <div class="flex-shrink-0">
-          </div>
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
               Terdapat {{ Object.keys(form.errors).length }} kesalahan yang harus diperbaiki
@@ -138,9 +169,6 @@ const handleSubmit = () => {
                 form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
               ]"
             >
-            <p v-if="form.errors.nomor_nota" class="mt-1 text-sm text-red-600">
-              {{ form.errors.nomor_nota }}
-            </p>
           </div>
 
           <div>
@@ -154,9 +182,6 @@ const handleSubmit = () => {
                 form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
               ]"
             >
-            <p v-if="form.errors.tanggal_pengajuan" class="mt-1 text-sm text-red-600">
-              {{ form.errors.tanggal_pengajuan }}
-            </p>
           </div>
         </div>
 
@@ -171,9 +196,6 @@ const handleSubmit = () => {
               form.errors.perihal ? 'border-red-500' : 'border-gray-300'
             ]"
           >
-          <p v-if="form.errors.perihal" class="mt-1 text-sm text-red-600">
-            {{ form.errors.perihal }}
-          </p>
         </div>
 
         <div class="mb-4">
@@ -198,15 +220,9 @@ const handleSubmit = () => {
             accept=".pdf,.doc,.docx,.xls,.xlsx"
             multiple
             @change="handleFileChange"
-            :class="[
-              'block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100',
-              form.errors['lampirans.*'] ? 'border-red-500' : 'border-gray-300'
-            ]"
+            class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
           >
           <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 3MB per file)</p>
-          <p v-if="form.errors['lampirans.*']" class="mt-1 text-sm text-red-600">
-            {{ form.errors['lampirans.*'] }}
-          </p>
         </div>
 
         <div class="flex justify-end gap-2 pt-4">

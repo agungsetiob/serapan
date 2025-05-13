@@ -18,6 +18,7 @@ const props = defineProps({
   tahunSelected: Number,
   rekap: Object,
 });
+
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
 const clearFlash = () => {
@@ -64,25 +65,46 @@ function submitSubKegiatan(kegiatanId) {
     onSuccess: () => formSubKegiatan.value[kegiatanId].reset()
   });
 }
+
 function formatNumber(value) {
-    return new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(value);
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
 }
 
+// Modal states
 const modalState = ref({
   show: false,
   isEditing: false,
   subKegiatan: null,
   kegiatan: null
 });
+
 const modalKegiatan = ref({
   show: false,
   isEditing: false,
   kegiatan: null,
 });
 
+const notaModalState = ref({
+  show: false,
+  isEditing: false,
+  subKegiatan: null,
+  notaDinas: null
+});
+
+const attachmentModalState = ref({
+  show: false,
+  notaDinas: null
+});
+
+const deleteModalState = ref({
+  show: false,
+  notaDinas: null
+});
+
+// Kegiatan handlers
 const editKegiatan = (kegiatan) => {
   modalKegiatan.value = {
     show: true,
@@ -99,6 +121,7 @@ const deleteKegiatan = (kegiatan) => {
   };
 };
 
+// Sub Kegiatan handlers
 const editSubKegiatan = (sub, kegiatan) => {
   modalState.value = {
     show: true,
@@ -116,18 +139,54 @@ const deleteSubKegiatan = (sub, kegiatan) => {
     kegiatan: kegiatan
   };
 };
-const showNotaModal = ref(false);
-const selectedSubKegiatan = ref(null);
 
-// Handle the emitted event from SubKegiatanList
+// Nota Dinas handlers
 const handleCreateNota = (subKegiatan) => {
-  selectedSubKegiatan.value = subKegiatan;
-  showNotaModal.value = true;
-  console.log('Modal should open for:', subKegiatan);
+  notaModalState.value = {
+    show: true,
+    isEditing: false,
+    subKegiatan: subKegiatan,
+    notaDinas: null
+  };
 };
 
-const handleCloseModal = () => {
-  showNotaModal.value = false;
+const handleEditNota = (nota) => {
+  notaModalState.value = {
+    show: true,
+    isEditing: true,
+    subKegiatan: null, // Will be set from the nota data
+    notaDinas: nota
+  };
+};
+
+const handleViewAttachment = (nota) => {
+  attachmentModalState.value = {
+    show: true,
+    notaDinas: nota
+  };
+};
+
+const handleDeleteNota = (nota) => {
+  deleteModalState.value = {
+    show: true,
+    notaDinas: nota
+  };
+};
+
+const handleCloseModal = (modalType) => {
+  switch (modalType) {
+    case 'nota':
+      notaModalState.value.show = false;
+      break;
+    case 'attachment':
+      attachmentModalState.value.show = false;
+      break;
+    case 'delete':
+      deleteModalState.value.show = false;
+      break;
+    default:
+      break;
+  }
 };
 
 const handleSuccess = (message) => {
@@ -155,6 +214,7 @@ const handleSuccess = (message) => {
           </Link>
         </div>
       </div>
+      
       <!-- Rekap Anggaran -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 sm:px-6 lg:px-6">
         <div class="bg-white shadow rounded-lg p-4 flex items-center">
@@ -165,7 +225,7 @@ const handleSuccess = (message) => {
           <div>
             <p class="text-sm text-gray-500">Total Pagu</p>
             <p class="text-lg font-semibold text-red-600">
-              Rp. {{ new Intl.NumberFormat('id-ID').format(rekap.totalPagu) }}
+              Rp. {{ formatNumber(rekap.totalPagu) }}
             </p>
           </div>
         </div>
@@ -178,7 +238,7 @@ const handleSuccess = (message) => {
           <div>
             <p class="text-sm text-gray-500">Total Serapan</p>
             <p class="text-lg font-semibold text-green-700">
-              Rp. {{ new Intl.NumberFormat('id-ID').format(rekap.totalSerapan) }}
+              Rp. {{ formatNumber(rekap.totalSerapan) }}
             </p>
           </div>
         </div>
@@ -196,6 +256,7 @@ const handleSuccess = (message) => {
           </div>
         </div>
       </div>
+      
       <!-- Add Kegiatan Card -->
       <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
         <div class="bg-white rounded-lg shadow-md p-4 mb-8">
@@ -235,8 +296,12 @@ const handleSuccess = (message) => {
           :key="kegiatan.id"
           class="bg-white rounded-lg shadow-md overflow-hidden"
         >
-          <KegiatanCard :kegiatan="kegiatan" @edit="editKegiatan"
-          @delete="deleteKegiatan"/>
+          <KegiatanCard 
+            :kegiatan="kegiatan" 
+            @edit="editKegiatan"
+            @delete="deleteKegiatan"
+          />
+          
           <!-- Sub Kegiatan List -->
           <SubKegiatanList
             :kegiatan="kegiatan"
@@ -246,10 +311,15 @@ const handleSuccess = (message) => {
             :onEdit="editSubKegiatan"
             :onDelete="deleteSubKegiatan"
             @create-nota-dinas="handleCreateNota"
+            @edit-nota="handleEditNota"
+            @delete-nota="handleDeleteNota"
+            @view-attachment="handleViewAttachment"
           />
         </div>
       </div>
     </div>
+    
+    <!-- Modals -->
     <KegiatanModal
       :show="modalKegiatan.show"
       :isEditing="modalKegiatan.isEditing"
@@ -257,6 +327,7 @@ const handleSuccess = (message) => {
       @close="modalKegiatan.show = false"
       @success="handleSuccess"
     />
+    
     <SubKegiatanModal
       :show="modalState.show"
       :subKegiatan="modalState.subKegiatan"
@@ -265,10 +336,28 @@ const handleSuccess = (message) => {
       @close="modalState.show = false"
       @success="handleSuccess"
     />
+    
     <NotaModal
-      :show="showNotaModal"
-      :subKegiatan="selectedSubKegiatan"
-      @close="handleCloseModal"
+      :show="notaModalState.show"
+      :isEdit="notaModalState.isEditing"
+      :notaData="notaModalState.notaDinas"
+      :subKegiatan="notaModalState.subKegiatan || notaModalState.notaDinas?.sub_kegiatan"
+      @close="() => handleCloseModal('nota')"
+      @success="handleSuccess"
     />
+    <!-- TODO: Create AttachmentModal component -->
+    <!-- <AttachmentModal
+      :show="attachmentModalState.show"
+      :notaDinas="attachmentModalState.notaDinas"
+      @close="() => handleCloseModal('attachment')"
+    /> -->
+    
+    <!-- TODO: Create DeleteConfirmationModal component -->
+    <!-- <DeleteConfirmationModal
+      :show="deleteModalState.show"
+      :item="deleteModalState.notaDinas"
+      @close="() => handleCloseModal('delete')"
+      @confirm="handleDeleteNotaConfirm"
+    /> -->
   </AuthenticatedLayout>
 </template>
