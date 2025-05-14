@@ -172,7 +172,7 @@ onMounted(async () => {
             order:1
           },
           {
-            label: 'Persentase Serapan (%)',
+            label: ' Persentase Serapan (%)',
             data: kabupatenData.value.presentase_serapan,
             backgroundColor: '#ffce56',
             borderColor: '#ffce56',

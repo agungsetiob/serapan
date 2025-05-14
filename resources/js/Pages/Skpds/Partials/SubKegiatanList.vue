@@ -44,9 +44,9 @@ const formatDate = (dateString) => {
       <li
         v-for="sub in kegiatan.sub_kegiatans"
         :key="sub.id"
-        class="py-4 px-2 hover:bg-gray-50 rounded-lg transition-colors duration-150"
+        class="py-4 px-2 hover:bg-gray-100 rounded-lg transition-colors duration-150"
       >
-        <div class="flex flex-col gap-3 rounded-md hover:bg-gray-100">
+        <div class="flex flex-col gap-3 rounded-md">
           <!-- Sub Kegiatan Header -->
           <div class="flex flex-col sm:flex-row justify-between gap-3">
             <div class="flex-1 min-w-0">

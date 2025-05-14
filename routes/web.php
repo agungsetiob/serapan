@@ -9,10 +9,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\SkpdController;
 use App\Http\Controllers\SubKegiatanController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Auth/Login', [
+    return inertia('Auth/Login', [
         'canResetPassword' => Route::has('/'),
     ]);
 })->middleware('guest')->name('/');
