@@ -12,6 +12,7 @@ import KegiatanCard from './Partials/KegiatanCard.vue';
 import SubKegiatanList from './Partials/SubKegiatanList.vue';
 import KegiatanModal from './Partials/KegiatanModal.vue';
 import NotaModal from './Partials/NotaModal.vue';
+import LampiranModal from '../NotaDinas/Partials/LampiranModal.vue';
 
 const props = defineProps({
   skpd: Object,
@@ -96,7 +97,7 @@ const notaModalState = ref({
 
 const attachmentModalState = ref({
   show: false,
-  notaDinas: null
+  notaId: null
 });
 
 const deleteModalState = ref({
@@ -151,7 +152,7 @@ const handleCreateNota = (subKegiatan) => {
 };
 
 const handleEditNota = (nota, subKegiatan) => {
-  console.log('Nota data:', nota);
+  //console.log('Nota data:', nota);
   notaModalState.value = {
     show: true,
     isEditing: true,
@@ -163,7 +164,7 @@ const handleEditNota = (nota, subKegiatan) => {
 const handleViewAttachment = (nota) => {
   attachmentModalState.value = {
     show: true,
-    notaDinas: nota
+    notaId: nota.id
   };
 };
 
@@ -181,6 +182,7 @@ const handleCloseModal = (modalType) => {
       break;
     case 'attachment':
       attachmentModalState.value.show = false;
+      attachmentModalState.value.notaId = null;
       break;
     case 'delete':
       deleteModalState.value.show = false;
@@ -345,6 +347,11 @@ const handleSuccess = (message) => {
       :subKegiatan="notaModalState.subKegiatan || notaModalState.notaDinas?.sub_kegiatan"
       @close="() => handleCloseModal('nota')"
       @success="handleSuccess"
+    />
+    <LampiranModal
+      :show="attachmentModalState.show"
+      :notaId="attachmentModalState.notaId"
+      @close="() =>handleCloseModal('attachment')"
     />
   </AuthenticatedLayout>
 </template>

@@ -46,7 +46,7 @@ const formatDate = (dateString) => {
         :key="sub.id"
         class="py-4 px-2 hover:bg-gray-50 rounded-lg transition-colors duration-150"
       >
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-3 rounded-md hover:bg-gray-100">
           <!-- Sub Kegiatan Header -->
           <div class="flex flex-col sm:flex-row justify-between gap-3">
             <div class="flex-1 min-w-0">
@@ -149,7 +149,7 @@ const formatDate = (dateString) => {
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="nota in sub.nota_dinas" :key="nota.id">
+                    <tr v-for="nota in sub.nota_dinas" :key="nota.id" class=" hover:bg-gray-100">
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
                         {{ nota.nomor_nota }}
                       </td>

@@ -61,49 +61,9 @@ class SkpdController extends Controller
 
         return back()->with('success', 'SKPD berhasil diupdate.');
     }
-
-    // public function show(SKPD $skpd)
-    // {
-    //     $currentYear = date('Y');
-
-    //     $skpd->load([
-    //         'kegiatans' => function ($query) use ($currentYear) {
-    //             $query->where('tahun_anggaran', $currentYear)
-    //                 ->with([
-    //                     'subKegiatans' => fn($q) => $q->where('tahun_anggaran', $currentYear)
-    //                 ]);
-    //         }
-    //     ]);
-
-    //     $totalPagu = $skpd->kegiatans->sum('pagu');
-    //     $totalSerapan = $skpd->kegiatans->sum('total_serapan');
-    //     $persentaseSerapan = $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0;
-
-    //     return Inertia::render('Skpds/SkpdDetail', [
-    //         'skpd' => $skpd,
-    //         'tahunSelected' => (int) $currentYear,
-    //         'rekap' => [
-    //             'totalPagu' => $totalPagu,
-    //             'totalSerapan' => $totalSerapan,
-    //             'persentaseSerapan' => $persentaseSerapan,
-    //         ],
-    //     ]);
-    // }
     public function show(SKPD $skpd)
     {
         $currentYear = date('Y');
-
-        // $skpd->load([
-        //     'kegiatans' => function ($query) use ($currentYear) {
-        //         $query->where('tahun_anggaran', $currentYear)
-        //             ->with([
-        //                 'subKegiatans' => function ($q) use ($currentYear) {
-        //                     $q->where('tahun_anggaran', $currentYear)
-        //                     ->with('notaDinas'); // Load the notaDinas relation here
-        //                 }
-        //             ]);
-        //     }
-        // ]);
         $skpd->load([
             'kegiatans' => function ($query) use ($currentYear) {
                 $query->where('tahun_anggaran', $currentYear)

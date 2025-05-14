@@ -90,7 +90,7 @@ function closeLampiranModal() {
                   <div class="text-xs text-gray-500">Tanggal</div>
                   <div>{{ formatDate(nota.tanggal_pengajuan) }}</div>
                 </div>
-                <div class="flex justify-end gap-2 md:col-span-2 items-center">
+                <div class="flex justify-end gap-2 md:col-span-1 items-center">
                   <Tooltip text="List Lampiran" bgColor="bg-gray-500">
                     <button @click="openLampiranModal(nota)" class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200">
                       <font-awesome-icon icon="paperclip" />
