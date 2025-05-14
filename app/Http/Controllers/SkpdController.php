@@ -93,17 +93,29 @@ class SkpdController extends Controller
     {
         $currentYear = date('Y');
 
+        // $skpd->load([
+        //     'kegiatans' => function ($query) use ($currentYear) {
+        //         $query->where('tahun_anggaran', $currentYear)
+        //             ->with([
+        //                 'subKegiatans' => function ($q) use ($currentYear) {
+        //                     $q->where('tahun_anggaran', $currentYear)
+        //                     ->with('notaDinas'); // Load the notaDinas relation here
+        //                 }
+        //             ]);
+        //     }
+        // ]);
         $skpd->load([
             'kegiatans' => function ($query) use ($currentYear) {
                 $query->where('tahun_anggaran', $currentYear)
                     ->with([
                         'subKegiatans' => function ($q) use ($currentYear) {
                             $q->where('tahun_anggaran', $currentYear)
-                            ->with('notaDinas'); // Load the notaDinas relation here
+                                ->with(['notaDinas.subKegiatan']); // tambahkan ini
                         }
                     ]);
             }
         ]);
+
 
         $totalPagu = $skpd->kegiatans->sum('pagu');
         $totalSerapan = $skpd->kegiatans->sum('total_serapan');

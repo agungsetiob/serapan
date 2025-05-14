@@ -150,12 +150,12 @@ const handleCreateNota = (subKegiatan) => {
   };
 };
 
-const handleEditNota = (nota) => {
+const handleEditNota = (nota, subKegiatan) => {
   console.log('Nota data:', nota);
   notaModalState.value = {
     show: true,
     isEditing: true,
-    subKegiatan: null, // Will be set from the nota data
+    subKegiatan: subKegiatan,
     notaDinas: nota
   };
 };
@@ -346,19 +346,5 @@ const handleSuccess = (message) => {
       @close="() => handleCloseModal('nota')"
       @success="handleSuccess"
     />
-    <!-- TODO: Create AttachmentModal component -->
-    <!-- <AttachmentModal
-      :show="attachmentModalState.show"
-      :notaDinas="attachmentModalState.notaDinas"
-      @close="() => handleCloseModal('attachment')"
-    /> -->
-    
-    <!-- TODO: Create DeleteConfirmationModal component -->
-    <!-- <DeleteConfirmationModal
-      :show="deleteModalState.show"
-      :item="deleteModalState.notaDinas"
-      @close="() => handleCloseModal('delete')"
-      @confirm="handleDeleteNotaConfirm"
-    /> -->
   </AuthenticatedLayout>
 </template>

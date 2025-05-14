@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import Tooltip from '@/Components/Tooltip.vue';

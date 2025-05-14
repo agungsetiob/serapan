@@ -33,13 +33,14 @@ const initForm = () => {
     form.anggaran = props.notaData.anggaran;
     form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
     form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
-    currentSubKegiatan.value = props.notaData.sub_kegiatan || null;
+    currentSubKegiatan.value = props.subKegiatan;
   } else if (props.subKegiatan) {
     form.sub_kegiatan_id = props.subKegiatan.id;
     form.anggaran = props.subKegiatan.pagu;
     currentSubKegiatan.value = props.subKegiatan;
   }
 };
+
 
 // Watch for changes in props
 watch(
@@ -92,6 +93,7 @@ const handleSubmit = () => {
     sub_kegiatan_id: form.sub_kegiatan_id,
     lampirans: form.lampirans
   };
+console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
 
   if (props.isEdit) {
     form.transform((data) => ({
@@ -123,7 +125,7 @@ const handleSubmit = () => {
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>
       
-      <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-gray-50 rounded-md">
+      <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-gray-100 rounded-md">
         <h4 class="text-sm font-medium text-gray-700 mb-1">Untuk Sub Kegiatan:</h4>
         <p class="font-medium">{{ currentSubKegiatan.nama }}</p>
         <p class="text-sm text-gray-600">Pagu: Rp {{ currentSubKegiatan.pagu?.toLocaleString('id-ID') }}</p>
