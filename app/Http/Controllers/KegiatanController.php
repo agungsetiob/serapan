@@ -15,6 +15,11 @@ class KegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|digits:4',
         ]);
+        $kabupaten = Kabupaten::where('tahun_anggaran', $validated['tahun_anggaran'])->first();
+        if (!$kabupaten) {
+            return back()
+                ->with('error', 'Data kabupaten untuk tahun ini belum tersedia.');
+        }
         if($skpd->status){
             $skpd->kegiatans()->create($validated);
         }else{

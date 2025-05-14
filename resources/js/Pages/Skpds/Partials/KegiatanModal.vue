@@ -43,10 +43,10 @@
           <div v-else>
             <div class="text-center">
             <font-awesome-icon :icon="['fas', 'triangle-exclamation']" class="text-red-500 text-4xl"/>
-              <div class="mt-2 text-sm text-gray-700">
+              <div class="mt-2 text-gray-700">
                 Hapus kegiatan
-                <span class="font-semibold text-red-400">{{ form.nama }}</span>? Data yang
-                dihapus tidak dapat dikembalikan.
+                <span class="font-semibold text-red-400">{{ form.nama }}</span>? 
+                <br>Data yang dihapus tidak dapat dikembalikan.
               </div>
               <div class="flex justify-end gap-2 mt-6">
                 <button

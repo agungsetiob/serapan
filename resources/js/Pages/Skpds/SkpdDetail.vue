@@ -13,6 +13,7 @@ import SubKegiatanList from './Partials/SubKegiatanList.vue';
 import KegiatanModal from './Partials/KegiatanModal.vue';
 import NotaModal from './Partials/NotaModal.vue';
 import LampiranModal from '../NotaDinas/Partials/LampiranModal.vue';
+import DeleteNotaModal from './Partials/DeleteNotaModal.vue';
 
 const props = defineProps({
   skpd: Object,
@@ -352,6 +353,11 @@ const handleSuccess = (message) => {
       :show="attachmentModalState.show"
       :notaId="attachmentModalState.notaId"
       @close="() =>handleCloseModal('attachment')"
+    />
+    <DeleteNotaModal 
+      :show="deleteModalState.show" 
+      :notaDinas="deleteModalState.notaDinas"
+      @close="() =>handleCloseModal('delete')"
     />
   </AuthenticatedLayout>
 </template>

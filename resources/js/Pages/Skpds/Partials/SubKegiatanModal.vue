@@ -2,7 +2,7 @@
     <Modal
       :show="showModal"
       :title="isEditing ? 'Edit Sub Kegiatan' : 'Hapus Sub Kegiatan'"
-      maxWidth="4xl"
+      maxWidth="2xl"
       closeable
       @close="closeModal"
     >
@@ -45,8 +45,9 @@
           <div v-else>
             <div class="text-center">
               <font-awesome-icon :icon="['fas', 'triangle-exclamation']" class="text-red-500 text-4xl fa-fade"/>
-              <div class="mt-2 text-sm text-gray-700">
-                Hapus sub kegiatan <span class="font-semibold text-red-400">{{ form.nama }}</span>? Data yang dihapus tidak dapat dikembalikan.
+              <div class="mt-2 text-gray-700">
+                Hapus sub kegiatan <span class="font-semibold text-red-400">{{ form.nama }}</span>?
+                <br> Data yang dihapus tidak dapat dikembalikan.
               </div>
   
               <div class="flex justify-end gap-2 mt-6">

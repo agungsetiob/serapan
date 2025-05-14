@@ -175,7 +175,7 @@ const formatDate = (dateString) => {
                           <Tooltip text="Edit" bgColor="bg-blue-400">
                             <button 
                               @click="emit('editNota', nota)" 
-                              class="px-2 py-1 text-xs sm:text-sm rounded text-blue-400 hover:bg-blue-100"
+                              class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-100"
                             >
                               <font-awesome-icon icon="edit" />
                             </button>
@@ -185,7 +185,7 @@ const formatDate = (dateString) => {
                               @click="emit('deleteNota', nota)" 
                               class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
                             >
-                              <font-awesome-icon icon="trash-can"/>
+                              <font-awesome-icon icon="trash"/>
                             </button>
                           </Tooltip>
                         </div>
