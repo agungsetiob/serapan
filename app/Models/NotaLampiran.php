@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class NotaLampiran extends Model
 {
@@ -23,6 +25,17 @@ class NotaLampiran extends Model
     public function notaDinas()
     {
         return $this->belongsTo(NotaDinas::class);
-    }   
+    }
+    
+    protected static function booted()
+    {
+        static::deleted(function ($lampiran) {
+            try {
+                Storage::disk('public')->delete($lampiran->path);
+            } catch (\Exception $e) {
+                Log::error("Gagal hapus lampiran: " . $e->getMessage());
+            }
+        });
+    }
    
 }

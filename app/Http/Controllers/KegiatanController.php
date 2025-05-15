@@ -6,6 +6,7 @@ use App\Models\Kabupaten;
 use App\Models\Kegiatan;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class KegiatanController extends Controller
 {
@@ -45,19 +46,32 @@ class KegiatanController extends Controller
 
     public function destroy(Kegiatan $kegiatan)
     {
-        $tahun = $kegiatan->tahun_anggaran;
-        $paguKegiatan = $kegiatan->pagu;
-    
-        $kabupaten = Kabupaten::where('tahun_anggaran', $tahun)->first();
-    
-        if ($kabupaten) {
-            $kabupaten->pagu = max(0, $kabupaten->pagu - $paguKegiatan);
-            $kabupaten->save();
+        DB::beginTransaction();
+        try {
+            $tahun = $kegiatan->tahun_anggaran;
+            
+            $kabupaten = Kabupaten::where('tahun_anggaran', $tahun)->first();
+            
+            if ($kabupaten) {
+                $kabupaten->decrement('pagu', $kegiatan->pagu);
+                $kabupaten->decrement('total_serapan', $kegiatan->total_serapan);
+                
+                $kabupaten->update([
+                    'presentase_serapan' => $kabupaten->pagu > 0 
+                        ? ($kabupaten->total_serapan / $kabupaten->pagu) * 100 
+                        : 0
+                ]);
+            }
+
+            $kegiatan->delete(); 
+
+            DB::commit();
+            
+            return back()->with('success', 'Kegiatan beserta seluruh data terkait berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
-    
-        $kegiatan->delete();
-    
-        return back()->with('success', 'Kegiatan dan sub kegiatan berhasil dihapus.');
     }
 
 }

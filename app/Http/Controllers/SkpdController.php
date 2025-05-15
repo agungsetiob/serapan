@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Kegiatan;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class SkpdController extends Controller
@@ -23,7 +22,7 @@ class SkpdController extends Controller
     
         $skpds = $query->paginate(10);
     
-        return Inertia::render('Skpds/Index', [
+        return inertia('Skpds/Index', [
             'skpds' => $skpds,
         ]);
     }
@@ -70,7 +69,7 @@ class SkpdController extends Controller
                     ->with([
                         'subKegiatans' => function ($q) use ($currentYear) {
                             $q->where('tahun_anggaran', $currentYear)
-                                ->with(['notaDinas.subKegiatan']); // tambahkan ini
+                                ->with(['notaDinas.subKegiatan']);
                         }
                     ]);
             }
@@ -81,7 +80,7 @@ class SkpdController extends Controller
         $totalSerapan = $skpd->kegiatans->sum('total_serapan');
         $persentaseSerapan = $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0;
 
-        return Inertia::render('Skpds/SkpdDetail', [
+        return inertia('Skpds/SkpdDetail', [
             'skpd' => $skpd,
             'tahunSelected' => (int) $currentYear,
             'rekap' => [
@@ -114,11 +113,16 @@ class SkpdController extends Controller
                                 ->distinct()
                                 ->pluck('tahun_anggaran')
                                 ->sortDesc();
-
+        $totalPagu = $skpd->kegiatans->sum('pagu');
+        $totalSerapan = $skpd->kegiatans->sum('total_serapan');
+        $persentaseSerapan = $totalPagu > 0 ? round(($totalSerapan / $totalPagu) * 100, 2) : 0;
         return inertia('Skpds/ShowByYear', [
             'skpd' => $skpd,
             'tahunSelected' => (int)$tahun,
             'tahunTersedia' => $tahunTersedia,
+            'rekap' => [
+                'persentaseSerapan' => $persentaseSerapan,
+            ],
         ]);
     }
 

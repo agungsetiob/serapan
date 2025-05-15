@@ -60,7 +60,7 @@ function formatNumber(value) {
                     <div class="overflow-x-auto">
                         <table class="table-auto w-full">
                             <thead>
-                                <tr class="bg-gray-300 text-left">
+                                <tr class="bg-gray-100 text-left">
                                     <th class="px-4 py-2">Nama Kabupaten</th>
                                     <th class="px-4 py-2">Tahun</th>
                                     <th class="px-4 py-2">Pagu</th>
@@ -70,7 +70,7 @@ function formatNumber(value) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="kabupaten in kabupatens.data" :key="kabupaten.id" class="hover:bg-red-50 transition even:bg-gray-100">
+                                <tr v-for="kabupaten in kabupatens.data" :key="kabupaten.id" class="hover:bg-gray-100">
                                     <td class="px-4 py-2">{{ kabupaten.nama }}</td>
                                     <td class="px-4 py-2">{{ kabupaten.tahun_anggaran }}</td>
                                     <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.pagu) }}</td>

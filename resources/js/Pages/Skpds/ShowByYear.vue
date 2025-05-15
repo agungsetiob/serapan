@@ -6,7 +6,8 @@ import { ref, watch } from 'vue';
 const props = defineProps({
   skpd: Object,
   tahunSelected: Number,
-  tahunTersedia: Array,
+  tahunTersedia: Object,
+  rekap: Object,
 });
 
 const formatNumber = (value) => {
@@ -63,7 +64,7 @@ function gantiTahun() {
       </div>
 
       <!-- Statistik -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
           <h3 class="text-sm font-medium text-gray-500">Total Kegiatan</h3>
           <p class="text-2xl font-bold mt-1">
@@ -74,6 +75,12 @@ function gantiTahun() {
           <h3 class="text-sm font-medium text-gray-500">Total Sub-Kegiatan</h3>
           <p class="text-2xl font-bold mt-1">
             {{ skpd.kegiatans.reduce((acc, k) => acc + k.sub_kegiatans.length, 0) }}
+          </p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500">Persentase Serapan</h3>
+          <p class="text-2xl text-green-500 font-bold mt-1">
+            {{ rekap.persentaseSerapan }}%
           </p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
@@ -91,15 +98,43 @@ function gantiTahun() {
           :key="kegiatan.id"
           class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
         >
-          <!-- Header Kegiatan -->
-          <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <div class="flex justify-between items-start">
-              <h3 class="text-lg font-semibold text-gray-800">
-                {{ kegiatan.nama }}
-              </h3>
-              <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                Pagu: Rp {{ formatNumber(kegiatan.pagu) }}
-              </span>
+          <div class="bg-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">
+              {{ kegiatan.nama }}
+            </h3>
+            <div class="flex flex-col md:flex-row md:items-center gap-2 mt-1 text-sm text-gray-600">
+              <div>
+                <span class="font-semibold">Pagu:</span>
+                Rp. {{ formatNumber(kegiatan.pagu) }}
+              </div>
+              <div class="hidden md:block mx-2">|</div>
+              <div>
+                <span class="font-semibold">Serapan:</span>
+                Rp {{ formatNumber(kegiatan.total_serapan) }}
+              </div>
+              <div class="hidden md:block mx-2">|</div>
+              <div class="flex items-center gap-1">
+                <span class="font-semibold">Persentase:</span>
+                <span
+                  class="font-medium"
+                  :class="{
+                    'text-red-600': kegiatan.presentase_serapan < 50,
+                    'text-yellow-600': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
+                    'text-green-600': kegiatan.presentase_serapan >= 80,
+                  }"
+                >{{ kegiatan.presentase_serapan }}%</span>
+                <div class="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full transition-all duration-500 ease-out"
+                    :style="{ width: kegiatan.presentase_serapan + '%' }"
+                    :class="{
+                      'bg-red-500': kegiatan.presentase_serapan < 50,
+                      'bg-yellow-500': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
+                      'bg-green-500': kegiatan.presentase_serapan >= 80,
+                    }"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
 

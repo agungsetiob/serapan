@@ -55,10 +55,8 @@ class SubKegiatanController extends Controller
             $selisihPagu = $validated['pagu'] - $subKegiatan->pagu;
             $oldTotalSerapan = $subKegiatan->total_serapan;
 
-            // Update sub kegiatan
             $subKegiatan->update($validated);
 
-            // Update kegiatan
             $kegiatan->increment('pagu', $selisihPagu);
             $kegiatan->decrement('total_serapan', $oldTotalSerapan);
             $kegiatan->increment('total_serapan', $subKegiatan->notaDinas()->sum('anggaran'));
@@ -68,7 +66,6 @@ class SubKegiatanController extends Controller
                     : 0,
             ]);
 
-            // Update kabupaten
             $kabupaten = $subKegiatan->kegiatan->skpd->kabupatens()
                 ->wherePivot('tahun_anggaran', $subKegiatan->tahun_anggaran)
                 ->first();
@@ -119,17 +116,13 @@ class SubKegiatanController extends Controller
                 return back()->with('error', 'Data kabupaten untuk tahun ini belum tersedia.');
             }
 
-            // Get values before deletion
             $subKegiatanPagu = $subKegiatan->pagu;
             $subKegiatanSerapan = $subKegiatan->total_serapan;
 
-            // Delete all related nota dinas first
             $subKegiatan->notaDinas()->delete();
 
-            // Delete sub-kegiatan
             $subKegiatan->delete();
 
-            // Update kegiatan
             $kegiatan->decrement('pagu', $subKegiatanPagu);
             $kegiatan->decrement('total_serapan', $subKegiatanSerapan);
             $kegiatan->update([
@@ -138,7 +131,6 @@ class SubKegiatanController extends Controller
                     : 0,
             ]);
 
-            // Update kabupaten
             $kabupaten->decrement('pagu', $subKegiatanPagu);
             
             // Recalculate total serapan for kabupaten
