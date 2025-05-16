@@ -101,7 +101,7 @@ class NotaDinasController extends Controller
     }
     public function update(Request $request, NotaDinas $notaDina)
     {
-        $subKegiatan = $notaDina->subKegiatan;
+        $subKegiatan = SubKegiatan::find($request->sub_kegiatan_id);
 
         if (!$subKegiatan) {
             return redirect()->back()->with('error', 'Sub kegiatan tidak ditemukan')->withInput();

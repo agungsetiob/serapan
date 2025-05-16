@@ -7,6 +7,7 @@ use App\Models\Kegiatan;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class KegiatanController extends Controller
 {
@@ -61,6 +62,15 @@ class KegiatanController extends Controller
                         ? ($kabupaten->total_serapan / $kabupaten->pagu) * 100 
                         : 0
                 ]);
+            }
+            foreach ($kegiatan->subKegiatans as $subKegiatan) {
+                foreach ($subKegiatan->notaDinas as $notaDinas) {
+                    foreach ($notaDinas->lampirans as $lampiran) {
+                        Storage::disk('public')->delete($lampiran->path);
+                        $lampiran->delete();
+                    }
+                    $notaDinas->delete();
+                }
             }
 
             $kegiatan->delete(); 

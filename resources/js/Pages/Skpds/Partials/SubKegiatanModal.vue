@@ -35,7 +35,9 @@
                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 :disabled="form.processing"
               >
-                <span v-if="form.processing">Menyimpan...</span>
+                <span v-if="form.processing">
+                  <font-awesome-icon icon="spinner" spin class="mr-2" />Menyimpan...
+                </span>
                 <span v-else>Simpan</span>
               </button>
             </div>
@@ -62,7 +64,9 @@
                   class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                   :disabled="form.processing"
                 >
-                  <span v-if="form.processing">Menghapus...</span>
+                  <span v-if="form.processing">
+                    <font-awesome-icon icon="spinner" spin class="mr-2" />Menghapus...
+                  </span>
                   <span v-else>Ya, Hapus</span>
                 </button>
               </div>

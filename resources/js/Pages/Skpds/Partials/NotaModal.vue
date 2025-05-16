@@ -1,140 +1,19 @@
-<script setup>
-import { watch, ref } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
-import Modal from '@/Components/Modal.vue';
-
-const props = defineProps({
-  show: Boolean,
-  isEdit: Boolean,
-  notaData: Object,
-  subKegiatan: Object,
-  errors: Object
-});
-
-const emit = defineEmits(['close']);
-
-const form = useForm({
-  id: '',
-  nomor_nota: '',
-  perihal: '',
-  anggaran: '',
-  tanggal_pengajuan: '',
-  sub_kegiatan_id: '',
-  lampirans: []
-});
-
-const currentSubKegiatan = ref(null);
-
-const initForm = () => {
-  if (props.isEdit && props.notaData) {
-    form.id = props.notaData.id;
-    form.nomor_nota = props.notaData.nomor_nota;
-    form.perihal = props.notaData.perihal;
-    form.anggaran = props.notaData.anggaran;
-    form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
-    form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
-    currentSubKegiatan.value = props.subKegiatan;
-  } else if (props.subKegiatan) {
-    form.sub_kegiatan_id = props.subKegiatan.id;
-    form.anggaran = props.subKegiatan.pagu;
-    currentSubKegiatan.value = props.subKegiatan;
-  }
-};
-
-
-// Watch for changes in props
-watch(
-  () => props.show,
-  (show) => {
-    if (show) {
-      initForm();
-    }
-  },
-  { immediate: true }
-);
-
-watch(
-  () => props.notaData,
-  (newNotaData) => {
-    if (newNotaData && props.isEdit) {
-      form.anggaran = newNotaData.anggaran;
-    }
-  },
-  { deep: true }
-);
-
-watch(
-  () => props.subKegiatan,
-  (newSubKegiatan) => {
-    if (newSubKegiatan && !props.isEdit) {
-      form.sub_kegiatan_id = newSubKegiatan.id;
-      form.anggaran = newSubKegiatan.pagu;
-    }
-  },
-  { deep: true }
-);
-
-const handleFileChange = (event) => {
-  form.lampirans = event.target.files;
-};
-
-const closeModal = () => {
-  form.reset();
-  form.clearErrors();
-  emit('close');
-};
-
-const handleSubmit = () => {
-  const payload = {
-    nomor_nota: form.nomor_nota,
-    perihal: form.perihal,
-    anggaran: form.anggaran,
-    tanggal_pengajuan: form.tanggal_pengajuan,
-    sub_kegiatan_id: form.sub_kegiatan_id,
-    lampirans: form.lampirans
-  };
-console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
-
-  if (props.isEdit) {
-    form.transform((data) => ({
-      ...payload,
-      _method: 'PUT'
-    })).post(route('nota-dinas.update', form.id), {
-      onSuccess: () => {
-        closeModal();
-        router.reload({ only: ['skpd'] });
-      },
-      preserveScroll: true,
-    });
-  } else {
-    form.transform(() => payload).post(route('nota-dinas.store'), {
-      onSuccess: () => {
-        closeModal();
-        router.reload({ only: ['skpd'] });
-      },
-      preserveScroll: true,
-    });
-  }
-};
-</script>
-
 <template>
   <Modal :show="show" @close="closeModal" maxWidth="5xl">
     <div class="bg-white p-4 sm:p-6 rounded-lg">
       <h3 class="text-lg font-semibold mb-4">
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>
-      
+
       <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-gray-100 rounded-md">
         <h4 class="text-sm font-medium text-gray-700 mb-1">Untuk Sub Kegiatan:</h4>
         <p class="font-medium">{{ currentSubKegiatan.nama }}</p>
-        <p class="text-sm text-gray-600">Pagu: Rp {{ currentSubKegiatan.pagu?.toLocaleString('id-ID') }}</p>
+        <p class="text-sm text-gray-600">Pagu: Rp {{ formatRupiah(currentSubKegiatan.pagu) }}</p>
       </div>
       <div v-else class="mb-4 p-3 bg-red-50 rounded-md">
         <p class="text-sm text-red-700">Sub Kegiatan tidak ditemukan</p>
       </div>
-      
-      <!-- Error Messages -->
+
       <div
         v-if="Object.keys(form.errors).length > 0"
         class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
@@ -154,11 +33,11 @@ console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
           </div>
         </div>
       </div>
-      
+
       <form @submit.prevent="handleSubmit">
         <input type="hidden" v-model="form.id">
         <input type="hidden" v-model="form.sub_kegiatan_id">
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota *</label>
@@ -203,8 +82,9 @@ console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
         <div class="mb-4">
           <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)</label>
           <input
-            type="number"
-            v-model="form.anggaran"
+            type="text"
+            :value="formattedAnggaran"
+            @input="updateAnggaran($event.target.value)"
             :class="[
               'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
               form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
@@ -231,7 +111,7 @@ console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
           <button
             type="button"
             @click="closeModal"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100"
           >
             Batal
           </button>
@@ -252,3 +132,146 @@ console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
     </div>
   </Modal>
 </template>
+
+<script setup>
+import { watch, ref, computed } from 'vue';
+import { useForm, router } from '@inertiajs/vue3';
+import Modal from '@/Components/Modal.vue';
+
+const props = defineProps({
+  show: Boolean,
+  isEdit: Boolean,
+  notaData: Object,
+  subKegiatan: Object,
+  errors: Object
+});
+
+const emit = defineEmits(['close']);
+
+const form = useForm({
+  id: '',
+  nomor_nota: '',
+  perihal: '',
+  anggaran: '',
+  tanggal_pengajuan: '',
+  sub_kegiatan_id: '',
+  lampirans: []
+});
+
+const currentSubKegiatan = ref(null);
+
+const formatRupiah = (number) => {
+  if (number === null || number === undefined) {
+    return '';
+  }
+  return new Intl.NumberFormat('id-ID').format(number);
+};
+
+const formattedAnggaran = computed(() => {
+  if (form.anggaran === null || form.anggaran === '') {
+    return '';
+  }
+  const number = parseInt(form.anggaran, 10);
+  if (isNaN(number)) {
+    return '';
+  }
+  return number.toLocaleString('id-ID');
+});
+
+const updateAnggaran = (value) => {
+  const cleanedValue = value.replace(/\D/g, '');
+  form.anggaran = cleanedValue;
+};
+
+const initForm = () => {
+  if (props.isEdit && props.notaData) {
+    form.id = props.notaData.id;
+    form.nomor_nota = props.notaData.nomor_nota;
+    form.perihal = props.notaData.perihal;
+    form.anggaran = props.notaData.anggaran;
+    form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+    form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
+    currentSubKegiatan.value = props.subKegiatan;
+  } else if (props.subKegiatan) {
+    form.sub_kegiatan_id = props.subKegiatan.id;
+    //form.anggaran = props.subKegiatan.pagu;
+    currentSubKegiatan.value = props.subKegiatan;
+  }
+};
+
+
+// Watch for changes in props
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      initForm();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.notaData,
+  (newNotaData) => {
+    if (newNotaData && props.isEdit) {
+      form.anggaran = newNotaData.anggaran;
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.subKegiatan,
+  (newSubKegiatan) => {
+    if (newSubKegiatan && !props.isEdit) {
+      form.sub_kegiatan_id = newSubKegiatan.id;
+      //form.anggaran = newSubKegiatan.pagu;
+    }
+  },
+  { deep: true }
+);
+
+const handleFileChange = (event) => {
+  form.lampirans = event.target.files;
+};
+
+const closeModal = () => {
+  form.reset();
+  form.clearErrors();
+  emit('close');
+};
+
+const handleSubmit = () => {
+  const payload = {
+    nomor_nota: form.nomor_nota,
+    perihal: form.perihal,
+    anggaran: form.anggaran,
+    tanggal_pengajuan: form.tanggal_pengajuan,
+    sub_kegiatan_id: form.sub_kegiatan_id,
+    lampirans: form.lampirans
+  };
+//console.log('Submitting form', { sub_kegiatan_id: form.sub_kegiatan_id });
+
+  if (props.isEdit) {
+    form.transform((data) => ({
+      ...payload,
+      _method: 'PUT'
+    })).post(route('nota-dinas.update', form.id), {
+      onSuccess: () => {
+        closeModal();
+        router.reload({ only: ['skpd'] });
+      },
+      preserveScroll: true,
+    });
+  } else {
+    form.transform(() => payload).post(route('nota-dinas.store'), {
+      onSuccess: () => {
+        closeModal();
+        router.reload({ only: ['skpd'] });
+      },
+      preserveScroll: true,
+    });
+  }
+};
+</script>

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Kegiatan;
 use App\Models\SubKegiatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SubKegiatanController extends Controller
 {
@@ -54,9 +55,19 @@ class SubKegiatanController extends Controller
         try {
             $selisihPagu = $validated['pagu'] - $subKegiatan->pagu;
             $oldTotalSerapan = $subKegiatan->total_serapan;
+            $newTotalSerapan = $subKegiatan->notaDinas()->sum('anggaran');
 
-            $subKegiatan->update($validated);
-
+            // 1. Update SubKegiatan
+            $subKegiatan->update([
+                'nama' => $validated['nama'],
+                'pagu' => $validated['pagu'],
+                'tahun_anggaran' => $validated['tahun_anggaran'],
+                'total_serapan' => $newTotalSerapan,
+                'presentase_serapan' => $validated['pagu'] > 0 
+                    ? ($newTotalSerapan / $validated['pagu']) * 100 
+                    : 0
+            ]);
+            // 2. Update Kegiatan
             $kegiatan->increment('pagu', $selisihPagu);
             $kegiatan->decrement('total_serapan', $oldTotalSerapan);
             $kegiatan->increment('total_serapan', $subKegiatan->notaDinas()->sum('anggaran'));
@@ -66,6 +77,7 @@ class SubKegiatanController extends Controller
                     : 0,
             ]);
 
+            // 3. Update Kabupaten
             $kabupaten = $subKegiatan->kegiatan->skpd->kabupatens()
                 ->wherePivot('tahun_anggaran', $subKegiatan->tahun_anggaran)
                 ->first();
@@ -119,7 +131,13 @@ class SubKegiatanController extends Controller
             $subKegiatanPagu = $subKegiatan->pagu;
             $subKegiatanSerapan = $subKegiatan->total_serapan;
 
-            $subKegiatan->notaDinas()->delete();
+            foreach ($subKegiatan->notaDinas as $notaDinas) {
+                foreach ($notaDinas->lampirans as $lampiran) {
+                    Storage::disk('public')->delete($lampiran->path);
+                    $lampiran->delete();
+                }
+                $notaDinas->delete();
+            }
 
             $subKegiatan->delete();
 
@@ -157,75 +175,6 @@ class SubKegiatanController extends Controller
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
         }
-    }
-    // public function update(Request $request, Kegiatan $kegiatan, $subKegiatanId)
-    // {
-    //     $subKegiatan = $kegiatan->subKegiatans()->where('id', $subKegiatanId)->firstOrFail();
-
-    //     $validated = $request->validate([
-    //         'nama' => 'required|string|max:255',
-    //         'pagu' => 'required|numeric',
-    //         'tahun_anggaran' => 'required|digits:4',
-    //     ]);
-
-    //     $validated['kegiatan_id'] = $kegiatan->id;
-
-    //     $kabupaten = \App\Models\Kabupaten::where('tahun_anggaran', $validated['tahun_anggaran'])->first();
-    //     if (!$kabupaten) {
-    //         return back()->with('error', 'Data kabupaten untuk tahun ini belum tersedia.')->withInput();
-    //     }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         $selisihPagu = $validated['pagu'] - $subKegiatan->pagu;
-
-    //         $subKegiatan->update($validated);
-
-    //         $kegiatan->increment('pagu', $selisihPagu);
-    //         $kabupaten->increment('pagu', $selisihPagu);
-
-    //         DB::commit();
-    //         return back()->with('success', 'Sub Kegiatan berhasil diperbarui.');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return back()->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())->withInput();
-    //     }
-    // }
-    // public function show($id)
-    // {
-    //     $subKegiatan = SubKegiatan::with('notaDinas')->findOrFail($id);
-
-    //     return inertia('SubKegiatan/Show', [
-    //         'subKegiatan' => $subKegiatan,
-    //     ]);
-    // }
-
-    // public function destroy(Kegiatan $kegiatan, $subKegiatanId)
-    // {
-    //     $subKegiatan = $kegiatan->subKegiatans()->where('id', $subKegiatanId)->firstOrFail();
-    //     DB::beginTransaction();
-    
-    //     try {
-    //         $kabupaten = \App\Models\Kabupaten::where('tahun_anggaran', $subKegiatan->tahun_anggaran)->first();
-    
-    //         if (!$kabupaten) {
-    //             return back()->with('error', 'Data kabupaten untuk tahun ini belum tersedia.');
-    //         }
-    
-    //         // Kurangi nilai pagu sebelum sub-kegiatan dihapus
-    //         $kegiatan->decrement('pagu', $subKegiatan->pagu);
-    //         $kabupaten->decrement('pagu', $subKegiatan->pagu);
-    
-    //         // Hapus sub-kegiatan
-    //         $subKegiatan->delete();
-    
-    //         DB::commit();
-    
-    //         return back()->with('success', 'Sub Kegiatan berhasil dihapus.');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return back()->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
-    //     }
-    // }    
+    }    
 
 }

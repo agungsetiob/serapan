@@ -26,16 +26,5 @@ class NotaLampiran extends Model
     {
         return $this->belongsTo(NotaDinas::class);
     }
-    
-    protected static function booted()
-    {
-        static::deleted(function ($lampiran) {
-            try {
-                Storage::disk('public')->delete($lampiran->path);
-            } catch (\Exception $e) {
-                Log::error("Gagal hapus lampiran: " . $e->getMessage());
-            }
-        });
-    }
-   
+
 }

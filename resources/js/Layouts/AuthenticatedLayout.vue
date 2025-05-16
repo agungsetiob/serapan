@@ -167,7 +167,7 @@ function isActive(routeName) {
     </nav>
 
     <div class="flex-1 pt-16 pb-12 sm:pt-16 sm:pb-0 relative">
-      <div v-if="isLoading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-10"
+      <div v-if="isLoading" class="fixed inset-0 flex items-center justify-center bg-gray-500 opacity-75 z-10"
       :style="{
           top: '4rem',
           bottom: '0rem',

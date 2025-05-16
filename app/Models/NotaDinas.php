@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class NotaDinas extends Model
 {
@@ -24,5 +25,5 @@ class NotaDinas extends Model
     {
         return $this->hasMany(NotaLampiran::class, 'nota_dinas_id');
     }
-    
+
 }
