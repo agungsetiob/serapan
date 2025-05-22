@@ -44,7 +44,7 @@ function isActive(routeName) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-pattern flex flex-col">
+  <div class="min-h-screen bg-gradient-to-br from-blue-100 to-green-100 flex flex-col">
     <!-- Top Navigation -->
     <nav class="border-b border-gray-700 bg-blue-700 fixed top-0 left-0 right-0 z-50 h-16">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
