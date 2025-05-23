@@ -265,13 +265,13 @@ const handleSuccess = (message) => {
       <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
         <div class="bg-white rounded-lg shadow-md p-4 mb-8">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">
-            Tambah Kegiatan Baru
+            Tambah Sub Kegiatan Baru
           </h3>
           <form @submit.prevent="submitKegiatan" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="md:col-span-2">
-                <InputLabel value="Nama Kegiatan" />
-                <TextInput v-model="formKegiatan.nama" class="w-full" placeholder="Masukkan nama kegiatan"/>
+                <InputLabel value="Nama Sub Kegiatan" />
+                <TextInput v-model="formKegiatan.nama" class="w-full" placeholder="Masukkan nama sub kegiatan"/>
                 <InputError :message="formKegiatan.errors.nama" />
               </div>
 

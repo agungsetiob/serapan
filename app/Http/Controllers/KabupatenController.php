@@ -49,11 +49,30 @@ class KabupatenController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|integer|min:2000',
-            //'pagu' => 'required|numeric|min:0',
         ]);
 
         $kabupaten->update($validated);
 
-        return back()->with('success', 'Kabupaten berhasil diperbarui.');
+        // Cek SKPD aktif yang belum dimapping untuk tahun_anggaran tertentu
+        $mappedSkpdIds = SkpdTahun::where('kabupaten_id', $kabupaten->id)
+            ->where('tahun_anggaran', $kabupaten->tahun_anggaran)
+            ->pluck('skpd_id')
+            ->toArray();
+
+        $unmappedSkpds = Skpd::where('status', true)
+            ->whereNotIn('id', $mappedSkpdIds)
+            ->get();
+
+        // Mapping SKPD yang belum dimapping
+        foreach ($unmappedSkpds as $skpd) {
+            SkpdTahun::create([
+                'skpd_id' => $skpd->id,
+                'kabupaten_id' => $kabupaten->id,
+                'tahun_anggaran' => $kabupaten->tahun_anggaran,
+            ]);
+        }
+
+        return back()->with('success', 'Kabupaten berhasil diperbarui dan SKPD yang belum dimapping telah ditambahkan.');
     }
+
 }

@@ -37,7 +37,7 @@ const formatDate = (dateString) => {
   <div class="px-6 py-4">
     <h4 class="font-medium text-gray-700 mb-3 flex items-center">
       <font-awesome-icon :icon="['fas', 'suitcase']" class="mr-1 text-red-500"/>
-      Daftar Sub Kegiatan
+      Daftar Uraian Sub Kegiatan
     </h4>
 
     <ul class="mb-2">
@@ -111,7 +111,7 @@ const formatDate = (dateString) => {
                   @click="onDelete(sub, kegiatan)" 
                   class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
                 >
-                  <font-awesome-icon :icon="['fas', 'trash-can']" class="text-sm sm:text-base" />
+                  <font-awesome-icon :icon="['far', 'trash-can']" class="text-sm sm:text-base" />
                 </button>
               </Tooltip>
             </div>

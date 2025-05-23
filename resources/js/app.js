@@ -7,17 +7,60 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { far } from '@fortawesome/free-regular-svg-icons';
-import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faEdit, faTrashCan } from '@fortawesome/free-regular-svg-icons';
+library.add(faEdit, faTrashCan);
+import { 
+    faHome, 
+    faUser, 
+    faSitemap, 
+    faFileLines, 
+    faLayerGroup, 
+    faMoneyBillWave, 
+    faMoneyBillTrendUp, 
+    faPercent, 
+    faSuitcase, 
+    faChevronDown, 
+    faFileCirclePlus, 
+    faPenToSquare, 
+    faBuilding, 
+    faFileZipper, 
+    faWallet, 
+    faSquareCheck,
+    faTrash,
+    faPaperclip,
+    faEye,
+    faChevronUp
+} from '@fortawesome/free-solid-svg-icons';
 
-library.add(fas, far, fab);
+library.add(
+    faHome, 
+    faUser, 
+    faSitemap, 
+    faFileLines, 
+    faLayerGroup, 
+    faMoneyBillWave, 
+    faMoneyBillTrendUp, 
+    faPercent, 
+    faSuitcase, 
+    faChevronDown, 
+    faFileCirclePlus, 
+    faPenToSquare, 
+    faBuilding, 
+    faFileZipper, 
+    faWallet, 
+    faSquareCheck,
+    faTrash,
+    faPaperclip,
+    faEye,
+    faChevronUp
+);
+
 
 const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${appName} - ${title}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.vue`,
