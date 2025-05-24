@@ -50,6 +50,7 @@ watch(
       newKegiatans.forEach((kegiatan) => {
         if (!formSubKegiatan.value[kegiatan.id]) {
           formSubKegiatan.value[kegiatan.id] = useForm({
+            kode_rekening: '',
             nama: '',
             pagu: '',
             tahun_anggaran: new Date().getFullYear()
@@ -212,7 +213,7 @@ const handleSuccess = (message) => {
           </h2>
           <Link
             :href="route('skpds.tahun', { skpd: skpd.id, tahun: new Date().getFullYear() })"
-            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full hover:bg-blue-200 transition-colors"
+            class="bg-blue-200 text-blue-800 hover:text-white text-sm font-medium px-3 py-1 rounded-full hover:bg-blue-500 transition-colors"
           >
             Histori
           </Link>

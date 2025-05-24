@@ -51,7 +51,7 @@ onMounted(() => {
             clearTimeout(timeoutId.value);
             timeoutId.value = setTimeout(() => {
                 emit('clearFlash');
-            }, 5000);
+            }, 3900);
         }
     }, { immediate: true });
 });

@@ -29,6 +29,7 @@ class SubKegiatanSeeder extends Seeder
 
                 DB::table('sub_kegiatans')->insert([
                     'kegiatan_id' => $kegiatanId,
+                    'kode_rekening' => $faker->regexify('[0-9]{2}\.[0-9]{2}\.[0-9]{2}\.[0-9]{2}'),
                     'nama' => $namaSubKegiatan,
                     'pagu' => $pagu,
                     'tahun_anggaran' => $tahunAnggaran,

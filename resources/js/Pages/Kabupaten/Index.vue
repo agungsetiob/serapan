@@ -80,7 +80,7 @@ function formatNumber(value) {
                                         <Tooltip text="Edit Kabupaten" bgColor="bg-blue-500">
                                             <button
                                                 @click="openModal(kabupaten)"
-                                                class="px-2 py-1 text-md sm:text-xl font-semibold rounded transition text-blue-600 hover:bg-blue-100"
+                                                class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-blue-600 hover:bg-blue-100"
                                             >
                                                 <font-awesome-icon icon="edit" />
                                             </button>

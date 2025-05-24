@@ -15,6 +15,7 @@ class SubKegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'pagu' => 'required|numeric',
             'tahun_anggaran' => 'required|digits:4',
+            'kode_rekening' => 'required|string|max:50',
         ]);
 
         $kabupaten = \App\Models\Kabupaten::where('tahun_anggaran', $validated['tahun_anggaran'])->first();
@@ -49,6 +50,7 @@ class SubKegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'pagu' => 'required|numeric',
             'tahun_anggaran' => 'required|digits:4',
+            'kode_rekening' => 'required|string|max:50',
         ]);
 
         DB::beginTransaction();
@@ -61,6 +63,7 @@ class SubKegiatanController extends Controller
             $subKegiatan->update([
                 'nama' => $validated['nama'],
                 'pagu' => $validated['pagu'],
+                'kode_rekening' => $validated['kode_rekening'],
                 'tahun_anggaran' => $validated['tahun_anggaran'],
                 'total_serapan' => $newTotalSerapan,
                 'presentase_serapan' => $validated['pagu'] > 0 

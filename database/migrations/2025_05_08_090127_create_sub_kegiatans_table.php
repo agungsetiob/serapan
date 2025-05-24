@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sub_kegiatans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kegiatan_id')->constrained('kegiatans')->onDelete('cascade');
+            $table->string('kode_rekening');
             $table->string('nama');
             $table->decimal('pagu', 15,2);
             $table->year('tahun_anggaran');

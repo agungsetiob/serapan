@@ -1,7 +1,7 @@
 <template>
     <Modal
       :show="showModal"
-      :title="isEditing ? 'Edit Sub Kegiatan' : 'Hapus Sub Kegiatan'"
+      :title="isEditing ? 'Edit Uraian Sub Kegiatan' : 'Hapus Uraian Sub Kegiatan'"
       maxWidth="2xl"
       closeable
       @close="closeModal"
@@ -11,8 +11,13 @@
           <!-- Edit Form -->
           <form v-if="isEditing" @submit.prevent="updateSubKegiatan">
             <div class="mb-4">
-              <label class="block text-gray-700 text-sm font-medium mb-1">Nama Sub Kegiatan</label>
-              <TextInput v-model="form.nama" class="w-full" placeholder="Masukkan nama sub kegiatan" />
+              <label class="block text-gray-700 text-sm font-medium mb-1">Kode Rekening</label>
+              <TextInput v-model="form.kode_rekening" class="w-full" placeholder="Masukkan kode rekening" />
+              <InputError :message="form.errors.kode_rekening" />
+            </div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-medium mb-1">Nama Uraian Sub Kegiatan</label>
+              <TextInput v-model="form.nama" class="w-full" placeholder="Masukkan uraian sub kegiatan" />
               <InputError :message="form.errors.nama" />
             </div>
   
@@ -48,7 +53,7 @@
             <div class="text-center">
               <font-awesome-icon :icon="['fas', 'triangle-exclamation']" class="text-red-500 text-4xl fa-fade"/>
               <div class="mt-2 text-gray-700">
-                Hapus sub kegiatan <span class="font-semibold text-red-400">{{ form.nama }}</span>?
+                Hapus uraian sub kegiatan <span class="font-semibold text-red-400">{{ form.nama }}</span>?
                 <br> Data yang dihapus tidak dapat dikembalikan.
               </div>
   
@@ -96,6 +101,7 @@
   const showModal = ref(props.show);
   const form = useForm({
     id: null,
+    kode_rekening: '',
     nama: '',
     pagu: 0,
     kegiatan_id: null,
@@ -111,6 +117,7 @@
     ([show, subKegiatan]) => {
       if (show && subKegiatan) {
         form.id = subKegiatan.id ?? null;
+        form.kode_rekening = subKegiatan.kode_rekening ?? '';
         form.nama = subKegiatan.nama ?? '';
         form.pagu = subKegiatan.pagu ?? 0;
         form.kegiatan_id = subKegiatan.kegiatan_id ?? props.kegiatan?.id ?? null;

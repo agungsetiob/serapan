@@ -35,11 +35,11 @@ function gantiTahun() {
 </script>
 
 <template>
-  <Head :title="`Kegiatan ${skpd.nama_skpd}`" />
+  <Head :title="`Histori ${skpd.nama_skpd}`" />
   <AuthenticatedLayout>
-    <div class="container mx-auto px-4 py-8">
+    <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pt-6 sm:pt-16 mx-2 sm:px-2">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:px-6 lg:px-6">
         <h2 class="text-xl font-semibold text-white bg-blue-700 rounded-full px-3">
             {{ skpd.nama_skpd }}
         </h2>
@@ -64,15 +64,15 @@ function gantiTahun() {
       </div>
 
       <!-- Statistik -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 sm:px-6 lg:px-6">
         <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Total Kegiatan</h3>
+          <h3 class="text-sm font-medium text-gray-500">Total Sub Kegiatan</h3>
           <p class="text-2xl font-bold mt-1">
             {{ skpd.kegiatans.length }}
           </p>
         </div>
         <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Total Sub-Kegiatan</h3>
+          <h3 class="text-sm font-medium text-gray-500">Total Uraian Sub Kegiatan</h3>
           <p class="text-2xl font-bold mt-1">
             {{ skpd.kegiatans.reduce((acc, k) => acc + k.sub_kegiatans.length, 0) }}
           </p>
@@ -92,7 +92,7 @@ function gantiTahun() {
       </div>
 
       <!-- Daftar Kegiatan -->
-      <div class="space-y-6">
+      <div class="space-y-6 sm:px-6 lg:px-6">
         <div 
           v-for="kegiatan in skpd.kegiatans" 
           :key="kegiatan.id"
@@ -146,7 +146,7 @@ function gantiTahun() {
               class="py-3 flex justify-between items-center"
             >
               <div class="flex-1">
-                <p class="text-gray-800 font-medium">{{ sub.nama }}</p>
+                <p class="text-blue-600 font-medium">{{ sub.kode_rekening }} - {{ sub.nama }}</p>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-600">
                   <span>Pagu: Rp {{ formatNumber(sub.pagu) }}</span>
                   <span>Serapan: Rp {{ formatNumber(sub.total_serapan) }}</span>

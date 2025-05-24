@@ -22,7 +22,6 @@ import {
     faSuitcase, 
     faChevronDown, 
     faFileCirclePlus, 
-    faPenToSquare, 
     faBuilding, 
     faFileZipper, 
     faWallet, 
@@ -30,7 +29,10 @@ import {
     faTrash,
     faPaperclip,
     faEye,
-    faChevronUp
+    faChevronUp,
+    faSpinner,
+    faEdit as faEditSolid,
+    faTrashCan as faTrashCanSolid
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -45,7 +47,6 @@ library.add(
     faSuitcase, 
     faChevronDown, 
     faFileCirclePlus, 
-    faPenToSquare, 
     faBuilding, 
     faFileZipper, 
     faWallet, 
@@ -53,7 +54,11 @@ library.add(
     faTrash,
     faPaperclip,
     faEye,
-    faChevronUp
+    faChevronUp,
+    faSpinner,
+    faEdit,
+    faTrashCanSolid,
+    faEditSolid,
 );
 
 
@@ -76,9 +81,5 @@ createInertiaApp({
 
         return app;
     },
-    // progress: {
-    //     color: '#E4080A',
-    //     showSpinner: true,
-    // },
     progress: false,
 });

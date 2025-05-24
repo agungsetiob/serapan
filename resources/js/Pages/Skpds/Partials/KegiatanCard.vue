@@ -41,12 +41,12 @@
         </div>
   
         <div class="text-right space-y-1">
-          <div>
+          <div class="space-x-1 flex">
             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
               {{ kegiatan.tahun_anggaran }}
             </span>
             <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-              {{ kegiatan.sub_kegiatans.length }} Sub Kegiatan
+              {{ kegiatan.sub_kegiatans.length }} Uraian
             </span>
           </div>
           <div class="flex justify-end gap-2 mt-2">

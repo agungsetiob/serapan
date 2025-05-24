@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class NotaDinasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $query = NotaDinas::with(['subKegiatan' => ['kegiatan' => ['skpd']]])
+        $query = NotaDinas::with('subKegiatan.kegiatan.skpd')
             ->orderByDesc('created_at');
 
-        if (request()->filled('search')) {
-            $searchTerm = request('search');
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('nomor_nota', 'like', "%{$searchTerm}%")
                     ->orWhere('perihal', 'like', "%{$searchTerm}%")
@@ -35,6 +35,7 @@ class NotaDinasController extends Controller
             'subKegiatans' => $subKegiatans,
         ]);
     }
+    
     public function store(Request $request)
     {
         $subKegiatan = SubKegiatan::find($request->sub_kegiatan_id);

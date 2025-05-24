@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kabupaten;
 use App\Models\Kegiatan;
 use App\Models\Skpd;
+use App\Models\SkpdTahun;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,19 +18,29 @@ class KegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|digits:4',
         ]);
+
         $kabupaten = Kabupaten::where('tahun_anggaran', $validated['tahun_anggaran'])->first();
         if (!$kabupaten) {
             return back()
                 ->with('error', 'Data kabupaten untuk tahun ini belum tersedia.');
         }
-        if($skpd->status){
-            $skpd->kegiatans()->create($validated);
-        }else{
-            return back()->with('error', 'SKPD nonaktif tidak dapat ditambah kegiatan');
-        }
-        
 
-        return back()->with('success', 'Kegiatan berhasil ditambahkan');
+        // Check if the SKPD is mapped to tahun_anggaran
+        $skpdTahunExists = SkpdTahun::where('skpd_id', $skpd->id)
+                                    ->where('tahun_anggaran', $validated['tahun_anggaran'])
+                                    ->exists();
+
+        if (!$skpdTahunExists) {
+            return back()->with('error', $skpd->nama_skpd. ' belum terdaftar untuk tahun anggaran ' . $validated['tahun_anggaran'] . '.');
+        }
+
+        if ($skpd->status) {
+            $skpd->kegiatans()->create($validated);
+        } else {
+            return back()->with('error', 'SKPD nonaktif tidak dapat ditambah kegiatan.');
+        }
+
+        return back()->with('success', 'Kegiatan berhasil ditambahkan.');
     }
 
     public function update(Request $request, Kegiatan $kegiatan)

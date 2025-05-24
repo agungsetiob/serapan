@@ -19,7 +19,7 @@ class KegiatanSeeder extends Seeder
 
         for ($skpdId = 1; $skpdId <= 13; $skpdId++) {
             for ($i = 1; $i <= 3; $i++) {
-                $namaKegiatan = "Kegiatan " . $i . " - SKPD " . $skpdId;
+                $namaKegiatan = $faker->regexify('[0-9]{2}\.[0-9]{2}\.[0-9]{2}') . " - Kegiatan " . $i . " - SKPD " . $skpdId;
                 $pagu = 0;
                 $tahunAnggaran = 2025;
                 $totalSerapan = 0;

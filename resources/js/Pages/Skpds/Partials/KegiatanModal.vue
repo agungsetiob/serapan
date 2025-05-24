@@ -11,7 +11,7 @@
           <!-- Edit Form -->
           <form v-if="isEditing" @submit.prevent="updateKegiatan">
             <div class="mb-4">
-              <label class="block text-gray-700 text-sm font-medium mb-1">Nama Kegiatan</label>
+              <label class="block text-gray-700 text-sm font-medium mb-1">Nama Sub Kegiatan</label>
               <TextInput
                 v-model="form.nama"
                 class="w-full"
@@ -46,7 +46,7 @@
             <div class="text-center">
             <font-awesome-icon :icon="['fas', 'triangle-exclamation']" class="text-red-500 text-4xl"/>
               <div class="mt-2 text-gray-700">
-                Hapus kegiatan
+                Hapus sub kegiatan
                 <span class="font-semibold text-red-400">{{ form.nama }}</span>? 
                 <br>Data yang dihapus tidak dapat dikembalikan.
               </div>

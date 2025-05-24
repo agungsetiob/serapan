@@ -111,7 +111,7 @@ function toggleStatus(skpdId, currentStatus) {
                                         <Tooltip text="Edit SKPD" bgColor="bg-blue-500">
                                             <button
                                                 @click="openModal(skpd)"
-                                                class="px-2 py-1 text-md sm:text-xl font-semibold rounded transition text-blue-600 hover:bg-blue-100"
+                                                class="px-2 py-1 text-md sm:text-lg font-semibold rounded transition text-blue-600 hover:bg-blue-100"
                                             >
                                                 <font-awesome-icon icon="edit" />
                                             </button>

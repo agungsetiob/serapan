@@ -55,7 +55,7 @@ const formatDate = (dateString) => {
                   @click="toggleNotaDinas(sub.id)"
                   class="text-left text-blue-600 hover:text-green-600 font-medium"
                 >
-                  {{ sub.nama }}
+                  {{ sub.kode_rekening }} - {{ sub.nama }}
                   <font-awesome-icon 
                     :icon="['fas', expandedSubKegiatans.includes(sub.id) ? 'chevron-up' : 'chevron-down']" 
                     class="ml-2 text-sm"
@@ -103,7 +103,7 @@ const formatDate = (dateString) => {
                   @click="onEdit(sub, kegiatan)" 
                   class="px-2 py-1 text-xs sm:text-sm rounded text-blue-600 hover:bg-blue-200"
                 >
-                  <font-awesome-icon :icon="['fas', 'pen-to-square']" class="text-sm sm:text-base" />
+                  <font-awesome-icon :icon="['fas', 'edit']" class="text-sm sm:text-base" />
                 </button>
               </Tooltip>
               <Tooltip text="Hapus" bgColor="bg-red-500">
@@ -111,7 +111,7 @@ const formatDate = (dateString) => {
                   @click="onDelete(sub, kegiatan)" 
                   class="px-2 py-1 text-xs sm:text-sm rounded text-red-600 hover:bg-red-100"
                 >
-                  <font-awesome-icon :icon="['far', 'trash-can']" class="text-sm sm:text-base" />
+                  <font-awesome-icon :icon="['fas', 'trash-can']" class="text-sm sm:text-base" />
                 </button>
               </Tooltip>
             </div>
@@ -195,7 +195,7 @@ const formatDate = (dateString) => {
                 </table>
               </div>
               <div v-else class="text-center py-4 text-gray-500 text-sm">
-                Belum ada nota dinas untuk sub kegiatan ini.
+                Belum ada nota dinas untuk uraian sub kegiatan ini.
               </div>
             </div>
           </div>
@@ -206,12 +206,16 @@ const formatDate = (dateString) => {
     <!-- Tambah Sub Kegiatan Form -->
     <div v-if="formSubKegiatan" class="bg-gray-50 p-4 rounded-lg">
       <h5 class="text-sm font-medium text-gray-700 mb-3">
-        Tambah Sub Kegiatan
+        Tambah Uraian Sub Kegiatan
       </h5>
       <form @submit.prevent="onSubmit(kegiatan.id)" class="space-y-3">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-          <div class="md:col-span-2">
-            <TextInput v-model="formSubKegiatan.nama" class="w-full px-3 py-2 text-sm" placeholder="Nama Sub Kegiatan"/>
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
+          <div>
+            <TextInput v-model="formSubKegiatan.kode_rekening" class="w-full px-3 py-2 text-sm" placeholder="Kode Rekening"/>
+            <InputError :message="formSubKegiatan.errors.kode_rekening" />
+          </div>
+          <div class="md:col-span-3">
+            <TextInput v-model="formSubKegiatan.nama" class="w-full px-3 py-2 text-sm" placeholder="Uraian Sub Kegiatan"/>
             <InputError :message="formSubKegiatan.errors.nama" />
           </div>
           <div>
