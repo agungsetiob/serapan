@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotaDinas;
-use App\Models\NotaLampiran;
 use App\Models\SubKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class NotaDinasController extends Controller
 {
@@ -35,11 +35,11 @@ class NotaDinasController extends Controller
             'subKegiatans' => $subKegiatans,
         ]);
     }
-    
+
     public function store(Request $request)
     {
         $subKegiatan = SubKegiatan::find($request->sub_kegiatan_id);
-        
+
         if (!$subKegiatan) {
             return redirect()->back()->with('error', 'Sub kegiatan tidak ditemukan')->withInput();
         }
@@ -47,23 +47,7 @@ class NotaDinasController extends Controller
         $totalSerapan = $subKegiatan->notaDinas()->sum('anggaran');
         $sisaPagu = $subKegiatan->pagu - $totalSerapan;
 
-        $validated = $request->validate([
-            'nomor_nota' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'anggaran' => [
-                'required',
-                'numeric',
-                'min:0',
-                function ($attribute, $value, $fail) use ($sisaPagu) {
-                    if ($value > $sisaPagu) {
-                        $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
-                    }
-                },
-            ],
-            'tanggal_pengajuan' => 'required|date',
-            'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
-            'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
-        ]);
+        $validated = $request->validate($this->getValidationRules($sisaPagu, false));
 
         try {
             return DB::transaction(function () use ($validated, $request) {
@@ -83,11 +67,9 @@ class NotaDinasController extends Controller
                             'nota_dinas_id' => $notaDina->id,
                             'nama_file' => $file->getClientOriginalName(),
                             'path' => $path,
-                            'created_at' => now(),
-                            'updated_at' => now(),
                         ];
                     }
-                    NotaLampiran::insert($attachments);
+                    $notaDina->lampirans()->createMany($attachments);
                 }
 
                 $this->updateBudgetAbsorption($notaDina);
@@ -95,11 +77,13 @@ class NotaDinasController extends Controller
                 return redirect()->back()->with('success', 'Nota dinas berhasil ditambahkan.');
             });
         } catch (\Exception $e) {
+            Log::error('NotaDinas store error: '.$e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal menyimpan nota dinas: ' . $e->getMessage())
                 ->withInput();
         }
     }
+
     public function update(Request $request, NotaDinas $notaDina)
     {
         $subKegiatan = SubKegiatan::find($request->sub_kegiatan_id);
@@ -111,22 +95,7 @@ class NotaDinasController extends Controller
         $totalSerapanLama = $subKegiatan->notaDinas()->sum('anggaran');
         $sisaPagu = ($subKegiatan->pagu - $totalSerapanLama) + $notaDina->anggaran;
 
-        $validated = $request->validate([
-            'nomor_nota' => 'required|string|max:255',
-            'perihal' => 'required|string|max:255',
-            'anggaran' => [
-                'required',
-                'numeric',
-                'min:0',
-                function ($attribute, $value, $fail) use ($sisaPagu) {
-                    if ($value > $sisaPagu) {
-                        $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
-                    }
-                },
-            ],
-            'tanggal_pengajuan' => 'required|date',
-            'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
-        ]);
+        $validated = $request->validate($this->getValidationRules($sisaPagu, true));
 
         try {
             return DB::transaction(function () use ($validated, $request, $notaDina) {
@@ -138,11 +107,7 @@ class NotaDinasController extends Controller
                 ]);
 
                 if ($request->hasFile('lampirans')) {
-                    foreach ($notaDina->lampirans as $lampiran) {
-                        Storage::disk('public')->delete($lampiran->path); // Delete old files
-                        $lampiran->delete();
-                    }
-
+                    // Upload new files
                     $attachments = [];
                     foreach ($request->file('lampirans') as $file) {
                         $path = $file->store('nota_lampirans', 'public');
@@ -153,6 +118,12 @@ class NotaDinasController extends Controller
                         ];
                     }
                     $notaDina->lampirans()->createMany($attachments);
+
+                    // delete old files after successful upload
+                    foreach ($notaDina->lampirans()->where('created_at', '<', now())->get() as $lampiran) {
+                        Storage::disk('public')->delete($lampiran->path);
+                        $lampiran->delete();
+                    }
                 }
 
                 $this->updateBudgetAbsorption($notaDina);
@@ -160,62 +131,64 @@ class NotaDinasController extends Controller
                 return redirect()->back()->with('success', 'Nota dinas berhasil diperbarui.');
             });
         } catch (\Exception $e) {
+            Log::error('NotaDinas update error: '.$e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage())
                 ->withInput();
         }
     }
+
     public function destroy(NotaDinas $notaDina)
     {
         try {
             return DB::transaction(function () use ($notaDina) {
-                // Delete lampiran files first
                 foreach ($notaDina->lampirans as $lampiran) {
                     Storage::disk('public')->delete($lampiran->path);
-                    $lampiran->delete(); 
+                    $lampiran->delete();
                 }
 
-                // Delete nota
                 $notaDina->delete();
 
-                // Update budget absorption
                 $this->updateBudgetAbsorption($notaDina);
 
                 return redirect()->back()->with('success', 'Nota dinas berhasil dihapus.');
             });
         } catch (\Exception $e) {
+            Log::error('NotaDinas destroy error: '.$e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal menghapus nota dinas: ' . $e->getMessage());
         }
-    }  
+    }
+
     protected function updateBudgetAbsorption(NotaDinas $notaDina)
     {
         // Hitung Sub Kegiatan
         $subKegiatan = $notaDina->subKegiatan()->with(['kegiatan.skpd.kabupatens'])->first();
-        //dd($subKegiatan);
+        $totalSerapanSub = $subKegiatan->notaDinas()->sum('anggaran');
+        $paguSub = $subKegiatan->pagu > 0 ? $subKegiatan->pagu : 1;
+
         $subKegiatan->update([
-            'total_serapan' => $subKegiatan->notaDinas()->sum('anggaran'),
-            'presentase_serapan' => $subKegiatan->pagu > 0 
-                ? ($subKegiatan->notaDinas()->sum('anggaran') / $subKegiatan->pagu) * 100 
-                : 0,
+            'total_serapan' => $totalSerapanSub,
+            'presentase_serapan' => ($totalSerapanSub / $paguSub) * 100,
         ]);
-    
+
         // Hitung Kegiatan
         $kegiatan = $subKegiatan->kegiatan;
+        $totalSerapanKegiatan = $kegiatan->subKegiatans()->sum('total_serapan');
+        $paguKeg = $kegiatan->pagu > 0 ? $kegiatan->pagu : 1;
+
         $kegiatan->update([
-            'total_serapan' => $kegiatan->subKegiatans()->sum('total_serapan'),
-            'presentase_serapan' => $kegiatan->pagu > 0 
-                ? ($kegiatan->subKegiatans()->sum('total_serapan') / $kegiatan->pagu) * 100 
-                : 0,
+            'total_serapan' => $totalSerapanKegiatan,
+            'presentase_serapan' => ($totalSerapanKegiatan / $paguKeg) * 100,
         ]);
-    
+
         $skpd = $kegiatan->skpd;
-        
+
         // Get Tahun Anggaran
         $kabupaten = $skpd->kabupatens()
             ->wherePivot('tahun_anggaran', $kegiatan->tahun_anggaran)
             ->first();
-    
+
         if ($kabupaten) {
             // Hitung serapan skpd tahun anggaran berjalan
             $totalSerapan = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $kegiatan) {
@@ -227,16 +200,16 @@ class NotaDinasController extends Controller
                     ->where('tahun_anggaran', $kegiatan->tahun_anggaran);
                 })
                 ->sum('total_serapan');
-    
-            // Update serapan kabupaten
+
             $kabupaten->update([
                 'total_serapan' => $totalSerapan,
-                'presentase_serapan' => $kabupaten->pagu > 0 
-                    ? ($totalSerapan / $kabupaten->pagu) * 100 
+                'presentase_serapan' => $kabupaten->pagu > 0
+                    ? ($totalSerapan / $kabupaten->pagu) * 100
                     : 0,
             ]);
         }
     }
+
     public function getLampiran($id)
     {
         $notaDinas = NotaDinas::with('lampirans')->findOrFail($id);
@@ -256,5 +229,37 @@ class NotaDinasController extends Controller
             'data' => $lampirans
         ]);
     }
-    
+
+    /**
+     * Validation rules for store/update Nota Dinas.
+     *
+     * @param float $sisaPagu
+     * @param bool $isUpdate
+     * @return array
+     */
+    private function getValidationRules($sisaPagu, $isUpdate = false)
+    {
+        $rules = [
+            'nomor_nota' => 'required|string|max:255',
+            'perihal' => 'required|string|max:255',
+            'anggaran' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($sisaPagu) {
+                    if ($value > $sisaPagu) {
+                        $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
+                    }
+                },
+            ],
+            'tanggal_pengajuan' => 'required|date',
+            'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
+        ];
+
+        if (!$isUpdate) {
+            $rules['sub_kegiatan_id'] = 'required|exists:sub_kegiatans,id';
+        }
+
+        return $rules;
+    }
 }
