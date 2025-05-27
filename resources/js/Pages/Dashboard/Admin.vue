@@ -20,37 +20,71 @@ const user = page.props.auth.user;
     <AuthenticatedLayout>
         <div class="pt-6 sm:pt-20 mx-2 sm:px-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+                <!-- Header Section -->
+                <div class="mb-4">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard Overview</h1>
+                </div>
 
-                    <!-- Jumlah SKPD -->
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center shadow-md">
-                        <font-awesome-icon icon="fas fa-building" class="text-3xl text-red-700"/>
-                        <p class="text-lg font-medium mt-2">SKPD</p>
-                        <p class="text-2xl font-bold">{{ totalSkpds }}</p>
+                <!-- Stats Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <!-- SKPD Card -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-l-red-500 border-gray-100 hover:shadow-md transition-all duration-300 group">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">SKPD</p>
+                                <p class="text-2xl font-bold text-gray-800 mt-1">{{ totalSkpds }}</p>
+                            </div>
+                            <div class="bg-red-50 p-3 rounded-lg group-hover:bg-red-100 transition-colors">
+                                <font-awesome-icon icon="fas fa-building" class="text-red-500 text-xl"/>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Jumlah Nota Dinas -->
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center shadow-md">
-                        <font-awesome-icon icon="fas fa-file-zipper" class="text-3xl text-indigo-600"/>
-                        <p class="text-lg font-medium mt-2">Nota Dinas</p>
-                        <p class="text-2xl font-bold">{{ notaDinas }}</p>
+                    <!-- Nota Dinas Card -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-l-indigo-500 border-gray-100 hover:shadow-md transition-all duration-300 group">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Nota Dinas</p>
+                                <p class="text-2xl font-bold text-gray-800 mt-1">{{ notaDinas }}</p>
+                            </div>
+                            <div class="bg-indigo-50 p-3 rounded-lg group-hover:bg-indigo-100 transition-colors">
+                                <font-awesome-icon icon="fas fa-file-zipper" class="text-indigo-500 text-xl"/>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- total serapan -->
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center shadow-md">
-                        <font-awesome-icon :icon="['fas', 'wallet']" class="text-3xl text-orange-500"/>
-                        <p class="text-lg font-medium mt-2">Total Serapan</p>
-                        <p class="text-2xl font-bold">Rp. {{ new Intl.NumberFormat('id-ID').format(totalSerapan) }}</p>
+                    <!-- Total Serapan Card -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-l-orange-500 border-gray-100 hover:shadow-md transition-all duration-300 group">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Serapan</p>
+                                <p class="text-xl font-bold text-gray-800 mt-1">Rp. {{ new Intl.NumberFormat('id-ID').format(totalSerapan) }}</p>
+                            </div>
+                            <div class="bg-orange-50 p-3 rounded-lg group-hover:bg-orange-100 transition-colors">
+                                <font-awesome-icon :icon="['fas', 'wallet']" class="text-orange-500 text-xl"/>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="bg-white rounded-lg p-6 flex flex-col items-center shadow-md">
-                        <font-awesome-icon icon="fas fa-square-check" class="text-3xl text-green-700"/>
-                        <p class="text-lg font-medium mt-2">Presentase Serapan</p>
-                        <p class="text-2xl font-bold">{{ presentaseSerapan }}%</p>
+                    <!-- Persentase Serapan Card -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-l-green-500 border-gray-100 hover:shadow-md transition-all duration-300 group">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Persentase Serapan</p>
+                                <div class="flex items-end mt-1">
+                                    <p class="text-2xl font-bold text-gray-800">{{ presentaseSerapan }}%</p>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg group-hover:bg-green-100 transition-colors">
+                                <font-awesome-icon icon="fas fa-square-check" class="text-green-500 text-xl"/>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="pt-6">
-                    <Charts/>
+
+                <!-- Charts Section -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-8">
+                    <Charts />
                 </div>
             </div>
         </div>
