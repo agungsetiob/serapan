@@ -8,7 +8,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faEdit, faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { faEdit, faTrashCan, faEnvelope } from '@fortawesome/free-regular-svg-icons';
 library.add(faEdit, faTrashCan);
 import { 
     faHome, 
@@ -29,6 +29,7 @@ import {
     faTrash,
     faPaperclip,
     faEye,
+    faEyeSlash,
     faChevronUp,
     faSpinner,
     faEdit as faEditSolid,
@@ -54,11 +55,13 @@ library.add(
     faTrash,
     faPaperclip,
     faEye,
+    faEyeSlash,
     faChevronUp,
     faSpinner,
     faEdit,
     faTrashCanSolid,
     faEditSolid,
+    faEnvelope
 );
 
 

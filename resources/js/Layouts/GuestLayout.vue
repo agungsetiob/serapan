@@ -11,7 +11,7 @@ document.addEventListener('inertia:finish', () => {
 });
 const currentYear = computed(() => new Date().getFullYear());
 
-const appName = import.meta.env.VITE_APP_NAME || 'Monitoring Anggaran';
+const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';
 </script>
 
 <template>
@@ -19,9 +19,8 @@ const appName = import.meta.env.VITE_APP_NAME || 'Monitoring Anggaran';
         <!-- Main Content -->
         <main class="flex-grow flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-green-600 p-6 text-center text-white">
-                    <h1 class="text-2xl font-bold"><slot name="header" /></h1>
-                    <p class="mt-1 opacity-90"><slot name="subheader" /></p>
+                <div class="bg-gradient-to-r from-sky-600 to-yellow-500 p-6 text-center text-white">
+                    <p class="font-semibold"><slot name="subheader" /></p>
                 </div>
                 
                 <div class="p-8">

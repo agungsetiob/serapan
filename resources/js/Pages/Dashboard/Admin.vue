@@ -22,7 +22,7 @@ const user = page.props.auth.user;
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
                 <!-- Header Section -->
                 <div class="mb-4">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard Overview</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard</h1>
                 </div>
 
                 <!-- Stats Cards Grid -->

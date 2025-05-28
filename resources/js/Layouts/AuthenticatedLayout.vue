@@ -1,11 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { usePage, Link, useForm } from '@inertiajs/vue3';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 const showingNavigationDropdown = ref(false);
 const page = usePage();
@@ -52,16 +51,10 @@ function isActive(routeName) {
           <div class="flex">
             <div class="flex shrink-0 items-center">
               <Link :href="route('dashboard')">
-              <ApplicationLogo class="block h-9 w-auto fill-current text-gray-100" />
+                <img src="/img/beraksi.png" alt="Beraksi Logo" class="block h-9 w-auto" />
               </Link>
             </div>
-            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-              <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                Dashboard
-              </NavLink>
-            </div>
           </div>
-
           <div class="hidden sm:ms-6 sm:flex sm:items-center">
             <div class="relative ms-3">
               <Dropdown align="right" width="48">
@@ -70,12 +63,7 @@ function isActive(routeName) {
                     <button type="button"
                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-200 bg-blue-700 hover:text-gray-400 focus:outline-none transition ease-in-out duration-150">
                       {{ user.name }}
-                      <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path fill-rule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clip-rule="evenodd" />
-                      </svg>
+                      <font-awesome-icon :icon="faChevronDown" class="ml-1 text-xs"/>
                     </button>
                   </span>
                 </template>
@@ -140,13 +128,10 @@ function isActive(routeName) {
 
     <div class="flex-1 pt-16 pb-12 sm:pt-16 sm:pb-0 relative">
       <div v-if="isLoading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70">
-        <svg class="animate-spin h-20 w-20 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-          </path>
-        </svg>
+          <svg class="animate-spin h-20 w-20 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
       </div>
 
       <main class="h-full overflow-auto">
