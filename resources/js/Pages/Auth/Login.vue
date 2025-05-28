@@ -8,7 +8,6 @@ import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import ErrorFlash from '@/Components/ErrorFlash.vue';
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 
 defineProps({
     canResetPassword: {
@@ -49,19 +48,15 @@ const clearFlash = () => {
 
         <Head title="Log in" />
         
-        <div class="flex flex-col items-center mb-6">
+        <div class="flex flex-col items-center mb-2">
             <img 
                 src="/img/beraksi.png" 
                 alt="Logo BerAKSI"
-                class="h-24 mb-4"
+                class="h-24 mb-2"
             />
         </div>
 
         <ErrorFlash :flash="flash" @clearFlash="clearFlash" />
-        
-        <div v-if="status" class="mb-4 p-3 rounded-lg bg-green-50 text-green-700 text-sm">
-            {{ status }}
-        </div>
 
         <form @submit.prevent="submit" class="space-y-5">
             <div>
@@ -80,7 +75,7 @@ const clearFlash = () => {
                         placeholder="your@mail.com"
                     />
                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-                        <font-awesome-icon :icon="faEnvelope" />
+                        <font-awesome-icon :icon="['far', 'envelope']" />
                     </div>
                 </div>
                 
