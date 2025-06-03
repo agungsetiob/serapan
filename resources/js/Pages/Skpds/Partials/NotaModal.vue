@@ -1,6 +1,6 @@
 <template>
   <Modal :show="show" @close="closeModal" maxWidth="5xl">
-    <div class="bg-white p-4 sm:p-6 rounded-lg">
+    <div class="sm:p-6">
       <h3 class="text-lg font-semibold mb-4">
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>

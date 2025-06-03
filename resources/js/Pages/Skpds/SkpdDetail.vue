@@ -206,7 +206,7 @@ const handleSuccess = (message) => {
     <ErrorFlash :flash="flash" @clearFlash="clearFlash" />
     <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
       <!-- Header Section -->
-      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6 pb-4">
+      <div class="max-w-8xl mx-auto lg:px-6 pb-4">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-white bg-blue-700 rounded-full px-3">
             {{ skpd.nama_skpd }}
@@ -221,7 +221,7 @@ const handleSuccess = (message) => {
       </div>
       
       <!-- Rekap Anggaran -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 sm:px-6 lg:px-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 lg:px-6">
         <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-green-600">
           <font-awesome-icon 
             :icon="['fas', 'money-bill-wave']" 
@@ -263,7 +263,7 @@ const handleSuccess = (message) => {
       </div>
       
       <!-- Add Kegiatan Card -->
-      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
+      <div class="max-w-8xl mx-auto lg:px-6">
         <div class="bg-white rounded-lg shadow-md p-4 mb-8">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">
             Tambah Sub Kegiatan Baru

@@ -32,6 +32,7 @@ import {
     faEyeSlash,
     faChevronUp,
     faSpinner,
+    faTriangleExclamation,
     faEdit as faEditSolid,
     faTrashCan as faTrashCanSolid
 } from '@fortawesome/free-solid-svg-icons';
@@ -61,7 +62,8 @@ library.add(
     faEdit,
     faTrashCanSolid,
     faEditSolid,
-    faEnvelope
+    faEnvelope,
+    faTriangleExclamation
 );
 
 

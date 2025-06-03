@@ -23,7 +23,11 @@
   
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-medium mb-1">Pagu</label>
-              <TextInput v-model="form.pagu" class="w-full" placeholder="Masukkan pagu" type="number" />
+              <TextInput v-model="formattedPagu"
+                class="w-full"
+                placeholder="Masukkan pagu"
+                type="text"
+                @input="updatePagu($event.target.value)" />
               <InputError :message="form.errors.pagu" />
             </div>
   
@@ -83,7 +87,7 @@
   </template>
   
 <script setup>
-  import { ref, watch } from 'vue';
+  import { ref, watch, computed } from 'vue';
   import { useForm } from '@inertiajs/vue3';
   import Modal from '@/Components/Modal.vue';
   import InputError from '@/Components/InputError.vue';
@@ -151,6 +155,23 @@
             closeModal();
             },
         });
+    };
+
+    const formattedPagu = computed({
+      get() {
+        if (form.pagu === null || form.pagu === '') {
+          return '';
+        }
+        return parseInt(form.pagu, 10).toLocaleString('id-ID');
+      },
+      set(newValue) {
+        const cleanedValue = newValue.replace(/\D/g, '');
+        form.pagu = cleanedValue;
+      },
+    });
+    const updatePagu = (value) => {
+      const cleanedValue = value.replace(/\D/g, '');
+      form.pagu = cleanedValue;
     };
 
 </script>
