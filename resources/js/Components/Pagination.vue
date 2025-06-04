@@ -8,7 +8,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="flex items-center justify-between bg-white px-4 py-3 sm:px-6">
+    <div class="flex items-center justify-between px-4 py-3 sm:px-6">
         <!-- Mobile version -->
         <div class="flex flex-1 justify-between sm:hidden">
             <component
@@ -50,7 +50,7 @@ defineProps({
                         :is="links[0].url ? Link : 'span'"
                         :href="links[0].url"
                         preserve-scroll
-                        class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        class="relative inline-flex items-center bg-white rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                         :class="{ 'opacity-50 cursor-not-allowed': !links[0].url }"
                     >
                         <span class="sr-only">Previous</span>
@@ -66,7 +66,7 @@ defineProps({
                             :class="[
                                 link.active
                                     ? 'z-10 bg-indigo-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-                                    : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0',
+                                    : 'text-gray-900 ring-1 ring-inset bg-white ring-gray-300 hover:bg-gray-50 focus:outline-offset-0',
                                 index > 0 && index < links.length - 3 && !link.active
                                     ? 'hidden md:inline-flex'
                                     : ''
@@ -80,7 +80,7 @@ defineProps({
                         :is="links[links.length - 1].url ? Link : 'span'"
                         :href="links[links.length - 1].url"
                         preserve-scroll
-                        class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        class="relative inline-flex items-center bg-white rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                         :class="{ 'opacity-50 cursor-not-allowed': !links[links.length - 1].url }"
                     >
                         <span class="sr-only">Next</span>

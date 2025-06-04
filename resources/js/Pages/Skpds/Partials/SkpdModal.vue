@@ -6,14 +6,12 @@ import Modal from '@/Components/Modal.vue';
 const props = defineProps({
   show: Boolean,
   skpd: Object,
-  asistens: Array,
 })
 
 const emit = defineEmits(['close'])
 
 const form = useForm({
   nama_skpd: '',
-  asisten_id: '',
 })
 
 const isEdit = computed(() => !!props.skpd?.id)
@@ -23,7 +21,6 @@ watch(
   (val) => {
     if (val) {
       form.nama_skpd = val.nama_skpd || ''
-      form.asisten_id = val.asisten_id || ''
     } else {
       form.reset()
     }
@@ -39,14 +36,18 @@ const submitForm = () => {
     })
   } else {
     form.post(route('skpds.store'), {
-      onSuccess: () => emit('close'),
+      onSuccess: () => {
+        form.reset();
+        emit('close');
+      },
       preserveScroll: true,
     })
   }
 }
 
 const close = () => {
-  emit('close')
+  form.reset();
+  emit('close');
 }
 </script>
 

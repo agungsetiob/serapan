@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotaDinas;
+use App\Models\Skpd;
 use App\Models\SubKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,28 +12,42 @@ use Illuminate\Support\Facades\Log;
 
 class NotaDinasController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $query = NotaDinas::with('subKegiatan.kegiatan.skpd')
+    //         ->orderByDesc('created_at');
+
+    //     if ($request->filled('search')) {
+    //         $searchTerm = $request->input('search');
+    //         $query->where(function ($q) use ($searchTerm) {
+    //             $q->where('nomor_nota', 'like', "%{$searchTerm}%")
+    //                 ->orWhere('perihal', 'like', "%{$searchTerm}%")
+    //                 ->orWhereHas('subKegiatan.kegiatan.skpd', function ($skpdQuery) use ($searchTerm) {
+    //                     $skpdQuery->where('nama_skpd', 'like', "%{$searchTerm}%");
+    //                 });
+    //         });
+    //     }
+
+    //     $notas = $query->paginate(10);
+    //     $subKegiatans = SubKegiatan::with('kegiatan.skpd')->get();
+
+    //     return inertia('NotaDinas/Index', [
+    //         'notas' => $notas,
+    //         'subKegiatans' => $subKegiatans,
+    //     ]);
+    // }
     public function index(Request $request)
     {
-        $query = NotaDinas::with('subKegiatan.kegiatan.skpd')
-            ->orderByDesc('created_at');
-
-        if ($request->filled('search')) {
-            $searchTerm = $request->input('search');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('nomor_nota', 'like', "%{$searchTerm}%")
-                    ->orWhere('perihal', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('subKegiatan.kegiatan.skpd', function ($skpdQuery) use ($searchTerm) {
-                        $skpdQuery->where('nama_skpd', 'like', "%{$searchTerm}%");
-                    });
-            });
+        $query = Skpd::query();
+    
+        if ($search = $request->search) {
+            $query->where('nama_skpd', 'like', '%' . $search . '%');
         }
-
-        $notas = $query->paginate(10);
-        $subKegiatans = SubKegiatan::with('kegiatan.skpd')->get();
-
+    
+        $skpds = $query->paginate(12);
+    
         return inertia('NotaDinas/Index', [
-            'notas' => $notas,
-            'subKegiatans' => $subKegiatans,
+            'skpds' => $skpds,
         ]);
     }
 
