@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nota_dinas', function (Blueprint $table) {
+        Schema::create('nota_dinas_relasis', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_nota');
-            $table->string('perihal');
-            $table->decimal('anggaran', 15,2);
-            $table->date('tanggal_pengajuan');
-            $table->foreignId('sub_kegiatan_id')->constrained('sub_kegiatans')->onDelete('cascade');
+            $table->foreignId('nota_dinas_id')->constrained('nota_dinas')->onDelete('cascade');
+            $table->foreignId('terkait_id')->constrained('nota_dinas')->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['nota_dinas_id', 'terkait_id']); // Hindari duplikasi
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nota_dinas');
+        Schema::dropIfExists('nota_dinas_relasis');
     }
 };

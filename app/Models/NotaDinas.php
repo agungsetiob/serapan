@@ -13,6 +13,7 @@ class NotaDinas extends Model
         'anggaran', 
         'tanggal_pengajuan',
         'sub_kegiatan_id',
+        'jenis'
         
     ];
 
@@ -23,6 +24,27 @@ class NotaDinas extends Model
     public function lampirans()
     {
         return $this->hasMany(NotaLampiran::class, 'nota_dinas_id');
+    }
+    // Nota yang dikaitkan (anak)
+    public function terkait()
+    {
+        return $this->belongsToMany(
+            NotaDinas::class,
+            'nota_dinas_relasis',
+            'nota_dinas_id',
+            'terkait_id'
+        )->withTimestamps();
+    }
+
+    // Nota yang mengaitkan nota ini (parent)
+    public function dikaitkanOleh()
+    {
+        return $this->belongsToMany(
+            NotaDinas::class,
+            'nota_dinas_relasis',
+            'terkait_id',
+            'nota_dinas_id'
+        )->withTimestamps();
     }
 
 }

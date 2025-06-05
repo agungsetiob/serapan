@@ -42,7 +42,6 @@ function submitKegiatan() {
 
 const formSubKegiatan = ref({});
 
-// Watch perubahan pada daftar kegiatan agar setiap kegiatan baru mendapatkan form sub kegiatan
 watch(
   () => props.skpd.kegiatans,
   (newKegiatans) => {
@@ -76,7 +75,6 @@ function formatNumber(value) {
   }).format(value);
 }
 
-// Modal states
 const modalState = ref({
   show: false,
   isEditing: false,
@@ -107,7 +105,6 @@ const deleteModalState = ref({
   notaDinas: null
 });
 
-// Kegiatan handlers
 const editKegiatan = (kegiatan) => {
   modalKegiatan.value = {
     show: true,
@@ -124,7 +121,6 @@ const deleteKegiatan = (kegiatan) => {
   };
 };
 
-// Sub Kegiatan handlers
 const editSubKegiatan = (sub, kegiatan) => {
   modalState.value = {
     show: true,
@@ -143,7 +139,6 @@ const deleteSubKegiatan = (sub, kegiatan) => {
   };
 };
 
-// Nota Dinas handlers
 const handleCreateNota = (subKegiatan) => {
   notaModalState.value = {
     show: true,
@@ -154,7 +149,6 @@ const handleCreateNota = (subKegiatan) => {
 };
 
 const handleEditNota = (nota, subKegiatan) => {
-  //console.log('Nota data:', nota);
   notaModalState.value = {
     show: true,
     isEditing: true,
@@ -205,10 +199,9 @@ const handleSuccess = (message) => {
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <ErrorFlash :flash="flash" @clearFlash="clearFlash" />
     <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
-      <!-- Header Section -->
       <div class="max-w-8xl mx-auto lg:px-6 pb-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-white bg-blue-700 rounded-full px-3">
+          <h2 class="text-xl font-semibold">
             {{ skpd.nama_skpd }}
           </h2>
           <Link

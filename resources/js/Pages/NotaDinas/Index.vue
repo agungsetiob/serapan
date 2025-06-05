@@ -34,14 +34,16 @@ const props = defineProps({
                         :key="skpd.id"
                         class="bg-white rounded-lg shadow-lg p-6 flex items-center gap-4 hover:shadow-xl transition duration-300"
                     >
-                        <font-awesome-icon :icon="['fas', 'building']" class="text-3xl text-gray-500" />
+                        <font-awesome-icon :icon="['fas', 'file-zipper']" class="text-3xl text-red-500" />
                         <Link
-                            :href="route('skpds.show', skpd.id)"
+                            :href="route('nota-dinas.nota-gutuls', skpd.id)"
                             preserve-scroll
                             class="text-blue-600 font-semibold hover:text-green-600"
-                        >
+                            >
                             {{ skpd.nama_skpd }}
                         </Link>
+                        <span class="text-sm text-gray-500">{{ skpd.kode_skpd }}</span> 
+
                     </div>
                     <div v-if="skpds.data.length === 0" class="col-span-full text-center text-gray-500">
                         Belum ada SKPD

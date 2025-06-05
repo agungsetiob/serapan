@@ -35,7 +35,7 @@ document.addEventListener('inertia:finish', () => {
 });
 
 const currentYear = computed(() => new Date().getFullYear());
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';
 function isActive(routeName) {
   const current = route().current();
   return current.startsWith(routeName) || current.includes(routeName.split('.')[0]);
