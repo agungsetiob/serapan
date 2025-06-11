@@ -1,0 +1,339 @@
+<template>
+  <Head :title="`${skpd.nama_skpd}`" />
+
+  <AuthenticatedLayout>
+    <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
+    <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
+      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
+        <!-- Judul SKPD -->
+        
+
+        <!-- Card Utama -->
+        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-200 p-6">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">{{ skpd.nama_skpd }}</h2>
+            </div>
+            <!-- Filter dan Tombol -->
+            <div class="py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <SearchInput v-model:search="search" class="flex-grow" />
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <!-- Tahun -->
+                    <div class="w-full sm:w-40">
+                        <select
+                        v-model="tahun"
+                        @change="handleTahunChange(tahun)"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                        >
+                        <option
+                            v-for="tahunOption in tahunOptions"
+                            :key="tahunOption"
+                            :value="tahunOption"
+                        >
+                            {{ tahunOption }}
+                        </option>
+                        </select>
+                    </div>
+
+                    <!-- Tombol Tambah -->
+                    <button
+                        @click="handleCreateNota()"
+                        class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
+                    >
+                        + Tambah Nota
+                    </button>
+                </div>
+            </div>
+
+          <!-- Tabel Nota -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Nota</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perihal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anggaran</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <template v-for="nota in filteredNotaDinas" :key="nota.id">
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {{ nota.nomor_nota }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {{ nota.perihal }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {{ formatCurrency(nota.anggaran) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {{ formatDate(nota.tanggal_pengajuan) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <span :class="badgeClasses(nota.jenis)">
+                        {{ nota.jenis }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                      <button
+                        v-if="nota.terkait && nota.terkait.length > 0"
+                        @click="toggleExpand(nota.id)"
+                        :title="expandedNotas.includes(nota.id) ? 'Sembunyikan Child' : 'Lihat Child'"
+                        class="text-indigo-600 hover:text-indigo-800 p-1 rounded hover:bg-indigo-50 transition-colors"
+                      >
+                        <font-awesome-icon 
+                          :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" 
+                        />
+                      </button>
+
+                      <button
+                        @click="handleCreateNota(true, nota)"
+                        class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition-colors"
+                        title="Tambah Child"
+                      >
+                        <font-awesome-icon :icon="['fas', 'file-circle-plus']" />
+                      </button>
+
+                      <button
+                        @click="handleEditNota(nota)"
+                        class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors"
+                        title="Edit"
+                      >
+                        <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                      </button>
+
+                      <button
+                        @click="handleViewAttachment(nota)"
+                        class="text-purple-600 hover:text-purple-800 p-1 rounded hover:bg-purple-50 transition-colors"
+                        title="Lampiran"
+                      >
+                        <font-awesome-icon :icon="['fas', 'paperclip']" />
+                      </button>
+
+                      <button
+                        @click="handleDeleteNota(nota)"
+                        class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
+                        title="Hapus"
+                      >
+                        <font-awesome-icon :icon="['fas', 'trash']" />
+                      </button>
+                    </td>
+                  </tr>
+
+                  <ChildNotaRow
+                    v-if="expandedNotas.includes(nota.id) && nota.terkait && nota.terkait.length > 0"
+                    :children="nota.terkait"
+                    @edit="handleEditNota"
+                    @view-attachment="handleViewAttachment"
+                    @delete="handleDeleteNota"
+                  />
+                </template>
+
+                <tr v-if="filteredNotaDinas.length === 0">
+                  <td colspan="6" class="px-6 py-8 text-center">
+                    <div class="flex flex-col items-center justify-center text-gray-400">
+                      <font-awesome-icon :icon="['fas', 'file-circle-xmark']" class="text-3xl mb-2" />
+                      <p class="text-sm">Tidak ada nota dinas untuk SKPD ini pada tahun {{ tahun }}.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <Pagination 
+            :links="notaDinas.links"
+            :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" 
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <NotaModal
+      :show="notaModalState.show"
+      :isEdit="notaModalState.isEditing"
+      :notaData="notaModalState.notaDinas"
+      :skpd="notaModalState.skpd"
+      :isChild="notaModalState.isChild"
+      :parentNota="notaModalState.parentNota" 
+      @close="() => handleCloseModal('nota')"
+      @success="handleSuccess"
+    />
+
+    <LampiranModal
+      :show="attachmentModalState.show"
+      :notaId="attachmentModalState.notaId"
+      @close="() => handleCloseModal('attachment')"
+    />
+
+    <DeleteNotaModal
+      :show="deleteModalState.show"
+      :notaDinas="deleteModalState.notaDinas"
+      @close="() => handleCloseModal('delete')"
+      @success="handleSuccess"
+    />
+  </AuthenticatedLayout>
+</template>
+
+<script setup>
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
+import NotaModal from './Partials/NotaModal.vue';
+import DeleteNotaModal from '../NotaDinas/Partials/DeleteNotaModal.vue';
+import LampiranModal from './Partials/LampiranModal.vue';
+import ChildNotaRow from './Partials/ChildNotaRow.vue';
+import { formatCurrency, formatDate } from '@/Utils/formatters';
+import SearchInput from '@/Components/SearchInput.vue';
+import Tooltip from '@/Components/Tooltip.vue';
+import SuccessFlash from '@/Components/SuccessFlash.vue';
+
+const props = defineProps({
+  skpd: Object,
+  notaDinas: Object,
+  tahunOptions: Array,
+  tahunSelected: Number,
+});
+
+const search = ref('');
+watch(search, (val) => {
+  router.get(route('nota-skpd.show', { nota_skpd: props.skpd.id }), { search: val }, { preserveState: true, replace: true });
+});
+
+const flash = computed(() => usePage().props.flash || {}); 
+const clearFlash = () => {
+  flash.value.success = null;
+};
+
+const tahun = ref(props.tahunSelected);
+const expandedNotas = ref([]);
+
+const notaModalState = ref({
+  show: false,
+  isEditing: false,
+  notaDinas: null,
+  isChild: false,
+  parentNota: null,
+  skpd: props.skpd
+});
+
+const deleteModalState = ref({
+  show: false,
+  notaDinas: null
+});
+
+const attachmentModalState = ref({
+  show: false,
+  notaId: null
+});
+
+const filteredNotaDinas = computed(() => {
+  return props.notaDinas.data.filter(nota => !nota.dikaitkan_oleh || nota.dikaitkan_oleh.length === 0);
+});
+
+const badgeClasses = (jenis) => {
+  const base = 'px-2 py-1 rounded-full text-xs font-medium';
+  switch(jenis) {
+    case 'Pelaksanaan': return `${base} bg-blue-100 text-blue-800`;
+    case 'Perbup': return `${base} bg-green-100 text-green-800`;
+    case 'Lain-lain': return `${base} bg-purple-100 text-purple-800`;
+    default: return `${base} bg-gray-100 text-gray-800`;
+  }
+};
+
+const handleTahunChange = (newTahun) => {
+  tahun.value = newTahun;
+  router.get(route('nota-dinas.skpd', props.skpd.id),
+    { search: search.value, tahun: newTahun },
+    { preserveState: true, replace: true }
+  );
+};
+
+const handleSearchChange = (newSearch) => {
+  search.value = newSearch;
+};
+
+const toggleExpand = (notaId) => {
+  const index = expandedNotas.value.indexOf(notaId);
+  if (index === -1) {
+    expandedNotas.value.push(notaId);
+  } else {
+    expandedNotas.value.splice(index, 1);
+  }
+};
+
+const handleCreateNota = (isChild = false, parentNota = null) => {
+  notaModalState.value = {
+    show: true,
+    isEditing: false,
+    notaDinas: null,
+    isChild,
+    parentNota,
+    skpd: props.skpd
+  };
+};
+
+const handleEditNota = (nota) => {
+  notaModalState.value = {
+    show: true,
+    isEditing: true,
+    notaDinas: nota,
+    isChild: (nota.dikaitkan_oleh && nota.dikaitkan_oleh.length > 0),
+    parentNota: (nota.dikaitkan_oleh && nota.dikaitkan_oleh.length > 0) ? nota.dikaitkan_oleh[0] : null,
+    skpd: props.skpd
+  };
+};
+
+const handleViewAttachment = (nota) => {
+  attachmentModalState.value = {
+    show: true,
+    notaId: nota.id
+  };
+};
+
+const handleDeleteNota = (nota) => {
+  deleteModalState.value = {
+    show: true,
+    notaDinas: nota
+  };
+};
+
+const handleCloseModal = (modalType) => {
+  switch (modalType) {
+    case 'nota':
+      notaModalState.value.show = false;
+      notaModalState.value.isChild = false;
+      notaModalState.value.parentNota = null;
+      break;
+    case 'attachment':
+      attachmentModalState.value.show = false;
+      attachmentModalState.value.notaId = null;
+      break;
+    case 'delete':
+      deleteModalState.value.show = false;
+      break;
+  }
+};
+
+const handleSuccess = () => {
+  const currentlyExpanded = [...expandedNotas.value];
+  expandedNotas.value = [];
+
+  router.reload({
+    only: ['notaDinas', 'skpd'],
+    preserveState: true,
+    onSuccess: () => {
+      expandedNotas.value = props.notaDinas.data
+        .filter(nota => currentlyExpanded.includes(nota.id))
+        .map(nota => nota.id);
+    }
+  });
+};
+</script>

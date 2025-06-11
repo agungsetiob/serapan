@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('anggaran', 15, 2);
             $table->date('tanggal_pengajuan');
             $table->foreignId('sub_kegiatan_id')->nullable()->constrained('sub_kegiatans')->onDelete('cascade');
+            $table->foreignId('skpd_id')->nullable()->constrained('skpds')->onDelete('cascade');
             $table->enum('jenis', ['Pelaksanaan', 'Perbup', 'Lain-lain', 'GU', 'TU', 'LS'])->default('Pelaksanaan');
             $table->timestamps();
         });

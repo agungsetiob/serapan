@@ -13,6 +13,7 @@ class NotaDinas extends Model
         'anggaran', 
         'tanggal_pengajuan',
         'sub_kegiatan_id',
+        'skpd_id',
         'jenis'
         
     ];
@@ -20,6 +21,10 @@ class NotaDinas extends Model
     public function subKegiatan()
     {
         return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id');
+    }
+    public function skpd()
+    {
+        return $this->belongsTo(Skpd::class, 'skpd_id');
     }
     public function lampirans()
     {
@@ -45,6 +50,20 @@ class NotaDinas extends Model
             'terkait_id',
             'nota_dinas_id'
         )->withTimestamps();
+    }
+
+    // Helper method untuk mendapatkan SKPD baik langsung atau melalui sub kegiatan
+    public function getSkpdAttribute()
+    {
+        if ($this->skpd_id) {
+            return $this->skpd;
+        }
+
+        if ($this->subKegiatan && $this->subKegiatan->kegiatan && $this->subKegiatan->kegiatan->skpd) {
+            return $this->subKegiatan->kegiatan->skpd;
+        }
+
+        return null;
     }
 
 }

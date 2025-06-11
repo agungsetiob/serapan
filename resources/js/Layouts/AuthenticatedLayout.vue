@@ -19,6 +19,7 @@ const menuItems = {
     { label: 'Users', route: 'users.index', icon: ['fas', 'user'] },
     { label: 'SKPD', route: 'skpds.index', icon: ['fas', 'sitemap'] },
     { label: 'Nota Dinas', route: 'nota-dinas.index', icon: ['fas', 'file-lines'] },
+    { label: 'Nota SKPD', route: 'nota-skpd.index', icon: ['fas', 'building'] },
     { label: 'Pagu', route: 'kabupaten.index', icon: ['fas', 'layer-group'] },
   ],
 };
