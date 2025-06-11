@@ -96,7 +96,7 @@ class NotaSkpdController extends Controller
 
             if ($anggaranToCreate > $totalAvailableParentBudget) {
                 return back()->withInput()->withErrors([
-                    'anggaran' => "Anggaran yang diajukan (Rp" . number_format($anggaranToCreate, 0, ',', '.') . ") melebihi sisa anggaran kumulatif dari nota-nota terkait yang dipilih. Maksimum: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
+                    'anggaran' => "Anggaran yang diajukan (Rp" . number_format($anggaranToCreate, 0, ',', '.') . ") melebihi sisa anggaran dari nota terkait. Sisa: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
                 ]);
             }
         }
@@ -129,8 +129,7 @@ class NotaSkpdController extends Controller
 
             DB::commit();
 
-            return redirect()->route('nota-skpd.show', ['skpd' => $validatedData['skpd_id']])
-                ->with('success', 'Nota berhasil ditambahkan.');
+            return redirect()->back()->with('success', 'Nota dinas berhasil dibuat.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -142,7 +141,12 @@ class NotaSkpdController extends Controller
     public function update(Request $request, NotaDinas $nota_skpd)
     {
         $validatedData = $request->validate([
-            'nomor_nota' => 'required|string|max:100',
+            'nomor_nota' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('nota_dinas')->ignore($nota_skpd->id)
+            ],
             'perihal' => 'required|string|max:255',
             'anggaran' => 'nullable|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
@@ -197,7 +201,11 @@ class NotaSkpdController extends Controller
                 'skpd_id' => $validatedData['skpd_id'],
             ]);
 
-            $nota_skpd->dikaitkanOleh()->sync($newParentIds);
+            $existingParentIds = $nota_skpd->dikaitkanOleh()->pluck('nota_dinas.id')->toArray();
+            $mergedParentIds = array_unique(array_merge($existingParentIds, $newParentIds));
+
+            $nota_skpd->dikaitkanOleh()->sync($mergedParentIds);
+
 
             if ($request->hasFile('lampirans')) {
                 foreach ($request->file('lampirans') as $file) {
@@ -219,7 +227,6 @@ class NotaSkpdController extends Controller
             return redirect()->back()->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage());
         }
     }
-
 
     public function destroy(NotaDinas $nota_skpd)
     {

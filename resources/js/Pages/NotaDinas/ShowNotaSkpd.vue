@@ -4,20 +4,14 @@
   <AuthenticatedLayout>
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
-      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
-        <!-- Judul SKPD -->
-        
-
-        <!-- Card Utama -->
+      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">        
         <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-200 p-6">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">{{ skpd.nama_skpd }}</h2>
             </div>
-            <!-- Filter dan Tombol -->
             <div class="py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <SearchInput v-model:search="search" class="flex-grow" />
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <!-- Tahun -->
                     <div class="w-full sm:w-40">
                         <select
                         v-model="tahun"
@@ -34,7 +28,6 @@
                         </select>
                     </div>
 
-                    <!-- Tombol Tambah -->
                     <button
                         @click="handleCreateNota()"
                         class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
@@ -44,7 +37,6 @@
                 </div>
             </div>
 
-          <!-- Tabel Nota -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
@@ -54,7 +46,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anggaran</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th></th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -78,48 +70,49 @@
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
-                      <button
-                        v-if="nota.terkait && nota.terkait.length > 0"
-                        @click="toggleExpand(nota.id)"
-                        :title="expandedNotas.includes(nota.id) ? 'Sembunyikan Child' : 'Lihat Child'"
-                        class="text-indigo-600 hover:text-indigo-800 p-1 rounded hover:bg-indigo-50 transition-colors"
-                      >
-                        <font-awesome-icon 
-                          :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" 
-                        />
-                      </button>
-
-                      <button
-                        @click="handleCreateNota(true, nota)"
-                        class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition-colors"
-                        title="Tambah Child"
-                      >
-                        <font-awesome-icon :icon="['fas', 'file-circle-plus']" />
-                      </button>
-
-                      <button
-                        @click="handleEditNota(nota)"
-                        class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors"
-                        title="Edit"
-                      >
-                        <font-awesome-icon :icon="['fas', 'pen-to-square']" />
-                      </button>
-
-                      <button
-                        @click="handleViewAttachment(nota)"
-                        class="text-purple-600 hover:text-purple-800 p-1 rounded hover:bg-purple-50 transition-colors"
-                        title="Lampiran"
-                      >
-                        <font-awesome-icon :icon="['fas', 'paperclip']" />
-                      </button>
-
-                      <button
-                        @click="handleDeleteNota(nota)"
-                        class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
-                        title="Hapus"
-                      >
-                        <font-awesome-icon :icon="['fas', 'trash']" />
-                      </button>
+                      <Tooltip text="Nota Dinas" bgColor="bg-green-500">
+                        <button
+                          @click="handleCreateNota(true, nota)"
+                          class="text-green-600 px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                        >
+                          <font-awesome-icon :icon="['fas', 'file-circle-plus']" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip text="Edit" bgColor="bg-blue-500">
+                        <button
+                          @click="handleEditNota(nota)"
+                          class="text-blue-600 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                        >
+                          <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip text="Lampiran" bgColor="bg-purple-500">
+                        <button
+                          @click="handleViewAttachment(nota)"
+                          class="text-purple-600 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
+                        >
+                          <font-awesome-icon :icon="['fas', 'paperclip']" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip text="Hapus" bgColor="bg-red-500">
+                        <button
+                          @click="handleDeleteNota(nota)"
+                          class="text-red-600 px-2 py-1 rounded hover:bg-red-200 transition-colors"
+                        >
+                          <font-awesome-icon :icon="['fas', 'trash']" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip :text="expandedNotas.includes(nota.id) ? 'Tutup nota terkait' : 'Buka nota terkait'" bgColor="bg-indigo-500">
+                        <button
+                          v-if="nota.terkait && nota.terkait.length > 0"
+                          @click="toggleExpand(nota.id)"
+                          class="text-indigo-600 p-1 rounded hover:bg-indigo-200 transition-colors"
+                        >
+                          <font-awesome-icon 
+                            :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" 
+                          />
+                        </button>
+                      </Tooltip>
                     </td>
                   </tr>
 
@@ -135,7 +128,6 @@
                 <tr v-if="filteredNotaDinas.length === 0">
                   <td colspan="6" class="px-6 py-8 text-center">
                     <div class="flex flex-col items-center justify-center text-gray-400">
-                      <font-awesome-icon :icon="['fas', 'file-circle-xmark']" class="text-3xl mb-2" />
                       <p class="text-sm">Tidak ada nota dinas untuk SKPD ini pada tahun {{ tahun }}.</p>
                     </div>
                   </td>
@@ -143,13 +135,12 @@
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div class="mt-4">
-          <Pagination 
-            :links="notaDinas.links"
-            :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" 
-          />
+          <div class="mt-4">
+            <Pagination 
+              :links="notaDinas.links"
+              :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" 
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@
         <input type="hidden" v-model="form.id">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota *</label>
+            <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota<span class="text-red-600">*</span></label>
             <input
               type="text"
               v-model="form.nomor_nota"
@@ -49,7 +49,7 @@
           </div>
 
           <div>
-            <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan *</label>
+            <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan<span class="text-red-600">*</span></label>
             <input
               type="date"
               v-model="form.tanggal_pengajuan"
@@ -64,7 +64,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Nota *</label>
+            <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Nota<span class="text-red-600">*</span></label>
             <select
               v-model="form.jenis"
               required
@@ -83,7 +83,7 @@
           </div>
 
           <div>
-            <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)</label>
+            <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span class="text-red-600">*</span></label>
             <input
               type="text"
               :value="formattedAnggaran"
@@ -97,14 +97,11 @@
             <p v-if="form.errors.anggaran" class="mt-1 text-sm text-red-600">
               {{ form.errors.anggaran }}
             </p>
-            <p v-else class="mt-1 text-xs text-gray-500">
-              Masukkan angka, Anda bisa menggunakan titik sebagai pemisah ribuan atau koma untuk desimal.
-            </p>
           </div>
         </div>
 
         <div class="mb-4">
-          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal *</label>
+          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal<span class="text-red-600">*</span></label>
           <input
             type="text"
             v-model="form.perihal"

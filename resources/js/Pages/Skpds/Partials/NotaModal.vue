@@ -5,13 +5,10 @@
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>
 
-      <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-gray-100 rounded-md">
+      <div v-if="currentSubKegiatan" class="mb-4 p-3 bg-green-100 rounded-md">
         <h4 class="text-sm font-medium text-gray-700 mb-1">Untuk Sub Kegiatan:</h4>
         <p class="font-medium">{{ currentSubKegiatan.nama }}</p>
         <p class="text-sm text-gray-600">Pagu: Rp {{ formatRupiah(currentSubKegiatan.pagu) }}</p>
-      </div>
-      <div v-else class="mb-4 p-3 bg-red-50 rounded-md">
-        <p class="text-sm text-red-700">Sub Kegiatan tidak ditemukan</p>
       </div>
 
       <div
@@ -40,7 +37,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota *</label>
+            <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota<span class="text-red-600">*</span></label>
             <input
               type="text"
               v-model="form.nomor_nota"
@@ -53,7 +50,7 @@
           </div>
 
           <div>
-            <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan *</label>
+            <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan<span class="text-red-600">*</span></label>
             <input
               type="date"
               v-model="form.tanggal_pengajuan"
@@ -67,7 +64,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal *</label>
+          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal<span class="text-red-600">*</span></label>
           <input
             type="text"
             v-model="form.perihal"
@@ -80,7 +77,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)</label>
+          <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span class="text-red-600">*</span></label>
           <input
             type="text"
             :value="formattedAnggaran"
@@ -96,7 +93,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="lampirans" class="block text-sm font-medium text-gray-700 mb-1">Lampiran (optional)</label>
+          <label for="lampirans" class="block text-sm font-medium text-gray-700 mb-1">Lampiran (opsional)</label>
           <input
             type="file"
             accept=".pdf"

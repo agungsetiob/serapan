@@ -8,7 +8,7 @@
         <p class="text-gray-600 mb-6">
             Hapus Nota Dinas <span class="font-semibold text-red-400">{{ notaDinas.nomor_nota }}</span>?
             <br>
-            Anggaran sebesar Rp {{ formatCurrency(notaDinas.anggaran) }} akan dikembalikan.
+            Anggaran sebesar <span class="font-semibold text-red-400">Rp {{ formatCurrency(notaDinas.anggaran) }}</span> akan dikembalikan.
         </p>
 
         <div class="flex justify-end space-x-3">

@@ -117,7 +117,7 @@ const formatDate = (dateString) => {
             </div>
           </div>
 
-          <!-- Nota Dinas List (Collapsible) -->
+          <!-- Nota Dinas List -->
           <div 
             v-if="expandedSubKegiatans.includes(sub.id)"
             class="mt-3 bg-gray-50 rounded-lg p-4 transition-all duration-300"
@@ -143,9 +143,7 @@ const formatDate = (dateString) => {
                       <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Nilai
                       </th>
-                      <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Aksi
-                      </th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
@@ -164,10 +162,10 @@ const formatDate = (dateString) => {
                       </td>
                       <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-2">
-                          <Tooltip text="Lampiran" bgColor="bg-gray-500">
+                          <Tooltip text="Lampiran" bgColor="bg-purple-500">
                             <button 
                               @click="emit('viewAttachment', nota)" 
-                              class="px-2 py-1 text-xs sm:text-sm rounded text-gray-600 hover:bg-gray-200"
+                              class="px-2 py-1 text-xs sm:text-sm rounded text-purple-600 hover:bg-purple-200"
                             >
                               <font-awesome-icon icon="paperclip" />
                             </button>
