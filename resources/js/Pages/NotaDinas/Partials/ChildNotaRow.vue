@@ -5,41 +5,41 @@
         <h4 class="font-medium text-blue-700 mb-2 flex items-center gap-2">
           Nota Terkait
         </h4>
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="table-auto w-full">
           <thead class="bg-gray-200">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">No. Nota</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Perihal</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Anggaran</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tanggal</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Jenis</th>
+            <tr class="text-left">
+              <th class="px-4 py-2">No. Nota</th>
+              <th class="px-4 py-2">Perihal</th>
+              <th class="px-4 py-2">Anggaran</th>
+              <th class="px-4 py-2">Tanggal</th>
+              <th class="px-4 py-2">Jenis</th>
               <th></th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <tr
               v-for="child in children"
               :key="child.id"
-              class="hover:bg-gray-50 transition-colors duration-150"
+              class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100"
             >
-              <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                 {{ child.nomor_nota }}
               </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                 {{ child.perihal }}
               </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                 {{ formatCurrency(child.anggaran) }}
               </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                 {{ formatDate(child.tanggal_pengajuan) }}
               </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                 <span :class="badgeClasses(child.jenis)">
                   {{ child.jenis }}
                 </span>
               </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm font-medium space-x-1">
+              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium space-x-1">
                 <Tooltip text="Edit" bgColor="bg-blue-500">
                   <button
                     @click="$emit('edit', child)"

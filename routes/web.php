@@ -32,7 +32,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/nota-dinas/sub-kegiatan/{id}', [SubKegiatanController::class, 'show'])->name('sub-kegiatan.nota-dinas');
     Route::get('/skpds/{skpd}/tahun/{tahun?}', [SkpdController::class, 'showByYear'])->name('skpds.tahun');
     Route::get('/skpds/{skpd}/nota-gutuls', [NotaGutulsController::class, 'notaGuTuLsBySkpd'])->name('nota-dinas.nota-gutuls');
-    Route::get('/nota-dinas/create-gutuls/{skpd}', [NotaGutulsController::class, 'createGuTuLs'])->name('nota-dinas.create-gutuls');
     Route::post('/store-gutuls', [NotaGutulsController::class, 'storeGuTuLs'])->name('store-gutuls');
     Route::resource('nota-skpd', NotaSkpdController::class);
 

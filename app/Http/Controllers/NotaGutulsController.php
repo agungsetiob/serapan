@@ -11,7 +11,9 @@ class NotaGutulsController extends Controller
     public function notaGuTuLsBySkpd(Skpd $skpd, Request $request)
     {
         $search = $request->input('search');
+        $tahun = $request->input('tahun') ?? date('Y');
 
+        // Query untuk nota GU/TU/LS
         $notaDinas = NotaDinas::whereIn('jenis', ['GU', 'TU', 'LS'])
             ->whereHas('dikaitkanOleh.subKegiatan.kegiatan', function ($query) use ($skpd) {
                 $query->where('skpd_id', $skpd->id);
@@ -22,26 +24,15 @@ class NotaGutulsController extends Controller
                     ->orWhere('perihal', 'like', "%$search%");
                 });
             })
-            ->with('dikaitkanOleh.subKegiatan.kegiatan') // opsional, untuk menampilkan info kegiatan/SKPD
+            ->with('dikaitkanOleh.subKegiatan.kegiatan')
             ->paginate(10)
             ->withQueryString();
 
-        return inertia('NotaDinas/GuTuLsBySkpd', [
-            'skpd' => $skpd,
-            'notaDinas' => $notaDinas,
-            'search' => $search,
-        ]);
-    }
-
-    public function createGuTuLs(Skpd $skpd, Request $request)
-    {
-        $tahun = $request->input('tahun') ?? date('Y');
-
-        // Ambil semua nota parent (Pelaksanaan, Perbup, Lain-lain) milik SKPD ini
+        // Query untuk parent notes (digunakan modal create)
         $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'Perbup', 'Lain-lain'])
             ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
             ->whereYear('tanggal_pengajuan', $tahun)
-            ->with('terkait') // anak-anak
+            ->with('terkait')
             ->get()
             ->map(function ($nota) {
                 $nota->total_terkait = $nota->terkait->sum('anggaran');
@@ -49,10 +40,12 @@ class NotaGutulsController extends Controller
                 return $nota;
             });
 
-        return inertia('NotaDinas/CreateGuTuLs', [
+        return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
+            'notaDinas' => $notaDinas,
             'parentNotes' => $parentNotes,
             'tahun' => $tahun,
+            'search' => $search,
         ]);
     }
     public function storeGuTuLs(Request $request)

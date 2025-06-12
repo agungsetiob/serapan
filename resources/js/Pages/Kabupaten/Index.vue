@@ -65,7 +65,7 @@ function formatNumber(value) {
                                     <th class="px-4 py-2">Tahun</th>
                                     <th class="px-4 py-2">Pagu</th>
                                     <th class="px-4 py-2">Total Serapan</th>
-                                    <th class="px-4 py-2">Presentase Serapan</th>
+                                    <th class="px-4 py-2">Persentase Serapan</th>
                                     <th class="px-4 py-2"></th>
                                 </tr>
                             </thead>

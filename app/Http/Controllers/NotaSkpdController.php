@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class NotaSkpdController extends Controller
 {
@@ -31,7 +32,7 @@ class NotaSkpdController extends Controller
         $tahun = $request->input('tahun', date('Y'));
         
         $query = NotaDinas::where('skpd_id', $nota_skpd->id)
-            ->with(['skpd', 'lampirans', 'terkait', 'dikaitkanOleh'])
+            ->with(['skpd', 'lampirans', 'dikaitkanOleh', 'terkait.dikaitkanOleh', 'terkait'])
             ->whereYear('tanggal_pengajuan', $tahun)
             ->latest();
         
@@ -42,7 +43,7 @@ class NotaSkpdController extends Controller
             });
         }
         
-        $notaDinas = $query->paginate(10);
+        $notaDinas = $query->with('terkait')->paginate(10);
         
         // Ambil tahun-tahun yang tersedia
         $tahunOptions = NotaDinas::where('skpd_id', $nota_skpd->id)
@@ -59,6 +60,84 @@ class NotaSkpdController extends Controller
         ]);
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'nomor_nota' => 'required|string|max:100|unique:nota_dinas,nomor_nota',
+    //         'perihal' => 'required|string|max:255',
+    //         'anggaran' => 'required|numeric|min:0',
+    //         'tanggal_pengajuan' => 'required|date',
+    //         'jenis' => 'required|in:Pelaksanaan,Perbup,Lain-lain,GU,TU,LS',
+    //         'skpd_id' => 'required|exists:skpds,id',
+    //         'parent_ids' => 'nullable|array',
+    //         'parent_ids.*' => 'exists:nota_dinas,id',
+    //         'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
+    //     ], [
+    //         'nomor_nota.unique' => 'Nomor Nota ini sudah ada.',
+    //         'lampirans.*.max' => 'Ukuran setiap file lampiran maksimal 3MB.',
+    //         'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
+    //         'skpd_id.required' => 'SKPD harus dipilih.',
+    //         'skpd_id.exists' => 'SKPD tidak valid.',
+    //     ]);
+
+    //     $anggaranToCreate = (float) $validatedData['anggaran'];
+    //     $parentIds = $validatedData['parent_ids'] ?? [];
+
+    //     if (!empty($parentIds)) {
+    //         $parentNotas = NotaDinas::whereIn('id', $parentIds)->get();
+
+    //         $totalAvailableParentBudget = 0;
+    //         foreach ($parentNotas as $parent) {
+    //             $parent->load('terkait');
+    //             $budgetUsedByChildren = $parent->terkait->sum('anggaran');
+    //             $remainingBudgetOfParent = $parent->anggaran - $budgetUsedByChildren;
+
+    //             $totalAvailableParentBudget += max(0, $remainingBudgetOfParent);
+    //         }
+
+    //         if ($anggaranToCreate > $totalAvailableParentBudget) {
+    //             return back()->withInput()->withErrors([
+    //                 'anggaran' => "Anggaran yang diajukan (Rp" . number_format($anggaranToCreate, 0, ',', '.') . ") melebihi sisa anggaran dari nota terkait. Sisa: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
+    //             ]);
+    //         }
+    //     }
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $notaDina = NotaDinas::create([
+    //             'nomor_nota' => $validatedData['nomor_nota'],
+    //             'perihal' => $validatedData['perihal'],
+    //             'anggaran' => $anggaranToCreate,
+    //             'tanggal_pengajuan' => $validatedData['tanggal_pengajuan'],
+    //             'jenis' => $validatedData['jenis'],
+    //             'skpd_id' => $validatedData['skpd_id'],
+    //         ]);
+
+    //         if (!empty($parentIds)) {
+    //             $notaDina->dikaitkanOleh()->attach($parentIds);
+    //         }
+
+    //         if ($request->hasFile('lampirans')) {
+    //             foreach ($request->file('lampirans') as $file) {
+    //                 $path = $file->store('nota_lampirans', 'public');
+    //                 $notaDina->lampirans()->create([
+    //                     'nama_file' => $file->getClientOriginalName(),
+    //                     'path' => $path,
+    //                 ]);
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return redirect()->back()->with('success', 'Nota dinas berhasil dibuat.');
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::error("Error storing Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
+    //         return back()->withInput()->with('error', 'Gagal menambahkan nota dinas: ' . $e->getMessage());
+    //     }
+    // }
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -81,7 +160,10 @@ class NotaSkpdController extends Controller
 
         $anggaranToCreate = (float) $validatedData['anggaran'];
         $parentIds = $validatedData['parent_ids'] ?? [];
+        $skpdId = $validatedData['skpd_id'];
+        $currentYear = date('Y');
 
+        // Budget check for parent notes
         if (!empty($parentIds)) {
             $parentNotas = NotaDinas::whereIn('id', $parentIds)->get();
 
@@ -100,6 +182,28 @@ class NotaSkpdController extends Controller
                 ]);
             }
         }
+
+        // Budget check against SKPD's total pagu and existing notes
+        $skpd = SKPD::with(['kegiatans' => function ($query) use ($currentYear) {
+            $query->where('tahun_anggaran', $currentYear)
+                ->with(['subKegiatans.notaDinas']); // Load notaDinas through subKegiatans
+        }])->findOrFail($skpdId);
+
+        $totalPaguSKPD = $skpd->kegiatans->sum('pagu');
+
+        // Calculate total anggaran from existing nota_dinas for this SKPD for the current year
+        $existingNotaAnggaran = NotaDinas::where('skpd_id', $skpdId)
+                                        ->whereYear('tanggal_pengajuan', $currentYear)
+                                        ->sum('anggaran');
+
+        $remainingSKPDBudget = $totalPaguSKPD - $existingNotaAnggaran;
+
+        if ($anggaranToCreate > $remainingSKPDBudget) {
+            return back()->withInput()->withErrors([
+                'anggaran' => "Anggaran yang diajukan (Rp" . number_format($anggaranToCreate, 0, ',', '.') . ") melebihi sisa anggaran SKPD untuk tahun ini. Sisa: Rp" . number_format(max(0, $remainingSKPDBudget), 0, ',', '.')
+            ]);
+        }
+        //END NEW BUDGET CHECK
 
         DB::beginTransaction();
 
@@ -133,14 +237,103 @@ class NotaSkpdController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Error storing Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
+            Log::error("Error storing Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
             return back()->withInput()->with('error', 'Gagal menambahkan nota dinas: ' . $e->getMessage());
         }
     }
 
+    // public function update(Request $request, NotaDinas $nota_skpd)
+    // {
+    //     $validatedData = $request->validate([
+    //         'nomor_nota' => [
+    //             'required',
+    //             'string',
+    //             'max:100',
+    //             Rule::unique('nota_dinas')->ignore($nota_skpd->id)
+    //         ],
+    //         'perihal' => 'required|string|max:255',
+    //         'anggaran' => 'nullable|numeric|min:0',
+    //         'tanggal_pengajuan' => 'required|date',
+    //         'jenis' => 'required|in:Pelaksanaan,Perbup,Lain-lain,GU,TU,LS',
+    //         'skpd_id' => 'required|exists:skpds,id',
+    //         'parent_ids' => 'nullable|array',
+    //         'parent_ids.*' => 'exists:nota_dinas,id',
+    //         'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
+    //     ], [
+    //         'nomor_nota.unique' => 'Nomor Nota ini sudah ada.',
+    //         'lampirans.*.max' => 'Ukuran setiap file lampiran maksimal 3MB.',
+    //         'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
+    //         'skpd_id.required' => 'SKPD harus dipilih.',
+    //         'skpd_id.exists' => 'SKPD tidak valid.',
+    //     ]);
+
+    //     $newAnggaran = (float) $validatedData['anggaran'];
+    //     $newParentIds = $validatedData['parent_ids'] ?? [];
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         if (!empty($newParentIds)) {
+    //             $parentNotas = NotaDinas::whereIn('id', $newParentIds)->get();
+
+    //             $totalAvailableParentBudget = 0;
+    //             foreach ($parentNotas as $parent) {
+    //                 $parent->load('terkait');
+
+    //                 $budgetUsedByChildrenExcludingCurrent = $parent->terkait->sum(function ($child) use ($nota_skpd) {
+    //                     return ($child->id === $nota_skpd->id) ? 0 : $child->anggaran;
+    //                 });
+
+    //                 $remainingBudgetOfParent = $parent->anggaran - $budgetUsedByChildrenExcludingCurrent;
+    //                 $totalAvailableParentBudget += max(0, $remainingBudgetOfParent);
+    //             }
+
+    //             if ($newAnggaran > $totalAvailableParentBudget) {
+    //                 DB::rollBack();
+    //                 return back()->withInput()->withErrors([
+    //                     'anggaran' => "Anggaran yang diajukan (Rp" . number_format($newAnggaran, 0, ',', '.') . ") melebihi sisa anggaran kumulatif dari nota-nota terkait yang dipilih. Maksimum: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
+    //                 ]);
+    //             }
+    //         }
+
+    //         $nota_skpd->update([
+    //             'nomor_nota' => $validatedData['nomor_nota'],
+    //             'perihal' => $validatedData['perihal'],
+    //             'anggaran' => $newAnggaran,
+    //             'tanggal_pengajuan' => $validatedData['tanggal_pengajuan'],
+    //             'jenis' => $validatedData['jenis'],
+    //             'skpd_id' => $validatedData['skpd_id'],
+    //         ]);
+
+    //         $existingParentIds = $nota_skpd->dikaitkanOleh()->pluck('nota_dinas.id')->toArray();
+    //         $mergedParentIds = array_unique(array_merge($existingParentIds, $newParentIds));
+
+    //         $nota_skpd->dikaitkanOleh()->sync($mergedParentIds);
+
+
+    //         if ($request->hasFile('lampirans')) {
+    //             foreach ($request->file('lampirans') as $file) {
+    //                 $path = $file->store('nota_lampirans', 'public');
+    //                 $nota_skpd->lampirans()->create([
+    //                     'nama_file' => $file->getClientOriginalName(),
+    //                     'path' => $path,
+    //                 ]);
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return redirect()->back()->with('success', 'Nota dinas berhasil diperbarui.');
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::error("Error updating Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
+    //         return redirect()->back()->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage());
+    //     }
+    // }
     public function update(Request $request, NotaDinas $nota_skpd)
     {
-        $validatedData = $request->validate([
+        $validationRules = [
             'nomor_nota' => [
                 'required',
                 'string',
@@ -148,30 +341,34 @@ class NotaSkpdController extends Controller
                 Rule::unique('nota_dinas')->ignore($nota_skpd->id)
             ],
             'perihal' => 'required|string|max:255',
-            'anggaran' => 'nullable|numeric|min:0',
+            'anggaran' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
             'jenis' => 'required|in:Pelaksanaan,Perbup,Lain-lain,GU,TU,LS',
             'skpd_id' => 'required|exists:skpds,id',
-            'parent_ids' => 'nullable|array',
-            'parent_ids.*' => 'exists:nota_dinas,id',
             'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
-        ], [
+        ];
+
+        $validatedData = $request->validate($validationRules, [
             'nomor_nota.unique' => 'Nomor Nota ini sudah ada.',
             'lampirans.*.max' => 'Ukuran setiap file lampiran maksimal 3MB.',
             'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
             'skpd_id.required' => 'SKPD harus dipilih.',
             'skpd_id.exists' => 'SKPD tidak valid.',
+            'anggaran.required' => 'Anggaran wajib diisi.',
+            'anggaran.numeric' => 'Anggaran harus berupa angka.',
+            'anggaran.min' => 'Anggaran tidak boleh kurang dari 0.',
         ]);
 
         $newAnggaran = (float) $validatedData['anggaran'];
-        $newParentIds = $validatedData['parent_ids'] ?? [];
+        $skpdId = $validatedData['skpd_id'];
+        $currentYear = date('Y');
 
         DB::beginTransaction();
 
         try {
-            if (!empty($newParentIds)) {
-                $parentNotas = NotaDinas::whereIn('id', $newParentIds)->get();
-
+            $nota_skpd->load('dikaitkanOleh');
+            $parentNotas = $nota_skpd->dikaitkanOleh;
+            if ($parentNotas->isNotEmpty()) {
                 $totalAvailableParentBudget = 0;
                 foreach ($parentNotas as $parent) {
                     $parent->load('terkait');
@@ -187,10 +384,35 @@ class NotaSkpdController extends Controller
                 if ($newAnggaran > $totalAvailableParentBudget) {
                     DB::rollBack();
                     return back()->withInput()->withErrors([
-                        'anggaran' => "Anggaran yang diajukan (Rp" . number_format($newAnggaran, 0, ',', '.') . ") melebihi sisa anggaran kumulatif dari nota-nota terkait yang dipilih. Maksimum: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
+                        'anggaran' => "Anggaran yang diajukan (Rp" . number_format($newAnggaran, 0, ',', '.') . ") melebihi sisa anggaran kumulatif dari nota-nota terkait. Maksimum: Rp" . number_format($totalAvailableParentBudget, 0, ',', '.')
                     ]);
                 }
             }
+
+
+            // SKPD Budget check
+            $skpd = SKPD::with(['kegiatans' => function ($query) use ($currentYear) {
+                $query->where('tahun_anggaran', $currentYear);
+            }])->findOrFail($skpdId);
+
+            $totalPaguSKPD = $skpd->kegiatans->sum('pagu');
+
+            // Calculate total anggaran from existing nota_dinas for this SKPD for the current year,
+            // EXCLUDING the current nota's ORIGINAL anggaran.
+            $existingNotaAnggaranExcludingCurrent = NotaDinas::where('skpd_id', $skpdId)
+                                            ->where('id', '!=', $nota_skpd->id)
+                                            ->whereYear('tanggal_pengajuan', $currentYear)
+                                            ->sum('anggaran');
+
+            $remainingSKPDBudget = $totalPaguSKPD - $existingNotaAnggaranExcludingCurrent;
+
+            if ($newAnggaran > $remainingSKPDBudget) {
+                DB::rollBack();
+                return back()->withInput()->withErrors([
+                    'anggaran' => "Anggaran yang diajukan (Rp" . number_format($newAnggaran, 0, ',', '.') . ") melebihi sisa anggaran SKPD untuk tahun ini. Sisa: Rp" . number_format(max(0, $remainingSKPDBudget), 0, ',', '.')
+                ]);
+            }
+            //END SKPD BUDGET CHECK
 
             $nota_skpd->update([
                 'nomor_nota' => $validatedData['nomor_nota'],
@@ -200,12 +422,6 @@ class NotaSkpdController extends Controller
                 'jenis' => $validatedData['jenis'],
                 'skpd_id' => $validatedData['skpd_id'],
             ]);
-
-            $existingParentIds = $nota_skpd->dikaitkanOleh()->pluck('nota_dinas.id')->toArray();
-            $mergedParentIds = array_unique(array_merge($existingParentIds, $newParentIds));
-
-            $nota_skpd->dikaitkanOleh()->sync($mergedParentIds);
-
 
             if ($request->hasFile('lampirans')) {
                 foreach ($request->file('lampirans') as $file) {
@@ -223,7 +439,7 @@ class NotaSkpdController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Error updating Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
+            Log::error("Error updating Nota Dinas: " . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage());
         }
     }

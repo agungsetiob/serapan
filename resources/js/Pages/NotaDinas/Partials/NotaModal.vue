@@ -5,10 +5,11 @@
         {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
       </h3>
       <div v-if="isChild && parentNota" class="mb-4 p-3 bg-green-100 rounded-md">
-        <h4 class="text-sm font-medium text-gray-800 mb-1">Untuk Nota Dinas Induk:</h4>
+        <h4 class="text-sm font-medium text-gray-800 mb-1">Untuk Nota Dinas:</h4>
         <p class="font-medium">No. Nota: {{ parentNota.nomor_nota }}</p>
         <p class="text-sm text-gray-600">Perihal: {{ parentNota.perihal }}</p>
         <p class="text-sm text-gray-600">Anggaran: {{ formatCurrency(parentNota.anggaran) }}</p>
+        <p class="text-sm text-red-700">Sisa Anggaran: {{ formatCurrency(parentNota.sisa_anggaran) }}</p>
       </div>
 
       <div
@@ -40,7 +41,6 @@
             <input
               type="text"
               v-model="form.nomor_nota"
-              required
               :class="[
                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                 form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
@@ -53,7 +53,6 @@
             <input
               type="date"
               v-model="form.tanggal_pengajuan"
-              required
               :class="[
                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                 form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
@@ -65,17 +64,26 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Nota<span class="text-red-600">*</span></label>
-            <select
+            <select v-if="form.parent_ids.length === 0"
               v-model="form.jenis"
-              required
               :class="[
                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                 form.errors.jenis ? 'border-red-500' : 'border-gray-300'
               ]"
             >
+              <option value="">--Pilih jenis--</option>  
               <option value="Pelaksanaan">Pelaksanaan</option>
               <option value="Perbup">Perbup</option>
               <option value="Lain-lain">Lain-lain</option>
+            </select>
+            <select v-else
+              v-model="form.jenis"
+              :class="[
+                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+              ]"
+            >
+              <option value="">--Pilih jenis--</option>  
               <option value="GU">GU</option>
               <option value="TU">TU</option>
               <option value="LS">LS</option>
@@ -92,11 +100,7 @@
                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                 form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
               ]"
-              placeholder="Contoh: 1.250.000"
             >
-            <p v-if="form.errors.anggaran" class="mt-1 text-sm text-red-600">
-              {{ form.errors.anggaran }}
-            </p>
           </div>
         </div>
 
@@ -105,7 +109,6 @@
           <input
             type="text"
             v-model="form.perihal"
-            required
             :class="[
               'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
               form.errors.perihal ? 'border-red-500' : 'border-gray-300'
@@ -125,11 +128,11 @@
           <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 3MB per file)</p>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4">
+        <div class="flex justify-end gap-2 pt-2">
           <button
             type="button"
             @click="closeModal"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-200"
           >
             Batal
           </button>
@@ -137,7 +140,8 @@
             type="submit"
             :disabled="form.processing"
             class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-          >
+            
+            >
             <span v-if="form.processing">
               <font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan...
             </span>
@@ -175,7 +179,7 @@ const form = useForm({
   perihal: '',
   anggaran: null,
   tanggal_pengajuan: '',
-  jenis: 'Pelaksanaan',
+  jenis: '',
   parent_ids: [],
   skpd_id: props.skpd?.id || null,
   lampirans: []

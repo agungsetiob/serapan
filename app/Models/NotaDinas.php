@@ -66,4 +66,13 @@ class NotaDinas extends Model
         return null;
     }
 
+    protected $appends = ['sisa_anggaran'];
+
+    public function getSisaAnggaranAttribute()
+    {
+        $totalChildrenAnggaran = $this->terkait->sum('anggaran');
+
+        return $this->anggaran - $totalChildrenAnggaran;
+    }
+
 }

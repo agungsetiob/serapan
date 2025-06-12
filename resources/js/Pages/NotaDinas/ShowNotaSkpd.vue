@@ -16,7 +16,7 @@
                         <select
                         v-model="tahun"
                         @change="handleTahunChange(tahun)"
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                        class="w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                         >
                         <option
                             v-for="tahunOption in tahunOptions"
@@ -30,46 +30,46 @@
 
                     <button
                         @click="handleCreateNota()"
-                        class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
+                        class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
                     >
-                        + Tambah Nota
+                        + Buat Nota
                     </button>
                 </div>
             </div>
 
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Nota</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perihal</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anggaran</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis</th>
+            <table class="table-auto w-full">
+              <thead class="bg-gray-200">
+                <tr class="text-left">
+                    <th class="px-4 py-2">No. Nota</th>
+                    <th class="px-4 py-2">Perihal</th>
+                    <th class="px-4 py-2">Anggaran</th>
+                    <th class="px-4 py-2">Tanggal</th>
+                    <th class="px-4 py-2">Jenis</th>
                     <th></th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody>
                 <template v-for="nota in filteredNotaDinas" :key="nota.id">
-                  <tr class="hover:bg-gray-50 transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {{ nota.nomor_nota }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                       {{ nota.perihal }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                       {{ formatCurrency(nota.anggaran) }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                       {{ formatDate(nota.tanggal_pengajuan) }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                       <span :class="badgeClasses(nota.jenis)">
                         {{ nota.jenis }}
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium space-x-1">
                       <Tooltip text="Nota Dinas" bgColor="bg-green-500">
                         <button
                           @click="handleCreateNota(true, nota)"
@@ -245,10 +245,6 @@ const handleTahunChange = (newTahun) => {
     { search: search.value, tahun: newTahun },
     { preserveState: true, replace: true }
   );
-};
-
-const handleSearchChange = (newSearch) => {
-  search.value = newSearch;
 };
 
 const toggleExpand = (notaId) => {
