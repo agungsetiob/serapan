@@ -113,7 +113,7 @@
                 </div>
 
                 <div>
-                    <label v-if="parentNotes.length > 0" class="block font-medium">Pilih Nota Induk</label>
+                    <label v-if="parentNotes.length > 0 && !isEdit" class="block font-medium">Pilih Nota Induk</label>
                     <div v-if="!isEdit" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div
                             v-for="nota in parentNotes"
@@ -142,7 +142,7 @@
                         >
                             <div>
                                 <p class="font-semibold">{{ selectedParent.nomor_nota }} - {{ selectedParent.perihal }}</p>
-                                <p class="text-sm text-gray-500">Sisa: Rp. {{ selectedParent.sisa_anggaran.toLocaleString('id-ID') }}</p>
+                                <p :class="['text-sm text-gray-500', { 'text-red-500': selectedParent.sisa_anggaran <= 0 },]">Sisa: Rp. {{ selectedParent.sisa_anggaran.toLocaleString('id-ID') }}</p>
                             </div>
                             <font-awesome-icon icon="check-circle" class="text-green-600 text-lg" />
                         </div>

@@ -95,6 +95,7 @@ function formatNumber(value) {
                     </div>
 
                     <Pagination
+                        v-if="kabupatens.last_page > 1"
                         :links="kabupatens.links"
                         :meta="{ from: kabupatens.from, to: kabupatens.to, total: kabupatens.total }"
                     />

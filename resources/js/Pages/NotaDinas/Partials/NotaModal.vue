@@ -117,7 +117,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="lampirans" class="block font-medium">Lampiran (optional)</label>
+          <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
           <input
             type="file"
             accept=".pdf"

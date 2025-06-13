@@ -4,6 +4,9 @@
       <div class="ml-8 border-l-2 border-red-400 pl-4">
         <h4 class="font-medium text-blue-700 mb-2 flex items-center gap-2">
           Nota Terkait
+          <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">
+            {{ children.length }} Nota
+          </span>
         </h4>
         <table class="table-auto w-full">
           <thead class="bg-gray-200">
