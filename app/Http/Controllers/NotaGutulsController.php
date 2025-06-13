@@ -64,6 +64,7 @@ class NotaGutulsController extends Controller
             'lampirans.*.max' => 'Setiap file lampiran maksimal 3MB.',
             'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
             'lampirans.*.file' => 'Setiap lampiran harus berupa file yang valid.',
+            'parent_ids.required' => 'nota induk wajib dipilih.',
         ]);
 
         $anggaran = $request->input('anggaran');

@@ -19,7 +19,7 @@
         <div class="flex">
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
-              Terdapat {{ Object.keys(form.errors).length }} kesalahan yang harus diperbaiki
+              Terdapat {{ Object.keys(form.errors).length }} kesalahan
             </h3>
             <div class="mt-2 text-sm text-red-700">
               <ul class="list-disc pl-5 space-y-1">
@@ -37,7 +37,7 @@
         <input type="hidden" v-model="form.id">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="nomor_nota" class="block text-sm font-medium text-gray-700">Nomor Nota<span class="text-red-600">*</span></label>
+            <label for="nomor_nota" class="block font-medium">Nomor Nota<span class="text-red-600">*</span></label>
             <input
               type="text"
               v-model="form.nomor_nota"
@@ -49,7 +49,7 @@
           </div>
 
           <div>
-            <label for="tanggal_pengajuan" class="block text-sm font-medium text-gray-700">Tanggal Pengajuan<span class="text-red-600">*</span></label>
+            <label for="tanggal_pengajuan" class="block font-medium">Tanggal Pengajuan<span class="text-red-600">*</span></label>
             <input
               type="date"
               v-model="form.tanggal_pengajuan"
@@ -63,7 +63,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Nota<span class="text-red-600">*</span></label>
+            <label for="jenis" class="block font-medium">Jenis Nota<span class="text-red-600">*</span></label>
             <select v-if="form.parent_ids.length === 0"
               v-model="form.jenis"
               :class="[
@@ -91,7 +91,7 @@
           </div>
 
           <div>
-            <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span class="text-red-600">*</span></label>
+            <label for="anggaran" class="block font-medium">Anggaran (Rp)<span class="text-red-600">*</span></label>
             <input
               type="text"
               :value="formattedAnggaran"
@@ -105,7 +105,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="perihal" class="block text-sm font-medium text-gray-700">Perihal<span class="text-red-600">*</span></label>
+          <label for="perihal" class="block font-medium">Perihal<span class="text-red-600">*</span></label>
           <input
             type="text"
             v-model="form.perihal"
@@ -117,7 +117,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="lampirans" class="block text-sm font-medium text-gray-700 mb-1">Lampiran (optional)</label>
+          <label for="lampirans" class="block font-medium">Lampiran (optional)</label>
           <input
             type="file"
             accept=".pdf"
@@ -125,7 +125,7 @@
             @change="handleFileChange"
             class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
           >
-          <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 3MB per file)</p>
+          <p class="mt-1 text-xs text-gray-500">PDF (maks. 3MB per file)</p>
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -159,7 +159,7 @@
 import { watch, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { formatCurrency, formatDate } from '@/Utils/formatters';
 
 const props = defineProps({
   show: Boolean,
@@ -195,16 +195,6 @@ const formattedAnggaran = computed(() => {
   }
   return number.toLocaleString('id-ID');
 });
-
-const formatCurrency = (value) => {
-  if (value === null || value === undefined) return 'Rp0';
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  }).format(value);
-};
 
 const updateAnggaran = (value) => {
   let cleanedValue = value.replace(/Rp|\./g, '').replace(/,/g, '.');

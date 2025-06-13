@@ -51,7 +51,7 @@ const props = defineProps({
                 </div>
 
                 <div class="mt-8">
-                    <Pagination
+                    <Pagination v-if="skpds.last_page > 1"
                         :links="skpds.links"
                         :meta="{ from: skpds.from, to: skpds.to, total: skpds.total }"
                     />

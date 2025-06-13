@@ -136,7 +136,7 @@
             </table>
           </div>
           <div class="mt-4">
-            <Pagination 
+            <Pagination v-if="notaDinas.last_page > 1"
               :links="notaDinas.links"
               :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" 
             />

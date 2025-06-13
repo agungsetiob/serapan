@@ -1,12 +1,11 @@
 <template>
     <Modal :show="show" @close="closeModal" max-width="5xl">
-        <div class="p-6">
+        <div class="sm:p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                 {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
             </h2>
-            <div v-if="isChild && parentNota" class="mb-4 p-3 bg-green-100 rounded-md">
-                <h4 class="text-sm font-medium text-gray-800 mb-1">Untuk SKPD:</h4>
-                <p class="font-medium text-bold">{{ skpd.nama_skpd }}</p>
+            <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500">
+                <p class="font-medium text-blue-800 text-bold">{{ skpd.nama_skpd }}</p>
             </div>
 
             <div
@@ -16,7 +15,7 @@
                 <div class="flex">
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-red-800">
-                    Terdapat {{ Object.keys(form.errors).length }} kesalahan yang harus diperbaiki
+                    Terdapat {{ Object.keys(form.errors).length }} kesalahan
                     </h3>
                     <div class="mt-2 text-sm text-red-700">
                     <ul class="list-disc pl-5 space-y-1">
@@ -34,59 +33,118 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-semibold">Nomor Nota</label>
-                        <input v-model="form.nomor_nota" type="text" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-indigo-500 focus:border-indigo-500" />
+                        <label for="nomor_nota" class="block font-medium">Nomor Nota<span class="text-red-600">*</span></label>
+                        <input
+                            type="text"
+                            v-model="form.nomor_nota"
+                            :class="[
+                                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                                form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
+                            ]"
+                        >
                         <InputError :message="form.errors.nomor_nota" />
                     </div>
 
                     <div>
-                        <label class="block font-semibold">Tanggal Pengajuan</label>
-                        <input v-model="form.tanggal_pengajuan" type="date" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-indigo-500 focus:border-indigo-500" />
+                        <label for="tanggal_pengajuan" class="block font-medium">Tanggal Pengajuan<span class="text-red-600">*</span></label>
+                        <input
+                            type="date"
+                            v-model="form.tanggal_pengajuan"
+                            :class="[
+                                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                                form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
+                            ]"
+                        >
                         <InputError :message="form.errors.tanggal_pengajuan" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block font-semibold">Jenis Nota</label>
-                        <select v-model="form.jenis" class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="jenis" class="block font-medium">Jenis Nota<span class="text-red-600">*</span></label>
+                        <select v-model="form.jenis" :class="[
+                            'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                            form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+                            ]"
+                        >
                             <option disabled value="">-- Pilih Jenis Nota --</option>
-                            <option value="Pelaksanaan">Pelaksanaan</option>
-                            <option value="Perbup">Perbup</option>
-                            <option value="Lain-lain">Lain-lain</option>
-                            <option v-if="form.parent_ids.length > 0" value="GU">GU</option>
-                            <option v-if="form.parent_ids.length > 0" value="TU">TU</option>
-                            <option v-if="form.parent_ids.length > 0" value="LS">LS</option>
+                            <option value="GU">GU</option>
+                            <option value="TU">TU</option>
+                            <option value="LS">LS</option>
                         </select>
                         <InputError :message="form.errors.jenis" />
                     </div>
 
                     <div>
-                        <label class="block font-semibold">Anggaran (Rp)</label>
+                        <label for="anggaran" class="block font-medium">Anggaran (Rp)<span class="text-red-600">*</span></label>
                         <input
                             type="text"
                             :value="formattedAnggaran"
                             @input="updateAnggaran($event.target.value)"
-                            class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-indigo-500 focus:border-indigo-500"
+                            :class="[
+                                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                                form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
+                            ]"
                         />
                         <InputError :message="form.errors.anggaran" />
                     </div>
                 </div>
 
                 <div>
-                    <label class="block font-semibold">Pilih Nota Induk (Pelaksanaan/Perbup/Lain-lain)</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label for="perihal" class="block font-medium">Perihal<span class="text-red-600">*</span></label>
+                    <input v-model="form.perihal" type="text" 
+                        :class="[
+                        'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                        form.errors.perihal ? 'border-red-500' : 'border-gray-300'
+                        ]"
+                    />
+                    <InputError :message="form.errors.perihal" />
+                </div>
+                <div>
+                    <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
+                    <input
+                        type="file"
+                        accept=".pdf"
+                        multiple
+                        @change="handleFileChange"
+                        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">PDF (maks. 3MB per file)</p>
+                </div>
+
+                <div>
+                    <label v-if="parentNotes.length > 0" class="block font-medium">Pilih Nota Induk</label>
+                    <div v-if="!isEdit" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div
                             v-for="nota in parentNotes"
                             :key="nota.id"
-                            :class="['border border-gray-300 rounded-lg p-4 flex justify-between items-center cursor-pointer transition hover:bg-gray-100', { 'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0 }, { 'bg-indigo-100 border-indigo-500': form.parent_ids.length > 0 && form.parent_ids[0] === nota.id }]"
-                            @click="selectParentNota(nota.id)"
+                            :class="['border rounded-md p-2 flex justify-between items-center cursor-pointer transition hover:bg-gray-100', 
+                            form.errors.parent_ids ? 'border-red-500' : 'border-gray-300',
+                            { 'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0 }, 
+                            { 'bg-green-100 border-green-500': form.parent_ids.includes(nota.id) },
+                            ]"
+                            @click="nota.sisa_anggaran > 0 && selectParentNota(nota.id)"
                         >
                             <div>
                                 <p class="font-semibold">{{ nota.nomor_nota }} - {{ nota.perihal }}</p>
-                                <p class="text-sm text-gray-500">Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}</p>
+                                <p :class="['text-sm text-gray-500', { 'text-red-500': nota.sisa_anggaran <= 0 },]">Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}</p>
                             </div>
-                            <font-awesome-icon v-if="form.parent_ids.length > 0 && form.parent_ids[0] === nota.id" icon="check-circle" class="text-green-600 text-lg" />
+                            <font-awesome-icon v-if="form.parent_ids.includes(nota.id)" icon="check-circle" class="text-green-600 text-lg" />
+                        </div>
+                    </div>
+                    <div v-if="parentNotes.length === 0" class="p-3 bg-red-50 rounded-md">
+                        <p class="text-red-800 text-center">Belum ada nota dinas</p>
+                    </div>
+                    <div v-else>
+                        <div
+                            v-if="selectedParent"
+                            class="bg-green-50 border border-green-500 rounded-md p-3 flex justify-between items-center"
+                        >
+                            <div>
+                                <p class="font-semibold">{{ selectedParent.nomor_nota }} - {{ selectedParent.perihal }}</p>
+                                <p class="text-sm text-gray-500">Sisa: Rp. {{ selectedParent.sisa_anggaran.toLocaleString('id-ID') }}</p>
+                            </div>
+                            <font-awesome-icon icon="check-circle" class="text-green-600 text-lg" />
                         </div>
                     </div>
                     <InputError :message="form.errors.parent_ids" />
@@ -157,7 +215,7 @@ const handleSubmit = () => {
             }
         });
     } else {
-        form.post(route('nota-skpd.store'), {
+        form.post(route('store-gutuls'), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
@@ -168,6 +226,7 @@ const handleSubmit = () => {
 
 const closeModal = () => {
     form.reset();
+    form.clearErrors();
     emit('close');
 };
 
@@ -180,4 +239,10 @@ watch(
     },
     { immediate: true }
 );
+
+const selectedParent = computed(() => {
+    if (!props.isEdit || !form.parent_ids.length) return null;
+    return props.parentNotes.find(nota => nota.id === form.parent_ids[0]) || null;
+});
+
 </script>

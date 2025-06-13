@@ -126,7 +126,7 @@ function toggleStatus(skpdId, currentStatus) {
                     </div>
 
                     <!-- Pagination -->
-                    <Pagination
+                    <Pagination v-if="skpds.last_page > 1"
                         :links="skpds.links"
                         :meta="{ from: skpds.from, to: skpds.to, total: skpds.total }"
                     />
