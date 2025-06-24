@@ -102,11 +102,11 @@
                           <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                       </Tooltip>
-                      <Tooltip :text="expandedNotas.includes(nota.id) ? 'Tutup nota terkait' : 'Buka nota terkait'" bgColor="bg-indigo-500">
+                      <Tooltip :text="expandedNotas.includes(nota.id) ? 'Tutup nota terkait' : 'Buka nota terkait'" bgColor="bg-gray-500">
                         <button
                           v-if="nota.terkait && nota.terkait.length > 0"
                           @click="toggleExpand(nota.id)"
-                          class="text-indigo-600 p-1 rounded hover:bg-indigo-200 transition-colors"
+                          class="p-1 rounded hover:bg-gray-300 transition-colors"
                         >
                           <font-awesome-icon 
                             :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" 

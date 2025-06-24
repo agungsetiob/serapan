@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -8,6 +8,8 @@ import CreateGuTuLsModal from './Partials/CreateGutulsModal.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import LampiranModal from './Partials/LampiranModal.vue';
 import { formatCurrency } from '@/Utils/formatters';
+import DeleteNotaModal from '../NotaDinas/Partials/DeleteNotaModal.vue';
+import SuccessFlash from '@/Components/SuccessFlash.vue';
 
 const props = defineProps({
     skpd: Object,
@@ -24,8 +26,17 @@ const props = defineProps({
 });
  
 const search = ref(props.search || '');
+const flash = computed(() => usePage().props.flash || {}); 
+const clearFlash = () => {
+  flash.value.success = null;
+};
+
 const showModal = ref(false);
 const editedNota = ref(null);
+const deleteModalState = ref({
+  show: false,
+  notaDinas: null
+});
 
 const openCreateModal = () => {
     editedNota.value = null;
@@ -45,15 +56,16 @@ const openEditModal = (nota) => {
     showModal.value = true;
 };
 
+const handleDeleteNota = (nota) => {
+  deleteModalState.value = {
+    show: true,
+    notaDinas: nota
+  };
+};
+
 watch(search, (val) => {
     router.get(route('nota-dinas.nota-gutuls', props.skpd.id), { search: val }, { preserveState: true, replace: true });
 });
-
-const handleDelete = (id) => {
-    if (confirm('Yakin ingin menghapus nota ini?')) {
-        router.delete(route('nota-dinas.destroy', id));
-    }
-};
 
 const handleSuccess = () => {
     showModal.value = false;
@@ -75,6 +87,9 @@ const handleViewAttachment = (nota) => {
 const handleCloseModal = (type) => {
     if (type === 'attachment') {
         attachmentModalState.value.show = false;
+    }
+    if (type === 'delete') {
+        deleteModalState.value.show = false;
     }
 };
 
@@ -114,11 +129,12 @@ const badgeClasses = (jenis) => {
     <Head :title="`Nota GU/TU/LS - ${skpd.nama_skpd}`" />
 
     <AuthenticatedLayout>
+        <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
         <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
                 <div class="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-6">                    
                     <h2 class="text-3xl font-extrabold text-gray-900 leading-tight">
-                        Nota GU/TU/LS - {{ skpd.nama_skpd }}
+                        {{ skpd.nama_skpd }}
                     </h2>
 
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -149,7 +165,7 @@ const badgeClasses = (jenis) => {
                                     />
                                     <span class="font-semibold text-gray-800 text-left">
                                         <template v-if="group.parent">
-                                            {{ group.parent.nomor_nota }} — {{ group.parent.perihal }} - Anggaran: {{ formatCurrency(group.parent.anggaran) }}
+                                            {{ group.parent.nomor_nota }} - {{ group.parent.perihal }} - Anggaran: {{ formatCurrency(group.parent.anggaran) }}
                                             <span class="text-sm text-red-600 font-normal ml-1">(Sisa: {{ formatCurrency(group.parent.sisa_anggaran) }})</span>
                                         </template>
                                         <template v-else>
@@ -191,7 +207,7 @@ const badgeClasses = (jenis) => {
                                                 </button>
                                             </Tooltip>
                                             <Tooltip text="Hapus" bgColor="bg-red-600">
-                                                <button @click="handleDelete(nota.id)" class="text-red-600 hover:bg-red-100 py-1 px-2 transition-colors duration-200">
+                                                <button @click="handleDeleteNota(nota)" class="text-red-600 hover:bg-red-100 py-1 px-2 transition-colors duration-200">
                                                     <font-awesome-icon icon="trash-alt" />
                                                 </button>
                                             </Tooltip>
@@ -226,6 +242,12 @@ const badgeClasses = (jenis) => {
             :notaId="attachmentModalState.notaId"
             @close="() => handleCloseModal('attachment')"
         />
+        <DeleteNotaModal
+            :show="deleteModalState.show"
+            :notaDinas="deleteModalState.notaDinas"
+            @close="() => handleCloseModal('delete')"
+            @success="handleSuccess"
+        />  
     </AuthenticatedLayout>
 </template>
 
