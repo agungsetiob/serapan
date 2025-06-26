@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/skpds/{skpd}/tahun/{tahun?}', [SkpdController::class, 'showByYear'])->name('skpds.tahun');
     Route::get('/skpds/{skpd}/nota-gutuls', [NotaGutulsController::class, 'notaGuTuLsBySkpd'])->name('nota-dinas.nota-gutuls');
     Route::post('/store-gutuls', [NotaGutulsController::class, 'storeGuTuLs'])->name('store-gutuls');
+    Route::put('/update-gutuls/{notaDina}', [NotaGutulsController::class, 'updateGuTuLs'])->name('update-gutuls');
     Route::resource('nota-skpd', NotaSkpdController::class);
 
 });

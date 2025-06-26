@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('nota_dinas_id')->constrained('nota_dinas')->onDelete('cascade');
             $table->foreignId('terkait_id')->constrained('nota_dinas')->onDelete('cascade');
+            $table->decimal('anggaran', 15, 2)->default(0);
             $table->timestamps();
 
             $table->unique(['nota_dinas_id', 'terkait_id']); // Hindari duplikasi

@@ -58,7 +58,7 @@ function toggleStatus(skpdId, currentStatus) {
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
                 <div class="bg-white shadow-sm sm:rounded-lg p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800">Daftar SKPD</h2>
+                        <h2 class="text-2xl font-semibold text-gray-800">Daftar SKPD</h2>
                         <button
                             @click="openModal()"
                             class="inline-flex items-center px-3 sm:px-4 py-2 bg-indigo-500 text-white text-sm sm:text-base font-medium rounded hover:bg-indigo-700"

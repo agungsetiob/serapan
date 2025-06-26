@@ -130,7 +130,14 @@
                             @click="!isEdit && nota.sisa_anggaran > 0 && toggleParentNota(nota.id)"
                         >
                             <div>
-                                <p class="font-semibold">{{ nota.nomor_nota }} - {{ nota.perihal }}</p>
+                                <p class="font-semibold">
+                                    {{ nota.nomor_nota }} - {{ nota.perihal }}
+                                    <span 
+                                        :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-2', badgeClasses(nota.jenis)]"
+                                    >
+                                        {{ nota.jenis }}
+                                    </span>
+                                </p>
                                 <p :class="['text-sm text-gray-500', { 'text-red-500': nota.sisa_anggaran <= 0 }]">
                                     Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
                                 </p>
@@ -202,7 +209,7 @@ const handleSubmit = () => {
     const payload = { ...form };
     if (props.isEdit) {
         payload._method = 'PUT';
-        form.post(route('nota-skpd.update', form.id), {
+        form.put(route('update-gutuls', form.id), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
@@ -246,5 +253,12 @@ const toggleParentNota = (notaId) => {
         form.parent_ids.splice(index, 1);
     }
 };
-
+const badgeClasses = (jenis) => {
+  switch(jenis) {
+    case 'Pelaksanaan': return `bg-yellow-100 text-yellow-800`;
+    case 'TU': return `bg-indigo-100 text-indigo-800`;
+    case 'LS': return `bg-red-100 text-red-800`;
+    default: return `bg-gray-100 text-gray-800`;
+  }
+}
 </script>

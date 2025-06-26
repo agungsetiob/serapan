@@ -30,6 +30,7 @@ class NotaDinas extends Model
     {
         return $this->hasMany(NotaLampiran::class, 'nota_dinas_id');
     }
+
     // Nota yang dikaitkan (anak)
     public function terkait()
     {
@@ -38,7 +39,7 @@ class NotaDinas extends Model
             'nota_dinas_relasis',
             'nota_dinas_id',
             'terkait_id'
-        )->withTimestamps();
+        )->withPivot('anggaran')->withTimestamps();
     }
 
     // Nota yang mengaitkan nota ini (parent)
@@ -49,7 +50,7 @@ class NotaDinas extends Model
             'nota_dinas_relasis',
             'terkait_id',
             'nota_dinas_id'
-        )->withTimestamps();
+        )->withPivot('anggaran')->withTimestamps();
     }
 
     // Helper method untuk mendapatkan SKPD baik langsung atau melalui sub kegiatan
@@ -70,9 +71,14 @@ class NotaDinas extends Model
 
     public function getSisaAnggaranAttribute()
     {
-        $totalChildrenAnggaran = $this->terkait->sum('anggaran');
+        // jika belum eager-load, maka $this->terkait belum ada Collection
+        if (! $this->relationLoaded('terkait')) {
+            $this->load('terkait');
+        }
 
-        return $this->anggaran - $totalChildrenAnggaran;
+        // Collection::sum() dengan key string
+        $dipakai = $this->terkait->sum('pivot.anggaran');
+
+        return $this->anggaran - $dipakai;
     }
-
 }

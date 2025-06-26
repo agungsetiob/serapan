@@ -133,7 +133,7 @@ const badgeClasses = (jenis) => {
         <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
                 <div class="bg-white shadow-lg rounded-xl p-6 sm:p-8 space-y-6">                    
-                    <h2 class="text-3xl font-extrabold text-gray-900 leading-tight">
+                    <h2 class="text-2xl font-extrabold text-gray-900 leading-tight">
                         {{ skpd.nama_skpd }}
                     </h2>
 
@@ -231,19 +231,3 @@ const badgeClasses = (jenis) => {
         />  
     </AuthenticatedLayout>
 </template>
-
-<style scoped>
-/* Transisi untuk expand/collapse tidak lagi diperlukan jika Anda menggunakan tampilan datar */
-/* .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
-    overflow: hidden;
-}
-.fade-enter-from, .fade-leave-to {
-    opacity: 0;
-    max-height: 0;
-}
-.fade-enter-to, .fade-leave-from {
-    opacity: 1;
-    max-height: 500px;
-} */
-</style>
