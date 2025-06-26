@@ -113,39 +113,37 @@
                 </div>
 
                 <div>
-                    <label v-if="parentNotes.length > 0 && !isEdit" class="block font-medium">Pilih Nota Induk</label>
-                    <div v-if="!isEdit" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label v-if="parentNotes.length > 0" class="block font-medium">
+                        {{ isEdit ? 'Nota Induk' : 'Pilih Nota Induk (Bisa lebih dari satu)' }}
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div
                             v-for="nota in parentNotes"
                             :key="nota.id"
-                            :class="['border rounded-md p-2 flex justify-between items-center cursor-pointer transition hover:bg-gray-100', 
+                            :class="['border rounded-md p-2 flex justify-between items-center transition',
                             form.errors.parent_ids ? 'border-red-500' : 'border-gray-300',
-                            { 'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0 }, 
-                            { 'bg-green-100 border-green-500': form.parent_ids.includes(nota.id) },
-                            ]"
-                            @click="nota.sisa_anggaran > 0 && selectParentNota(nota.id)"
+                            { 
+                                'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0,
+                                'cursor-pointer': !isEdit && nota.sisa_anggaran > 0,
+                                'bg-green-100 border-green-500': form.parent_ids.includes(nota.id) 
+                            }]"
+                            @click="!isEdit && nota.sisa_anggaran > 0 && toggleParentNota(nota.id)"
                         >
                             <div>
                                 <p class="font-semibold">{{ nota.nomor_nota }} - {{ nota.perihal }}</p>
-                                <p :class="['text-sm text-gray-500', { 'text-red-500': nota.sisa_anggaran <= 0 },]">Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}</p>
+                                <p :class="['text-sm text-gray-500', { 'text-red-500': nota.sisa_anggaran <= 0 }]">
+                                    Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
+                                </p>
                             </div>
-                            <font-awesome-icon v-if="form.parent_ids.includes(nota.id)" icon="check-circle" class="text-green-600 text-lg" />
+                            <font-awesome-icon 
+                                v-if="form.parent_ids.includes(nota.id)" 
+                                icon="check-circle" 
+                                class="text-green-600 text-lg" 
+                            />
                         </div>
                     </div>
                     <div v-if="parentNotes.length === 0" class="p-3 bg-red-50 rounded-md">
                         <p class="text-red-800 text-center">Belum ada nota dinas</p>
-                    </div>
-                    <div v-else>
-                        <div
-                            v-if="selectedParent"
-                            class="bg-green-50 border border-green-500 rounded-md p-3 flex justify-between items-center"
-                        >
-                            <div>
-                                <p class="font-semibold">{{ selectedParent.nomor_nota }} - {{ selectedParent.perihal }}</p>
-                                <p :class="['text-sm text-gray-500', { 'text-red-500': selectedParent.sisa_anggaran <= 0 },]">Sisa: Rp. {{ selectedParent.sisa_anggaran.toLocaleString('id-ID') }}</p>
-                            </div>
-                            <font-awesome-icon icon="check-circle" class="text-green-600 text-lg" />
-                        </div>
                     </div>
                     <InputError :message="form.errors.parent_ids" />
                 </div>
@@ -200,10 +198,6 @@ const updateAnggaran = (value) => {
     form.anggaran = value.replace(/\D/g, '');
 };
 
-const selectParentNota = (notaId) => {
-    form.parent_ids = [notaId];
-};
-
 const handleSubmit = () => {
     const payload = { ...form };
     if (props.isEdit) {
@@ -235,14 +229,22 @@ watch(
     (show) => {
         if (show && props.isEdit && props.notaData) {
             Object.assign(form, props.notaData);
+            // Set parent_ids from the notaData if it exists
+            if (props.notaData.parents) {
+                form.parent_ids = props.notaData.parents.map(parent => parent.id);
+            }
         }
     },
     { immediate: true }
 );
 
-const selectedParent = computed(() => {
-    if (!props.isEdit || !form.parent_ids.length) return null;
-    return props.parentNotes.find(nota => nota.id === form.parent_ids[0]) || null;
-});
+const toggleParentNota = (notaId) => {
+    const index = form.parent_ids.indexOf(notaId);
+    if (index === -1) {
+        form.parent_ids.push(notaId);
+    } else {
+        form.parent_ids.splice(index, 1);
+    }
+};
 
 </script>

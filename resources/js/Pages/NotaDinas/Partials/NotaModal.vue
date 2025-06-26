@@ -71,10 +71,15 @@
                 form.errors.jenis ? 'border-red-500' : 'border-gray-300'
               ]"
             >
-              <option value="">--Pilih jenis--</option>  
-              <option value="Pelaksanaan">Pelaksanaan</option>
+              <option value="" disabled>--Pilih jenis--</option>  
+              <option value="Perda">Perda</option>
               <option value="Perbup">Perbup</option>
-              <option value="Lain-lain">Lain-lain</option>
+              <option value="SK">SK</option>
+              <option value="Rekomendasi">Rekomendasi</option>
+              <option value="Surat">Surat</option>
+              <option value="Telaah">Telaah Staf</option>
+              <option value="Edaran">Surat Edaran</option>
+              <option value="Instruksi">Instruksi</option>
             </select>
             <select v-else
               v-model="form.jenis"
@@ -83,7 +88,7 @@
                 form.errors.jenis ? 'border-red-500' : 'border-gray-300'
               ]"
             >
-              <option value="">--Pilih jenis--</option>  
+              <option value="" disabled>--Pilih jenis--</option>  
               <option value="GU">GU</option>
               <option value="TU">TU</option>
               <option value="LS">LS</option>

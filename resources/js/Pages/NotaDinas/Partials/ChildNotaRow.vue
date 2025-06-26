@@ -25,19 +25,19 @@
               :key="child.id"
               class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100"
             >
-              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
                 {{ child.nomor_nota }}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm">
                 {{ child.perihal }}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm">
                 {{ formatCurrency(child.anggaran) }}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm">
                 {{ formatDate(child.tanggal_pengajuan) }}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-4 py-2 whitespace-nowrap text-sm">
                 <span :class="badgeClasses(child.jenis)">
                   {{ child.jenis }}
                 </span>

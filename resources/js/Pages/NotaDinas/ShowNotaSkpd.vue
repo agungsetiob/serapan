@@ -52,19 +52,19 @@
               <tbody>
                 <template v-for="nota in filteredNotaDinas" :key="nota.id">
                   <tr class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100">
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm font-semibold">
                       {{ nota.nomor_nota }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ nota.perihal }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ formatCurrency(nota.anggaran) }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ formatDate(nota.tanggal_pengajuan) }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
                       <span :class="badgeClasses(nota.jenis)">
                         {{ nota.jenis }}
                       </span>

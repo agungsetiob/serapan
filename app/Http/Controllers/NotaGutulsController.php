@@ -24,12 +24,12 @@ class NotaGutulsController extends Controller
                     ->orWhere('perihal', 'like', "%$search%");
                 });
             })
-            ->with('dikaitkanOleh.subKegiatan.kegiatan')
+            ->with(['dikaitkanOleh.subKegiatan.kegiatan', 'dikaitkanOleh'])
             ->paginate(10)
             ->withQueryString();
 
-        // Query untuk parent notes (digunakan modal create)
-        $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'Perbup', 'Lain-lain'])
+        // Query untuk parent notes (digunakan modal create dan edit untuk pilihan)
+        $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
             ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
             ->whereYear('tanggal_pengajuan', $tahun)
             ->with('terkait')
@@ -40,6 +40,13 @@ class NotaGutulsController extends Controller
                 return $nota;
             });
 
+        $notaDinas->getCollection()->transform(function ($nota) {
+            $nota->parents = $nota->dikaitkanOleh;
+            unset($nota->dikaitkanOleh);
+            return $nota;
+        });
+
+        //dd($notaDinas->getCollection());
         return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
             'notaDinas' => $notaDinas,

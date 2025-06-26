@@ -76,20 +76,38 @@
           >
         </div>
 
-        <div class="mb-4">
-          <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span class="text-red-600">*</span></label>
-          <input
-            type="text"
-            :value="formattedAnggaran"
-            @input="updateAnggaran($event.target.value)"
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-              form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
-          <p v-if="form.errors.anggaran" class="mt-1 text-sm text-red-600">
-            {{ form.errors.anggaran }}
-          </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span class="text-red-600">*</span></label>
+            <input
+              type="text"
+              :value="formattedAnggaran"
+              @input="updateAnggaran($event.target.value)"
+              :class="[
+                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
+              ]"
+            >
+            <p v-if="form.errors.anggaran" class="mt-1 text-sm text-red-600">
+              {{ form.errors.anggaran }}
+            </p>
+          </div>
+
+          <div>
+            <label for="jenis" class="block text-sm font-medium text-gray-700">Jenis Nota<span class="text-red-600">*</span></label>
+            <select
+              v-model="form.jenis"
+              :class="[
+                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+              ]"
+            >
+              <option value="" disabled>--Pilih jenis--</option>  
+              <option value="Pelaksanaan">Pelaksanaan</option>
+              <option value="TU">TU</option>
+              <option value="LS">LS</option>
+            </select>
+          </div>
         </div>
 
         <div class="mb-4">
@@ -152,6 +170,7 @@ const form = useForm({
   anggaran: '',
   tanggal_pengajuan: '',
   sub_kegiatan_id: '',
+  jenis: '',
   lampirans: []
 });
 
@@ -187,6 +206,7 @@ const initForm = () => {
     form.perihal = props.notaData.perihal;
     form.anggaran = props.notaData.anggaran;
     form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+    form.jenis = props.notaData.jenis;
     form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
     currentSubKegiatan.value = props.subKegiatan;
   } else if (props.subKegiatan) {
@@ -195,7 +215,6 @@ const initForm = () => {
     currentSubKegiatan.value = props.subKegiatan;
   }
 };
-
 
 // Watch for changes in props
 watch(
@@ -245,6 +264,7 @@ const handleSubmit = () => {
     perihal: form.perihal,
     anggaran: form.anggaran,
     tanggal_pengajuan: form.tanggal_pengajuan,
+    jenis: form.jenis,
     sub_kegiatan_id: form.sub_kegiatan_id,
     lampirans: form.lampirans
   };

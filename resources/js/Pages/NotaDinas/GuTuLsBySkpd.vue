@@ -144,77 +144,58 @@ const badgeClasses = (jenis) => {
                         </button>
                     </div>
 
-                    <div v-if="Object.keys(groupedNotas).length === 0" class="text-center text-gray-500 py-10">
+                    <div v-if="props.notaDinas.data.length === 0" class="text-center text-gray-500 py-10">
                         <p class="text-lg">Belum ada nota GU/TU/LS yang tercatat.</p>
                     </div>
 
-                    <div v-else class="space-y-4">
+                    <div v-else class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <div
-                            v-for="(group, key) in groupedNotas"
-                            :key="key"
-                            class="border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                            v-for="nota in props.notaDinas.data"
+                            :key="nota.id"
+                            class="px-4 py-2 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-gray-50 transition-colors duration-150"
                         >
-                            <button
-                                @click="toggleGroup(key)"
-                                class="w-full flex justify-between items-center px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
-                            >
-                                <div class="flex items-center gap-3">
-                                    <font-awesome-icon
-                                        :icon="expandedGroups.includes(key) ? 'chevron-down' : 'chevron-up'"
-                                        class="text-gray-500"
-                                    />
-                                    <span class="font-semibold text-gray-800 text-left">
-                                        <template v-if="group.parent">
-                                            {{ group.parent.nomor_nota }} - {{ group.parent.perihal }} - Anggaran: {{ formatCurrency(group.parent.anggaran) }}
-                                            <span class="text-sm text-red-600 font-normal ml-1">(Sisa: {{ formatCurrency(group.parent.sisa_anggaran) }})</span>
-                                        </template>
-                                        <template v-else>
-                                            Nota Tanpa Relasi Parent
-                                        </template>
-                                    </span>
-                                </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">{{ group.children.length }} Nota</span>
-                            </button>
-
-                            <transition name="fade">
-                                <div v-show="expandedGroups.includes(key)" class="divide-y divide-gray-200 bg-white">
-                                    <div
-                                        v-for="nota in group.children"
-                                        :key="nota.id"
-                                        class="px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-gray-50 transition-colors duration-150"
+                            <div class="mb-2 sm:mb-0 flex-grow">
+                                <h4 class="font-medium text-blue-700 text-lg">
+                                    {{ nota.nomor_nota }} 
+                                    <span 
+                                        :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-2', badgeClasses(nota.jenis)]"
                                     >
-                                        <div class="mb-2 sm:mb-0">
-                                            <h4 class="font-medium text-blue-700 text-lg">
-                                                {{ nota.nomor_nota }} 
-                                                <span 
-                                                    :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-2', badgeClasses(nota.jenis)]"
-                                                >
-                                                    {{ nota.jenis }}
-                                                </span>
-                                            </h4>
-                                            <p class="text-gray-700 mt-1">{{ nota.perihal }}</p>
-                                            <p class="text-sm text-gray-500 mt-1">Anggaran: {{ formatCurrency(nota.anggaran) }}</p>
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <Tooltip text="Lampiran" bgColor="bg-purple-600">
-                                                <button @click="handleViewAttachment(nota)" class="text-purple-600 hover:bg-purple-100 py-1 px-2 transition-colors duration-200">
-                                                    <font-awesome-icon :icon="['fas','paperclip']" />
-                                                </button>
-                                            </Tooltip>
-                                            <Tooltip text="Edit" bgColor="bg-blue-600">
-                                                <button @click="openEditModal(nota)" class="text-blue-600 hover:bg-blue-100 py-1 px-2 transition-colors duration-200">
-                                                    <font-awesome-icon icon="edit" />
-                                                </button>
-                                            </Tooltip>
-                                            <Tooltip text="Hapus" bgColor="bg-red-600">
-                                                <button @click="handleDeleteNota(nota)" class="text-red-600 hover:bg-red-100 py-1 px-2 transition-colors duration-200">
-                                                    <font-awesome-icon icon="trash-alt" />
-                                                </button>
-                                            </Tooltip>
-                                        </div>
-                                    </div>
+                                        {{ nota.jenis }}
+                                    </span>
+                                </h4>
+                                <p class="text-gray-700">{{ nota.perihal }}</p>
+                                <p class="text-sm text-gray-500">Anggaran: <span class="text-green-500">{{ formatCurrency(nota.anggaran) }}</span></p>
+
+                                <div v-if="nota.parents && nota.parents.length > 0" class="mt-1 text-sm text-gray-600">
+                                    <span class="font-semibold">Dari Nota:</span>
+                                    <ul class="list-disc list-inside ml-4">
+                                        <li v-for="parent in nota.parents" :key="parent.id" class="my-0.5">
+                                            {{ parent.nomor_nota }} - {{ parent.perihal }} 
+                                            <span class="text-xs text-red-500">(Sisa: {{ formatCurrency(parent.sisa_anggaran) }})</span>
+                                        </li>
+                                    </ul>
                                 </div>
-                            </transition>
+                                <div v-else class="mt-2 text-sm text-gray-500">
+                                    Tidak dikaitkan oleh nota lain.
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 flex items-center space-x-2 mt-3 sm:mt-0">
+                                <Tooltip text="Lampiran" bgColor="bg-purple-600">
+                                    <button @click="handleViewAttachment(nota)" class="text-purple-600 hover:bg-purple-100 py-1 px-2 rounded-md transition-colors duration-200">
+                                        <font-awesome-icon :icon="['fas','paperclip']" />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip text="Edit" bgColor="bg-blue-600">
+                                    <button @click="openEditModal(nota)" class="text-blue-600 hover:bg-blue-100 py-1 px-2 rounded-md transition-colors duration-200">
+                                        <font-awesome-icon icon="edit" />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip text="Hapus" bgColor="bg-red-600">
+                                    <button @click="handleDeleteNota(nota)" class="text-red-600 hover:bg-red-100 py-1 px-2 rounded-md transition-colors duration-200">
+                                        <font-awesome-icon icon="trash-alt" />
+                                    </button>
+                                </Tooltip>
+                            </div>
                         </div>
                     </div>
 
@@ -252,7 +233,8 @@ const badgeClasses = (jenis) => {
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
+/* Transisi untuk expand/collapse tidak lagi diperlukan jika Anda menggunakan tampilan datar */
+/* .fade-enter-active, .fade-leave-active {
     transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
     overflow: hidden;
 }
@@ -263,5 +245,5 @@ const badgeClasses = (jenis) => {
 .fade-enter-to, .fade-leave-from {
     opacity: 1;
     max-height: 500px;
-}
+} */
 </style>

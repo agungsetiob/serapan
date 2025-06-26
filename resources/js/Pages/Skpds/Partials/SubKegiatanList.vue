@@ -31,6 +31,15 @@ const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('id-ID', options);
 };
+
+const badgeClasses = (jenis) => {
+  switch(jenis) {
+    case 'Pelaksanaan': return `bg-yellow-100 text-yellow-800`;
+    case 'TU': return `bg-indigo-100 text-indigo-800`;
+    case 'LS': return `bg-red-100 text-red-800`;
+    default: return `bg-gray-100 text-gray-800`;
+  }
+}
 </script>
 
 <template>
@@ -131,17 +140,20 @@ const formatDate = (dateString) => {
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-100">
                     <tr>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-medium">
                         Nomor
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-medium">
                         Tanggal
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-4 py-2 text-left text-xs font-medium">
                         Perihal
                       </th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Nilai
+                      <th class="px-4 py-2 text-left text-xs font-medium">
+                        Anggaran
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-medium">
+                        Jenis
                       </th>
                       <th></th>
                     </tr>
@@ -159,6 +171,13 @@ const formatDate = (dateString) => {
                       </td>
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
                         Rp {{ formatNumber(nota.anggaran) }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <span 
+                          :class="['inline-flex items-center px-1 rounded-full text-xs font-medium', badgeClasses(nota.jenis)]"
+                        >
+                          {{ nota.jenis }}
+                        </span>
                       </td>
                       <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-2">

@@ -47,6 +47,7 @@ class NotaDinasController extends Controller
                     'perihal' => $validated['perihal'],
                     'anggaran' => $validated['anggaran'],
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+                    'jenis' => $validated['jenis'],
                     'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
                 ]);
 
@@ -95,6 +96,7 @@ class NotaDinasController extends Controller
                     'perihal' => $validated['perihal'],
                     'anggaran' => $validated['anggaran'],
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
+                    'jenis' => $validated['jenis'],
                 ]);
 
                 if ($request->hasFile('lampirans')) {
@@ -244,6 +246,7 @@ class NotaDinasController extends Controller
                 },
             ],
             'tanggal_pengajuan' => 'required|date',
+            'jenis' => 'required',
             'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
         ];
 
