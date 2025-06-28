@@ -71,14 +71,16 @@ class NotaDinas extends Model
 
     public function getSisaAnggaranAttribute()
     {
-        // jika belum eager-load, maka $this->terkait belum ada Collection
         if (! $this->relationLoaded('terkait')) {
             $this->load('terkait');
         }
 
-        // Collection::sum() dengan key string
         $dipakai = $this->terkait->sum('pivot.anggaran');
 
         return $this->anggaran - $dipakai;
     }
+    protected $casts = [
+        'anggaran' => 'float',
+        'tanggal_pengajuan' => 'date:Y-m-d',
+    ];
 }

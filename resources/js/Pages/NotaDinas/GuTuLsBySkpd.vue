@@ -51,6 +51,7 @@ const openEditModal = (nota) => {
     editedNota.value = {
         ...nota,
         parent_ids: parentIds,
+        lampirans: nota.lampirans ? nota.lampirans.map(l => ({...l})) : [],
     };
 
     showModal.value = true;
@@ -93,28 +94,28 @@ const handleCloseModal = (type) => {
     }
 };
 
-const expandedGroups = ref([]);
+// const expandedGroups = ref([]);
 
-const groupedNotas = computed(() => {
-    const groups = {};
-    props.notaDinas.data.forEach((nota) => {
-        const parent = nota.dikaitkan_oleh?.[0] || null;
-        const key = parent ? parent.id : 'no-parent';
-        if (!groups[key]) {
-            groups[key] = { parent, children: [] };
-        }
-        groups[key].children.push(nota);
-    });
-    return groups;
-});
+// const groupedNotas = computed(() => {
+//     const groups = {};
+//     props.notaDinas.data.forEach((nota) => {
+//         const parent = nota.dikaitkan_oleh?.[0] || null;
+//         const key = parent ? parent.id : 'no-parent';
+//         if (!groups[key]) {
+//             groups[key] = { parent, children: [] };
+//         }
+//         groups[key].children.push(nota);
+//     });
+//     return groups;
+// });
 
-function toggleGroup(id) {
-    if (expandedGroups.value.includes(id)) {
-        expandedGroups.value = expandedGroups.value.filter(x => x !== id);
-    } else {
-        expandedGroups.value.push(id);
-    }
-}
+// function toggleGroup(id) {
+//     if (expandedGroups.value.includes(id)) {
+//         expandedGroups.value = expandedGroups.value.filter(x => x !== id);
+//     } else {
+//         expandedGroups.value.push(id);
+//     }
+// }
 const badgeClasses = (jenis) => {
   switch(jenis) {
     case 'GU': return `bg-yellow-100 text-yellow-800`;

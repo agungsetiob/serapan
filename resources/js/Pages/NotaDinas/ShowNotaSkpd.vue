@@ -41,9 +41,10 @@
             <table class="table-auto w-full">
               <thead class="bg-gray-200">
                 <tr class="text-left">
+                    <th class="px-4 py-2">No.</th>
                     <th class="px-4 py-2">No. Nota</th>
                     <th class="px-4 py-2">Perihal</th>
-                    <th class="px-4 py-2">Anggaran</th>
+                    <!-- <th class="px-4 py-2">Anggaran</th> -->
                     <th class="px-4 py-2">Tanggal</th>
                     <th class="px-4 py-2">Jenis</th>
                     <th></th>
@@ -52,15 +53,18 @@
               <tbody>
                 <template v-for="nota in filteredNotaDinas" :key="nota.id">
                   <tr class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                      {{ notaDinas.data.indexOf(nota) + 1 }}
+                    </td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm font-semibold">
                       {{ nota.nomor_nota }}
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ nota.perihal }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                    <!-- <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ formatCurrency(nota.anggaran) }}
-                    </td>
+                    </td> -->
                     <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ formatDate(nota.tanggal_pengajuan) }}
                     </td>
@@ -232,9 +236,14 @@ const filteredNotaDinas = computed(() => {
 const badgeClasses = (jenis) => {
   const base = 'px-2 py-1 rounded-full text-xs font-medium';
   switch(jenis) {
-    case 'Pelaksanaan': return `${base} bg-blue-100 text-blue-800`;
+    case 'Perda': return `${base} bg-blue-100 text-blue-800`;
     case 'Perbup': return `${base} bg-green-100 text-green-800`;
-    case 'Lain-lain': return `${base} bg-purple-100 text-purple-800`;
+    case 'SK': return `${base} bg-purple-100 text-purple-800`;
+    case 'Rekomendasi': return `${base} bg-yellow-100 text-yellow-800`;
+    case 'Surat': return `${base} bg-orange-100 text-orange-800`;
+    case 'Telaah': return `${base} bg-gray-200 text-gray-800`;
+    case 'Instruksi': return `${base} bg-pink-100 text-pink-800`;
+    case 'Edaran': return `${base} bg-teal-100 text-teal-800`;
     default: return `${base} bg-gray-100 text-gray-800`;
   }
 };

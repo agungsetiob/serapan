@@ -13,18 +13,18 @@
                 class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
             >
                 <div class="flex">
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">
-                    Terdapat {{ Object.keys(form.errors).length }} kesalahan
-                    </h3>
-                    <div class="mt-2 text-sm text-red-700">
-                    <ul class="list-disc pl-5 space-y-1">
-                        <li v-for="(error, field) in form.errors" :key="field">
-                        {{ error }}
-                        </li>
-                    </ul>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Terdapat {{ Object.keys(form.errors).length }} kesalahan
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li v-for="(error, field) in form.errors" :key="field">
+                                    {{ error }}
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
                 </div>
             </div>
 
@@ -35,36 +35,47 @@
                     <div>
                         <label for="nomor_nota" class="block font-medium">Nomor Nota<span class="text-red-600">*</span></label>
                         <input
+                            id="nomor_nota"
                             type="text"
                             v-model="form.nomor_nota"
+                            :aria-invalid="!!form.errors.nomor_nota"
+                            :aria-describedby="form.errors.nomor_nota ? 'nomor_nota-error' : undefined"
                             :class="[
                                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                                 form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
                             ]"
                         >
-                        <InputError :message="form.errors.nomor_nota" />
+                        <InputError :id="'nomor_nota-error'" :message="form.errors.nomor_nota" />
                     </div>
 
                     <div>
                         <label for="tanggal_pengajuan" class="block font-medium">Tanggal Pengajuan<span class="text-red-600">*</span></label>
                         <input
+                            id="tanggal_pengajuan"
                             type="date"
                             v-model="form.tanggal_pengajuan"
+                            :aria-invalid="!!form.errors.tanggal_pengajuan"
+                            :aria-describedby="form.errors.tanggal_pengajuan ? 'tanggal_pengajuan-error' : undefined"
                             :class="[
                                 'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
                                 form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
                             ]"
                         >
-                        <InputError :message="form.errors.tanggal_pengajuan" />
+                        <InputError :id="'tanggal_pengajuan-error'" :message="form.errors.tanggal_pengajuan" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="jenis" class="block font-medium">Jenis Nota<span class="text-red-600">*</span></label>
-                        <select v-model="form.jenis" :class="[
-                            'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                            form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+                        <select
+                            id="jenis"
+                            v-model="form.jenis"
+                            :aria-invalid="!!form.errors.jenis"
+                            :aria-describedby="form.errors.jenis ? 'jenis-error' : undefined"
+                            :class="[
+                                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                                form.errors.jenis ? 'border-red-500' : 'border-gray-300'
                             ]"
                         >
                             <option disabled value="">-- Pilih Jenis Nota --</option>
@@ -72,37 +83,59 @@
                             <option value="TU">TU</option>
                             <option value="LS">LS</option>
                         </select>
-                        <InputError :message="form.errors.jenis" />
+                        <InputError :id="'jenis-error'" :message="form.errors.jenis" />
                     </div>
 
                     <div>
                         <label for="anggaran" class="block font-medium">Anggaran (Rp)<span class="text-red-600">*</span></label>
-                        <input
-                            type="text"
-                            :value="formattedAnggaran"
-                            @input="updateAnggaran($event.target.value)"
-                            :class="[
-                                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                                form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-                            ]"
-                        />
-                        <InputError :message="form.errors.anggaran" />
+                        <div class="relative mt-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Rp</span>
+                            <input
+                                id="anggaran"
+                                type="text"
+                                :value="formattedAnggaran"
+                                @input="updateAnggaran($event.target.value)"
+                                :aria-invalid="!!form.errors.anggaran"
+                                :aria-describedby="form.errors.anggaran ? 'anggaran-error' : undefined"
+                                :class="[
+                                    'block w-full pl-10 border rounded-md px-3 py-2 text-sm',
+                                    form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
+                                ]"
+                            />
+                            <button
+                                v-if="form.anggaran"
+                                type="button"
+                                @click="form.anggaran = null"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                                aria-label="Clear amount"
+                            >
+                                <font-awesome-icon icon="times" />
+                            </button>
+                        </div>
+                        <InputError :id="'anggaran-error'" :message="form.errors.anggaran" />
                     </div>
                 </div>
 
                 <div>
                     <label for="perihal" class="block font-medium">Perihal<span class="text-red-600">*</span></label>
-                    <input v-model="form.perihal" type="text" 
+                    <input
+                        id="perihal"
+                        v-model="form.perihal"
+                        type="text"
+                        :aria-invalid="!!form.errors.perihal"
+                        :aria-describedby="form.errors.perihal ? 'perihal-error' : undefined"
                         :class="[
-                        'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                        form.errors.perihal ? 'border-red-500' : 'border-gray-300'
+                            'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+                            form.errors.perihal ? 'border-red-500' : 'border-gray-300'
                         ]"
                     />
-                    <InputError :message="form.errors.perihal" />
+                    <InputError :id="'perihal-error'" :message="form.errors.perihal" />
                 </div>
+
                 <div>
                     <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
                     <input
+                        id="lampirans"
                         type="file"
                         accept=".pdf"
                         multiple
@@ -110,24 +143,70 @@
                         class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                     >
                     <p class="mt-1 text-xs text-gray-500">PDF (maks. 3MB per file)</p>
+                    
+                    <!-- Selected files display -->
+                    <div v-if="form.lampirans.length > 0" class="mt-2 space-y-2">
+                        <div v-for="(file, index) in form.lampirans" :key="index" class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
+                                <span class="text-sm truncate max-w-xs">{{ file.name }}</span>
+                                <span class="text-xs text-gray-500 ml-2">({{ formatFileSize(file.size) }})</span>
+                            </div>
+                            <button
+                                type="button"
+                                @click="removeFile(index)"
+                                class="text-red-500 hover:text-red-700"
+                                aria-label="Remove file"
+                            >
+                                <font-awesome-icon icon="times" />
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing files in edit mode -->
+                    <div v-if="isEdit && notaData?.lampirans?.length" class="mt-2">
+                        <p class="text-sm font-medium mb-1">File yang sudah diunggah:</p>
+                        <div v-for="(file, index) in notaData.lampirans" :key="index" class="flex items-center justify-between p-2 bg-gray-50 rounded mb-1">
+                            <div class="flex items-center">
+                                <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
+                                <a :href="file.path" target="_blank" class="text-sm text-blue-600 hover:underline">
+                                    {{ file.nama_file }}
+                                </a>
+                            </div>
+                            <button
+                                type="button"
+                                @click="removeExistingFile(index)"
+                                class="text-red-500 hover:text-red-700"
+                                aria-label="Remove file"
+                                v-if="!form.processing"
+                            >
+                                <font-awesome-icon icon="times" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div>
                     <label v-if="parentNotes.length > 0" class="block font-medium">
                         {{ isEdit ? 'Nota Induk' : 'Pilih Nota Induk (Bisa lebih dari satu)' }}
                     </label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-if="parentNotesLoading" class="flex justify-center p-4">
+                        <font-awesome-icon icon="spinner" spin class="text-blue-500 text-xl" />
+                    </div>
+                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div
                             v-for="nota in parentNotes"
                             :key="nota.id"
+                            :aria-disabled="isEdit || nota.sisa_anggaran <= 0"
                             :class="['border rounded-md p-2 flex justify-between items-center transition',
                             form.errors.parent_ids ? 'border-red-500' : 'border-gray-300',
                             { 
                                 'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0,
                                 'cursor-pointer': !isEdit && nota.sisa_anggaran > 0,
-                                'bg-green-100 border-green-500': form.parent_ids.includes(nota.id) 
+                                'bg-green-100 border-green-500': form.parent_ids.includes(nota.id),
+                                'hover:bg-gray-50': !isEdit && nota.sisa_anggaran > 0
                             }]"
-                            @click="!isEdit && nota.sisa_anggaran > 0 && toggleParentNota(nota.id)"
+                            @click="!isEdit && nota.sisa_anggaran > 0 ? toggleParentNota(nota.id) : null"
                         >
                             <div>
                                 <p class="font-semibold">
@@ -138,7 +217,7 @@
                                         {{ nota.jenis }}
                                     </span>
                                 </p>
-                                <p :class="['text-sm text-gray-500', { 'text-red-500': nota.sisa_anggaran <= 0 }]">
+                                <p :class="['text-sm', nota.sisa_anggaran <= 0 ? 'text-red-500' : 'text-gray-500']">
                                     Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
                                 </p>
                             </div>
@@ -149,16 +228,21 @@
                             />
                         </div>
                     </div>
-                    <div v-if="parentNotes.length === 0" class="p-3 bg-red-50 rounded-md">
+                    <div v-if="parentNotes.length === 0 && !parentNotesLoading" class="p-3 bg-red-50 rounded-md">
                         <p class="text-red-800 text-center">Belum ada nota dinas</p>
                     </div>
                     <InputError :message="form.errors.parent_ids" />
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-2">
-                    <SecondaryButton @click="closeModal">Batal</SecondaryButton>
+                    <SecondaryButton @click="closeModal" :disabled="form.processing">
+                        Batal
+                    </SecondaryButton>
                     <PrimaryButton :disabled="form.processing">
-                        <span v-if="form.processing"><font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan...</span>
+                        <span v-if="form.processing">
+                            <font-awesome-icon icon="spinner" spin class="mr-2" /> 
+                            {{ isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
+                        </span>
                         <span v-else>{{ isEdit ? 'Update' : 'Simpan' }}</span>
                     </PrimaryButton>
                 </div>
@@ -168,8 +252,8 @@
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { useForm, router } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 import Modal from '@/Components/Modal.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -180,7 +264,8 @@ const props = defineProps({
     isEdit: Boolean,
     notaData: Object,
     parentNotes: Array,
-    skpd: Object
+    skpd: Object,
+    parentNotesLoading: Boolean
 });
 
 const emit = defineEmits(['close', 'success']);
@@ -194,32 +279,83 @@ const form = useForm({
     jenis: '',
     parent_ids: [],
     skpd_id: props.skpd?.id || null,
+    lampirans: [],
+    deleted_files: []
 });
 
 const formattedAnggaran = computed(() => {
-    if (!form.anggaran) return '';
+    if (form.anggaran === null || form.anggaran === '') return '';
     return parseFloat(form.anggaran).toLocaleString('id-ID');
 });
 
 const updateAnggaran = (value) => {
-    form.anggaran = value.replace(/\D/g, '');
+    const digitsOnly = value.replace(/\D/g, '');
+    form.anggaran = digitsOnly ? parseInt(digitsOnly) : null;
+};
+
+const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    const validFiles = files.filter(file => {
+        if (file.size > 3 * 1024 * 1024) {
+            form.setError('lampirans', 'Ukuran file melebihi 3MB per file.');
+            return false;
+        }
+        return true;
+    });
+
+    if (validFiles.length > 0) {
+        form.lampirans = [...form.lampirans, ...validFiles];
+    }
+};
+
+const removeFile = (index) => {
+    form.lampirans.splice(index, 1);
+};
+
+const removeExistingFile = (index) => {
+    if (!form.deleted_files) {
+        form.deleted_files = [];
+    }
+    form.deleted_files.push(props.notaData.lampirans[index].id);
+    
+    props.notaData.lampirans.splice(index, 1); 
+};
+
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 const handleSubmit = () => {
-    const payload = { ...form };
     if (props.isEdit) {
-        payload._method = 'PUT';
-        form.put(route('update-gutuls', form.id), {
+        form.transform(data => ({
+            ...data,
+            _method: 'PUT',
+            deleted_files: form.deleted_files
+        })).post(route('update-gutuls', form.id), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
+            },
+            preserveScroll: true,
+            onError: (errors) => {
+                console.error("Error updating nota:", errors);
             }
         });
     } else {
-        form.post(route('store-gutuls'), {
+        form.transform(data => ({
+             ...data
+        })).post(route('store-gutuls'), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
+            },
+            preserveScroll: true,
+            onError: (errors) => {
+                console.error("Error creating nota:", errors);
             }
         });
     }
@@ -228,22 +364,10 @@ const handleSubmit = () => {
 const closeModal = () => {
     form.reset();
     form.clearErrors();
+    form.deleted_files = [];
+    form.lampirans = [];
     emit('close');
 };
-
-watch(
-    () => props.show,
-    (show) => {
-        if (show && props.isEdit && props.notaData) {
-            Object.assign(form, props.notaData);
-            // Set parent_ids from the notaData if it exists
-            if (props.notaData.parents) {
-                form.parent_ids = props.notaData.parents.map(parent => parent.id);
-            }
-        }
-    },
-    { immediate: true }
-);
 
 const toggleParentNota = (notaId) => {
     const index = form.parent_ids.indexOf(notaId);
@@ -253,12 +377,65 @@ const toggleParentNota = (notaId) => {
         form.parent_ids.splice(index, 1);
     }
 };
+
 const badgeClasses = (jenis) => {
-  switch(jenis) {
-    case 'Pelaksanaan': return `bg-yellow-100 text-yellow-800`;
-    case 'TU': return `bg-indigo-100 text-indigo-800`;
-    case 'LS': return `bg-red-100 text-red-800`;
-    default: return `bg-gray-100 text-gray-800`;
-  }
-}
+    switch(jenis) {
+        case 'GU': return 'bg-yellow-100 text-yellow-800';
+        case 'TU': return 'bg-indigo-100 text-indigo-800';
+        case 'LS': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+};
+
+watch(
+    () => props.show,
+    (show) => {
+        if (show) {
+            form.reset();
+            form.clearErrors();
+            form.deleted_files = [];
+            form.lampirans = [];
+
+            if (props.isEdit && props.notaData) {
+                form.id = props.notaData.id;
+                form.nomor_nota = props.notaData.nomor_nota;
+                form.perihal = props.notaData.perihal;
+                form.anggaran = props.notaData.anggaran;
+                form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+                form.jenis = props.notaData.jenis;
+                form.skpd_id = props.notaData.skpd_id;
+                
+                if (props.notaData.parents) {
+                    form.parent_ids = props.notaData.parents.map(parent => parent.id);
+                }
+            } else {
+                form.skpd_id = props.skpd?.id || null;
+            }
+        } else {
+            closeModal();
+        }
+    },
+    { immediate: true }
+);
+
+watch(
+    () => props.notaData,
+    (newNotaData) => {
+        if (props.show && props.isEdit && newNotaData) {
+             form.id = newNotaData.id;
+             form.nomor_nota = newNotaData.nomor_nota;
+             form.perihal = newNotaData.perihal;
+             form.anggaran = newNotaData.anggaran;
+             form.tanggal_pengajuan = newNotaData.tanggal_pengajuan;
+             form.jenis = newNotaData.jenis;
+             form.skpd_id = newNotaData.skpd_id;
+
+             if (newNotaData.parents) {
+                 form.parent_ids = newNotaData.parents.map(parent => parent.id);
+             }
+        }
+    },
+    { deep: true }
+);
+
 </script>

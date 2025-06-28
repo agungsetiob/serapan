@@ -22,7 +22,10 @@ class Skpd extends Model
     {
         return $this->hasMany(SkpdTahun::class);
     }
-
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
+    }
     public function kegiatans()
     {
         return $this->hasMany(Kegiatan::class);

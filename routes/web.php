@@ -3,7 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KabupatenController;
 use App\Http\Controllers\KegiatanController;
-use App\Http\Controllers\{NotaDinasController, NotaGutulsController, NotaSkpdController};
+use App\Http\Controllers\{NotaDinasController, NotaGutulsController, NotaSkpdController, ProgramController};
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\SkpdController;
@@ -35,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/store-gutuls', [NotaGutulsController::class, 'storeGuTuLs'])->name('store-gutuls');
     Route::put('/update-gutuls/{notaDina}', [NotaGutulsController::class, 'updateGuTuLs'])->name('update-gutuls');
     Route::resource('nota-skpd', NotaSkpdController::class);
+
+    Route::post('/skpds/{skpd}/programs', [ProgramController::class, 'store'])->name('programs.store');
+    Route::put('/programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
+    Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
 
 });
 

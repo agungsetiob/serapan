@@ -143,9 +143,9 @@ class NotaSkpdController extends Controller
         $validatedData = $request->validate([
             'nomor_nota' => 'required|string|max:100|unique:nota_dinas,nomor_nota',
             'perihal' => 'required|string|max:255',
-            'anggaran' => 'required|numeric|min:0',
+            //'anggaran' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
-            'jenis' => 'required|in:Pelaksanaan,Perbup,Lain-lain,GU,TU,LS',
+            'jenis' => 'required|in:Perda,Perbup,Surat,Rekomendasi,Telaah,Edaran,Instruksi',
             'skpd_id' => 'required|exists:skpds,id',
             'parent_ids' => 'nullable|array',
             'parent_ids.*' => 'exists:nota_dinas,id',
@@ -158,7 +158,7 @@ class NotaSkpdController extends Controller
             'skpd_id.exists' => 'SKPD tidak valid.',
         ]);
 
-        $anggaranToCreate = (float) $validatedData['anggaran'];
+        $anggaranToCreate = (float) ($validatedData['anggaran'] ?? 0);
         $parentIds = $validatedData['parent_ids'] ?? [];
         $skpdId = $validatedData['skpd_id'];
         $currentYear = date('Y');
@@ -343,7 +343,7 @@ class NotaSkpdController extends Controller
             'perihal' => 'required|string|max:255',
             'anggaran' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date',
-            'jenis' => 'required|in:Pelaksanaan,Perbup,Lain-lain,GU,TU,LS',
+            'jenis' => 'required|in:Perda,Perbup,Surat,Rekomendasi,Telaah,Edaran,Instruksi',
             'skpd_id' => 'required|exists:skpds,id',
             'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
         ];

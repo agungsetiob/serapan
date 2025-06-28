@@ -12,20 +12,29 @@ use Illuminate\Support\Facades\Storage;
 
 class KegiatanController extends Controller
 {
+    /**
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\SKPD  $skpd
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, SKPD $skpd)
     {
+        // Validasi data input, termasuk program_id
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'tahun_anggaran' => 'required|digits:4',
+            'program_id' => 'required|exists:programs,id',
         ]);
 
+        // Cek ketersediaan data kabupaten untuk tahun anggaran yang diberikan
         $kabupaten = Kabupaten::where('tahun_anggaran', $validated['tahun_anggaran'])->first();
         if (!$kabupaten) {
             return back()
                 ->with('error', 'Data kabupaten untuk tahun ini belum tersedia.');
         }
 
-        // Check if the SKPD is mapped to tahun_anggaran
+        // Cek apakah SKPD terdaftar untuk tahun anggaran yang diberikan
         $skpdTahunExists = SkpdTahun::where('skpd_id', $skpd->id)
                                     ->where('tahun_anggaran', $validated['tahun_anggaran'])
                                     ->exists();
@@ -34,8 +43,13 @@ class KegiatanController extends Controller
             return back()->with('error', $skpd->nama_skpd. ' belum terdaftar untuk tahun anggaran ' . $validated['tahun_anggaran'] . '.');
         }
 
+        // Cek status SKPD
         if ($skpd->status) {
-            $skpd->kegiatans()->create($validated);
+            $skpd->kegiatans()->create([
+                'program_id' => $validated['program_id'],
+                'nama' => $validated['nama'],
+                'tahun_anggaran' => $validated['tahun_anggaran'],
+            ]);
         } else {
             return back()->with('error', 'SKPD nonaktif tidak dapat ditambah kegiatan.');
         }
@@ -43,19 +57,32 @@ class KegiatanController extends Controller
         return back()->with('success', 'Kegiatan berhasil ditambahkan.');
     }
 
+    /**
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Kegiatan  $kegiatan
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Kegiatan $kegiatan)
     {
         $request->validate([
             'nama' => 'required|string|max:255',
+            // 'program_id' => 'required|exists:programs,id',
         ]);
 
         $kegiatan->update([
             'nama' => $request->nama,
+            // 'program_id' => $request->program_id,
         ]);
 
         return back()->with('success', 'Nama kegiatan berhasil diperbarui.');
     }
 
+    /**
+     *
+     * @param  \App\Models\Kegiatan  $kegiatan
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Kegiatan $kegiatan)
     {
         DB::beginTransaction();
@@ -64,6 +91,7 @@ class KegiatanController extends Controller
             
             $kabupaten = Kabupaten::where('tahun_anggaran', $tahun)->first();
             
+            // Perbarui pagu dan serapan kabupaten jika ada
             if ($kabupaten) {
                 $kabupaten->decrement('pagu', $kegiatan->pagu);
                 $kabupaten->decrement('total_serapan', $kegiatan->total_serapan);
@@ -74,6 +102,8 @@ class KegiatanController extends Controller
                         : 0
                 ]);
             }
+            
+            // Hapus subKegiatans, notaDinas, dan lampiran terkait
             foreach ($kegiatan->subKegiatans as $subKegiatan) {
                 foreach ($subKegiatan->notaDinas as $notaDinas) {
                     foreach ($notaDinas->lampirans as $lampiran) {
@@ -84,6 +114,7 @@ class KegiatanController extends Controller
                 }
             }
 
+            // Hapus kegiatan itu sendiri
             $kegiatan->delete(); 
 
             DB::commit();
@@ -94,5 +125,4 @@ class KegiatanController extends Controller
             return back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
-
 }

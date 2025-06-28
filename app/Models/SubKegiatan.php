@@ -19,5 +19,12 @@ class SubKegiatan extends Model
     {
         return $this->hasMany(NotaDinas::class);
     }
+
+    protected $casts = [
+        'pagu' => 'float',
+        'total_serapan' => 'float',
+        'presentase_serapan' => 'float',
+        'tahun_anggaran' => 'integer',
+    ];
 }
 

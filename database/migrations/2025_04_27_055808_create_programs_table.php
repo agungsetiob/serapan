@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kegiatans', function (Blueprint $table) {
+        Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('skpd_id')->constrained('skpds')->onDelete('cascade');
-            $table->foreignId('program_id')->nullable()->constrained('programs')->onDelete('cascade');
             $table->string('nama');
-            $table->decimal('pagu', 15,2)->default(0);
             $table->year('tahun_anggaran');
-            $table->decimal('total_serapan', 15, 2)->default(0);
-            $table->decimal('presentase_serapan', 5, 2)->default(0);
             $table->timestamps();
         });
     }
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kegiatans');
+        Schema::dropIfExists('programs');
     }
 };
