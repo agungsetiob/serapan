@@ -165,7 +165,7 @@
 import { watch, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
-import { formatCurrency, formatDate } from '@/Utils/formatters';
+import { formatCurrency } from '@/Utils/formatters';
 
 const props = defineProps({
   show: Boolean,

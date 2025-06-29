@@ -23,12 +23,12 @@
             <tr
               v-for="child in children"
               :key="child.id"
-              class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100"
+              class="even:bg-gray-100"
             >
               <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
                 {{ child.nomor_nota }}
               </td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm">
+              <td class="px-4 py-2 text-sm">
                 {{ child.perihal }}
               </td>
               <td class="px-4 py-2 whitespace-nowrap text-sm">

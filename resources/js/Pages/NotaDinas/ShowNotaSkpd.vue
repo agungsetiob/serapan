@@ -41,7 +41,6 @@
             <table class="table-auto w-full">
               <thead class="bg-gray-200">
                 <tr class="text-left">
-                    <th class="px-4 py-2">No.</th>
                     <th class="px-4 py-2">No. Nota</th>
                     <th class="px-4 py-2">Perihal</th>
                     <!-- <th class="px-4 py-2">Anggaran</th> -->
@@ -52,28 +51,25 @@
               </thead>
               <tbody>
                 <template v-for="nota in filteredNotaDinas" :key="nota.id">
-                  <tr class="hover:bg-red-50 transition-colors duration-150 even:bg-gray-100">
-                    <td class="px-4 py-2 whitespace-nowrap text-sm">
-                      {{ notaDinas.data.indexOf(nota) + 1 }}
-                    </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-semibold">
+                  <tr class="even:bg-gray-100">
+                    <td class="px-4 py-2 text-sm font-semibold">
                       {{ nota.nomor_nota }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                    <td class="px-4 py-2 text-sm">
                       {{ nota.perihal }}
                     </td>
                     <!-- <td class="px-4 py-2 whitespace-nowrap text-sm">
                       {{ formatCurrency(nota.anggaran) }}
                     </td> -->
-                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                    <td class="px-4 py-2 text-sm">
                       {{ formatDate(nota.tanggal_pengajuan) }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm">
+                    <td class="px-4 py-2 text-sm">
                       <span :class="badgeClasses(nota.jenis)">
                         {{ nota.jenis }}
                       </span>
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm font-medium space-x-1">
+                    <td class="px-4 py-2 text-sm font-medium space-x-1">
                       <Tooltip text="Nota Dinas" bgColor="bg-green-500">
                         <button
                           @click="handleCreateNota(true, nota)"
@@ -250,7 +246,7 @@ const badgeClasses = (jenis) => {
 
 const handleTahunChange = (newTahun) => {
   tahun.value = newTahun;
-  router.get(route('nota-dinas.skpd', props.skpd.id),
+  router.get(route('nota-skpd.show', props.skpd.id),
     { search: search.value, tahun: newTahun },
     { preserveState: true, replace: true }
   );

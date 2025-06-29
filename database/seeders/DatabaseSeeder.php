@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,7 +18,8 @@ class DatabaseSeeder extends Seeder
             ProgramSeeder::class,
             KegiatanSeeder::class,
             SubKegiatanSeeder::class,
-            //NotaDinasSeeder::class,
+            NotaDinasSeeder::class,
+            NotaSkpdSeeder::class,
         ]);
     }
 }

@@ -10,7 +10,11 @@ const props = defineProps({
   formatNumber: Function,
   onSubmit: Function,
   onEdit: Function,
-  onDelete: Function
+  onDelete: Function,
+  showButtons: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['createNotaDinas', 'editNota', 'deleteNota', 'viewAttachment']);
@@ -98,7 +102,7 @@ const badgeClasses = (jenis) => {
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-3 sm:gap-2">
+            <div v-if="showButtons" class="flex items-center gap-3 sm:gap-2">
               <Tooltip text="Nota Dinas" bgColor="bg-gray-500">
                 <button 
                   @click="emit('createNotaDinas', sub)"
@@ -179,7 +183,7 @@ const badgeClasses = (jenis) => {
                           {{ nota.jenis }}
                         </span>
                       </td>
-                      <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <td v-if="showButtons" class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-2">
                           <Tooltip text="Lampiran" bgColor="bg-purple-500">
                             <button 

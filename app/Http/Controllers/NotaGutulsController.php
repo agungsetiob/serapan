@@ -60,10 +60,9 @@ class NotaGutulsController extends Controller
     }
     public function storeGuTuLs(Request $request)
     {
-        // 1) validate
         $this->validateGuTuLs($request);
 
-        // 2) fetch & lock parent notes
+        // Ambil & lock nota induk
         $parents = NotaDinas::whereIn('id', $request->parent_ids)
             ->lockForUpdate()
             ->with('terkait')
@@ -75,40 +74,39 @@ class NotaGutulsController extends Controller
                 ->withInput();
         }
 
-        // 3) check total sisa anggaran
+        // Cek total sisa anggaran
         $totalSisa = $this->calcTotalSisa($parents);
         if ($request->anggaran > $totalSisa) {
             return back()
                 ->withErrors([
-                    'anggaran' => "Total anggaran melebihi sisa anggaran. Maksimum: Rp"
-                        . number_format($totalSisa, 0, ',', '.')
+                    'anggaran' => 'Total anggaran melebihi sisa anggaran. Maksimum: Rp' . number_format($totalSisa, 0, ',', '.')
                 ])
                 ->withInput();
         }
 
-        // 4) wrap create + pivot‐attach in a transaction
-        return DB::transaction(function() use ($request, $parents) {
-            // create the nota
-            $notaDina = NotaDinas::create($request->only([
-                'nomor_nota',
-                'perihal',
-                'anggaran',
-                'tanggal_pengajuan',
-                'jenis',
-            ]));
+        // Buat nota dan relasi dalam transaksi
+        return DB::transaction(function () use ($request, $parents) {
+            $skpdId = $this->resolveSkpd($parents);
 
-            // store attachments
+            // Buat nota sekaligus isi skpd_id dan sub_kegiatan_id jika tersedia
+            $notaDina = NotaDinas::create([
+                'nomor_nota'         => $request->nomor_nota,
+                'perihal'            => $request->perihal,
+                'anggaran'           => $request->anggaran,
+                'tanggal_pengajuan'  => $request->tanggal_pengajuan,
+                'jenis'              => $request->jenis,
+                'skpd_id'            => $skpdId,
+            ]);
+
+            // Simpan lampiran
             $this->handleAttachments($request, $notaDina);
 
-            // allocate to parents
+            // Hubungkan ke nota induk
             $pivot = $this->allocatePivot($parents, $request->anggaran);
             $notaDina->dikaitkanOleh()->attach($pivot);
 
-            // resolve SKPD for redirect
-            $skpd = $this->resolveSkpd($parents);
-
             return redirect()
-                ->route('nota-dinas.nota-gutuls', ['skpd' => $skpd])
+                ->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
                 ->with('success', 'Nota berhasil ditambahkan.');
         });
     }
@@ -143,7 +141,6 @@ class NotaGutulsController extends Controller
 
         // 4) wrap update + sync in a transaction
         return DB::transaction(function() use ($request, $parents, $notaDina) {
-            // update fields
             $notaDina->update($request->only([
                 'nomor_nota',
                 'perihal',
@@ -160,16 +157,15 @@ class NotaGutulsController extends Controller
             $notaDina->dikaitkanOleh()->sync($pivot);
 
             // redirect
-            $skpd = $this->resolveSkpd($parents);
+            $skpdId = $this->resolveSkpd($parents);
             return redirect()
-                ->route('nota-dinas.nota-gutuls', ['skpd' => $skpd])
+                ->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
                 ->with('success', 'Nota berhasil diperbarui.');
         });
     }
 
     /**
      * Shared validation for both store & update.
-     * $ignoreId = id to ignore in unique rule when updating.
      */
     private function validateGuTuLs(Request $request, $ignoreId = null)
     {
@@ -214,7 +210,6 @@ class NotaGutulsController extends Controller
     }
 
     /**
-     * Build the [parent_id => ['anggaran' => X]] pivot array
      * Throws if not enough aggregate budget to allocate $need.
      */
     private function allocatePivot(Collection $parents, float $need, $excludeChildId = null): array

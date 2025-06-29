@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('api/nota-per-year', [DashboardController::class, 'getNotaPerYear']);
     Route::get('api/skpd/top-serapan', [DashboardController::class, 'topSkpdSerapan']);
     Route::get('/api/kabupaten-serapan', [DashboardController::class, 'getKabupatenSerapanData']);
+    Route::get('/api/rekap-nota', [DashboardController::class, 'getRekapNotaByJenis'])->name('api.rekap-nota');
     Route::post('/skpds/{skpd}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatans.store');
     Route::put('/kegiatans/{kegiatan}', [KegiatanController::class, 'update'])->name('kegiatans.update');
     Route::delete('/kegiatans/{kegiatan}', [KegiatanController::class, 'destroy'])->name('kegiatans.destroy');
@@ -53,6 +54,13 @@ Route::middleware(['auth'])->group(function () {
         
         Route::resource('skpds', SkpdController::class);
         Route::patch('skpds/{skpd}/toggle-status', [SkpdController::class, 'toggleStatus'])->name('skpds.toggle-status');
+        Route::get('/skpds/{skpd}/rekap-nota', [SkpdController::class, 'showRekap'])->name('skpds.rekap-nota');
+        Route::get('/skpds/{skpd}/api/rekap-nota-per-jenis', [SkpdController::class, 'apiRekapNotaPerJenis'])
+        ->name('skpds.api.rekap-nota-per-jenis');
+        Route::get('/skpds/{skpd}/api/tren-nota-per-bulan', [SkpdController::class, 'apiTrenNotaPerBulan'])
+        ->name('skpds.api.tren-nota-per-bulan');
+        Route::get('/skpds/{skpd}/api/distribusi-sub-kegiatan', [SkpdController::class, 'apiDistribusiSubKegiatan'])
+        ->name('skpds.api.distribusi-sub-kegiatan');
 
         Route::resource('kabupaten', KabupatenController::class);
 

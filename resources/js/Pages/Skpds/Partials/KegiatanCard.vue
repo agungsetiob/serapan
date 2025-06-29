@@ -49,7 +49,7 @@
               {{ kegiatan.sub_kegiatans.length }} Uraian
             </span>
           </div>
-          <div class="flex justify-end gap-2 mt-2">
+          <div v-if="showButtons" class="flex justify-end gap-2 mt-2">
             <Tooltip text="Edit" bgColor="bg-blue-500">
               <button
                 @click="editKegiatan(kegiatan)"
@@ -72,14 +72,17 @@
 </template>
   
 <script setup>
-  import Tooltip from '@/Components/Tooltip.vue';
-  defineProps({
-    kegiatan: Object
-  });
-    
-  const formatNumber = (value) => {
-    return new Intl.NumberFormat('id-ID').format(value || 0);
-  };
+import Tooltip from '@/Components/Tooltip.vue';
+const props = defineProps({
+  kegiatan: Object,
+  showButtons: {
+    type: Boolean,
+    default: true,
+  },
+});
+const formatNumber = (value) => {
+  return new Intl.NumberFormat('id-ID').format(value || 0);
+};
 
 const emit = defineEmits(['edit', 'delete']);
 

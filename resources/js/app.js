@@ -19,7 +19,7 @@ import {
     faWallet, faSquareCheck, faTrash, faPaperclip, faEye, faEyeSlash, 
     faChevronUp, faSpinner, faEdit as faEditSolid, faTrashCan as faTrashCanSolid,
     faTriangleExclamation, faCheckCircle, faPlus, faFolderOpen, faCoins, faSackDollar,
-    faChartPie, faTimes, faFilePdf
+    faChartPie, faTimes, faFilePdf, faFilter
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -30,7 +30,7 @@ library.add(
     faWallet, faSquareCheck, faTrash, faPaperclip, faEye, faEyeSlash, 
     faChevronUp, faSpinner, faEditSolid, faTrashCanSolid, faTriangleExclamation,
     faCheckCircle, faPlus, faFolderOpen, faCoins, faSackDollar, faChartPie,
-    faTimes, faFilePdf // Solid icons
+    faTimes, faFilePdf, faFilter // Solid icons
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';

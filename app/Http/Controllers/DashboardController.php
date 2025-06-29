@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -86,6 +87,21 @@ class DashboardController extends Controller
             'labels' => $data->pluck('tahun_anggaran'),
             'total_serapan' => $data->pluck('total_serapan'),
             'presentase_serapan' => $data->pluck('presentase_serapan')
+        ]);
+    }
+
+    public function getRekapNotaByJenis(Request $request): JsonResponse
+    {
+        $tahun = $request->query('tahun', date('Y'));
+        $rekap = NotaDinas::select('jenis')
+            ->selectRaw('COUNT(*) as jumlah')
+            ->whereYear('tanggal_pengajuan', $tahun)
+            ->groupBy('jenis')
+            ->orderBy('jenis')
+            ->get();
+        return response()->json([
+            'tahun' => (int) $tahun,
+            'data' => $rekap,
         ]);
     }
 

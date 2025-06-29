@@ -39,29 +39,22 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 
-// Data refs
-const chartData = ref([]);
 const notaDinasData = ref([]);
 const topSkpdData = ref([]);
 const kabupatenData = ref([]);
 
-// Format number to IDR currency
 const formatNumber = (num) => {
   return new Intl.NumberFormat('id-ID').format(num);
 };
 
-// Fetch chart data
 onMounted(async () => {
   try {
-    // nota dinas chart data
     const notaResponse = await axios.get('/api/nota-per-year');
     notaDinasData.value = notaResponse.data;
 
-    // top SKPD data
     const skpdResponse = await axios.get('/api/skpd/top-serapan');
     topSkpdData.value = skpdResponse.data;
 
-    // kabupaten serapan data
     const kabupatenResponse = await axios.get('/api/kabupaten-serapan');
     kabupatenData.value = kabupatenResponse.data;
 

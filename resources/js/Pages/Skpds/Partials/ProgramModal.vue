@@ -79,8 +79,6 @@ const closeModal = () => {
             type="text"
             class="mt-1 block w-full"
             placeholder="Masukkan nama program"
-            required
-            autocomplete="off"
           />
           <InputError :message="form.errors.nama" class="mt-2" />
         </div>
@@ -99,7 +97,21 @@ const closeModal = () => {
 
         <div class="flex justify-end">
           <SecondaryButton @click="closeModal" class="mr-3">Batal</SecondaryButton>
-          <PrimaryButton :disabled="form.processing">{{ isEditing ? 'Perbarui' : 'Simpan' }}</PrimaryButton>
+          <PrimaryButton :disabled="form.processing">
+            <span 
+              v-if="form.processing"
+              class="inline-flex items-center uppercase text-xs font-semibold tracking-widest"
+            >
+              <font-awesome-icon icon="spinner" spin class="mr-2" />
+              {{ isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
+            </span>
+            <span 
+              v-else 
+              class="uppercase text-xs font-semibold tracking-widest"
+            >
+              {{ isEdit ? 'Update' : 'Simpan' }}
+            </span>
+          </PrimaryButton>
         </div>
       </form>
     </div>

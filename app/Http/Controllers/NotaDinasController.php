@@ -41,7 +41,7 @@ class NotaDinasController extends Controller
         $validated = $request->validate($this->getValidationRules($sisaPagu, false));
 
         try {
-            return DB::transaction(function () use ($validated, $request) {
+            return DB::transaction(function () use ($validated, $request, $subKegiatan) {
                 $notaDina = NotaDinas::create([
                     'nomor_nota' => $validated['nomor_nota'],
                     'perihal' => $validated['perihal'],
@@ -49,6 +49,7 @@ class NotaDinasController extends Controller
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
                     'jenis' => $validated['jenis'],
                     'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
+                    'skpd_id' => $subKegiatan->kegiatan->skpd_id,
                 ]);
 
                 if ($request->hasFile('lampirans')) {
@@ -97,6 +98,7 @@ class NotaDinasController extends Controller
                     'anggaran' => $validated['anggaran'],
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
                     'jenis' => $validated['jenis'],
+                    'skpd_id' => $notaDina->subKegiatan->kegiatan->skpd_id,
                 ]);
 
                 if ($request->hasFile('lampirans')) {

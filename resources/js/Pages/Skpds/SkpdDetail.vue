@@ -1,5 +1,5 @@
 <script setup>
-import { useForm, Head, usePage, Link, router } from '@inertiajs/vue3';
+import { useForm, Head, usePage, router, Link } from '@inertiajs/vue3';
 import { ref, watch, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
@@ -318,24 +318,22 @@ const handleSuccess = () => {
           </div>
         </div>
       </div>
-      
-      <!-- Add Program Button -->
-      <div class="max-w-8xl mx-auto lg:px-6 mb-4 flex justify-end">
-        <button
-          @click="handleCreateProgram"
-          class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
-        >
-          <font-awesome-icon :icon="['fas', 'plus']" class="mr-2" />
-          Tambah Program
-        </button>
-      </div>
 
       <!-- Add Kegiatan Card -->
       <div class="max-w-8xl mx-auto lg:px-6">
         <div class="bg-white rounded-lg shadow-md p-4 mb-8">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">
-            Tambah Kegiatan Baru
-          </h3>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+              Tambah Kegiatan Baru
+            </h3>
+            <button
+              @click="handleCreateProgram"
+              class="inline-flex items-center px-2 py-1.5 bg-green-500 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+            >
+              <font-awesome-icon :icon="['fas', 'plus']" class="mr-2" />
+              Tambah Program
+            </button>
+          </div>
           <form @submit.prevent="submitKegiatan" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -343,7 +341,7 @@ const handleSuccess = () => {
                     <select
                         id="program_id"
                         v-model="formKegiatan.program_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                         required
                     >
                         <option :value="null" disabled>-- Pilih Program --</option>
@@ -369,7 +367,7 @@ const handleSuccess = () => {
               <button
                 type="submit"
                 :disabled="formKegiatan.processing || !formKegiatan.program_id"
-                class="inline-flex items-center px-4 py-2 bg-indigo-500 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center px-3 py-1.5 bg-indigo-500 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Simpan
               </button>
@@ -379,12 +377,12 @@ const handleSuccess = () => {
       </div>
 
       <!-- Programs List -->
-      <div class="space-y-8 lg:px-6 pb-4">
+      <div class="space-y-8 lg:px-6 pb-1">
         <div v-if="skpd.programs && skpd.programs.length > 0">
           <div
             v-for="program in skpd.programs"
             :key="program.id"
-            class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 mb-8"
+            class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 mb-4"
           >
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xl font-bold text-indigo-700 flex items-center">
@@ -468,13 +466,13 @@ const handleSuccess = () => {
                 </div>
               </div>
               <div v-else class="text-gray-500 text-center py-4">
-                Tidak ada kegiatan untuk program ini di tahun {{ tahunSelected }}.
+                Tidak ada kegiatan untuk program ini
               </div>
             </div>
           </div>
         </div>
         <div v-else class="text-gray-600 text-center py-8 text-lg bg-white rounded-lg shadow-md">
-          Tidak ada program yang tersedia untuk SKPD ini di tahun {{ tahunSelected }}.
+          Tidak ada program yang tersedia untuk SKPD ini
         </div>
       </div>
     </div>

@@ -1,17 +1,16 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import Charts from './Charts/Charts.vue';
+import RekapNotaDinas from './Partials/RekapNotaDinas.vue';
 
 const props = defineProps({
     presentaseSerapan: Number,
     totalSkpds: Number,
     notaDinas: Number,
-    totalSerapan: Number
+    totalSerapan: Number,
 });
 
-const page = usePage();
-const user = page.props.auth.user;
 </script>
 
 <template>
@@ -20,12 +19,10 @@ const user = page.props.auth.user;
     <AuthenticatedLayout>
         <div class="pt-6 sm:pt-20 mx-2 sm:px-2">
             <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">
-                <!-- Header Section -->
                 <div class="mb-4">
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard</h1>
                 </div>
 
-                <!-- Stats Cards Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <!-- SKPD Card -->
                     <div class="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-l-red-500 border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -81,11 +78,8 @@ const user = page.props.auth.user;
                         </div>
                     </div>
                 </div>
-
-                <!-- Charts Section -->
-                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-8">
-                    <Charts />
-                </div>
+                <Charts class="mb-4"/>
+                <RekapNotaDinas/>
             </div>
         </div>
     </AuthenticatedLayout>

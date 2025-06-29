@@ -13,19 +13,19 @@
 
         <div class="flex justify-end space-x-3">
             <SecondaryButton @click="closeModal">
-            Batal
+              Batal
             </SecondaryButton>
             <DangerButton
-            @click="confirmDelete"
-            :disabled="isDeleting"
-            >
-            <span v-if="isDeleting">
-                <font-awesome-icon icon="spinner" spin class="mr-2"/>
-                Menghapus...
-            </span>
-            <span v-else>
-                Hapus
-            </span>
+              @click="confirmDelete"
+              :disabled="isDeleting"
+              >
+              <span v-if="isDeleting">
+                  <font-awesome-icon icon="spinner" spin class="mr-2"/>
+                  Menghapus...
+              </span>
+              <span v-else>
+                  Hapus
+              </span>
             </DangerButton>
         </div>
     </div>

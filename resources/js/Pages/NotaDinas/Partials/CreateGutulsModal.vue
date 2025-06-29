@@ -89,7 +89,6 @@
                     <div>
                         <label for="anggaran" class="block font-medium">Anggaran (Rp)<span class="text-red-600">*</span></label>
                         <div class="relative mt-1">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">Rp</span>
                             <input
                                 id="anggaran"
                                 type="text"
@@ -98,12 +97,12 @@
                                 :aria-invalid="!!form.errors.anggaran"
                                 :aria-describedby="form.errors.anggaran ? 'anggaran-error' : undefined"
                                 :class="[
-                                    'block w-full pl-10 border rounded-md px-3 py-2 text-sm',
+                                    'block w-full border rounded-md px-3 py-2 text-sm',
                                     form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
                                 ]"
                             />
                             <button
-                                v-if="form.anggaran"
+                                v-if="form.anggaran !== null && form.anggaran !== ''"
                                 type="button"
                                 @click="form.anggaran = null"
                                 class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
@@ -164,9 +163,9 @@
                     </div>
                     
                     <!-- Existing files in edit mode -->
-                    <div v-if="isEdit && notaData?.lampirans?.length" class="mt-2">
+                    <div v-if="isEdit && existingLampiransDisplay.length" class="mt-2">
                         <p class="text-sm font-medium mb-1">File yang sudah diunggah:</p>
-                        <div v-for="(file, index) in notaData.lampirans" :key="index" class="flex items-center justify-between p-2 bg-gray-50 rounded mb-1">
+                        <div v-for="(file, index) in existingLampiransDisplay" :key="file.id" class="flex items-center justify-between p-2 bg-gray-50 rounded mb-1">
                             <div class="flex items-center">
                                 <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
                                 <a :href="file.path" target="_blank" class="text-sm text-blue-600 hover:underline">
@@ -193,57 +192,83 @@
                     <div v-if="parentNotesLoading" class="flex justify-center p-4">
                         <font-awesome-icon icon="spinner" spin class="text-blue-500 text-xl" />
                     </div>
-                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div
-                            v-for="nota in parentNotes"
-                            :key="nota.id"
-                            :aria-disabled="isEdit || nota.sisa_anggaran <= 0"
-                            :class="['border rounded-md p-2 flex justify-between items-center transition',
-                            form.errors.parent_ids ? 'border-red-500' : 'border-gray-300',
-                            { 
-                                'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0,
-                                'cursor-pointer': !isEdit && nota.sisa_anggaran > 0,
-                                'bg-green-100 border-green-500': form.parent_ids.includes(nota.id),
-                                'hover:bg-gray-50': !isEdit && nota.sisa_anggaran > 0
-                            }]"
-                            @click="!isEdit && nota.sisa_anggaran > 0 ? toggleParentNota(nota.id) : null"
-                        >
-                            <div>
-                                <p class="font-semibold">
-                                    {{ nota.nomor_nota }} - {{ nota.perihal }}
-                                    <span 
-                                        :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-2', badgeClasses(nota.jenis)]"
-                                    >
-                                        {{ nota.jenis }}
-                                    </span>
-                                </p>
-                                <p :class="['text-sm', nota.sisa_anggaran <= 0 ? 'text-red-500' : 'text-gray-500']">
-                                    Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
-                                </p>
+                    <div v-else class="grid grid-cols-1 gap-4">
+                        <!-- Search input for parent -->
+                        <div class="mb-3">
+                            <label for="parent_notes_search" class="sr-only">Cari Nota Induk</label>
+                            <input
+                                id="parent_notes_search"
+                                type="text"
+                                v-model="parentSearchTerm"
+                                placeholder="Cari nomor nota atau perihal..."
+                                class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            >
+                        </div>
+
+                        <!-- Filtered parent list -->
+                        <div v-if="filteredParentNotes.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div
+                                v-for="nota in filteredParentNotes"
+                                :key="nota.id"
+                                :aria-disabled="nota.sisa_anggaran <= 0"
+                                :class="['border rounded-md p-2 flex justify-between items-center transition',
+                                form.errors.parent_ids ? 'border-red-500' : 'border-gray-300',
+                                { 
+                                    'opacity-50 cursor-not-allowed': nota.sisa_anggaran <= 0,
+                                    'cursor-pointer': nota.sisa_anggaran > 0,
+                                    'bg-green-100 border-green-500': form.parent_ids.includes(nota.id),
+                                    'hover:bg-gray-50': nota.sisa_anggaran > 0
+                                }]"
+                                @click="toggleParentNota(nota.id)"
+                            >
+                                <div>
+                                    <p class="font-semibold">
+                                        {{ nota.nomor_nota }} - {{ nota.perihal }}
+                                        <span 
+                                            :class="['inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ml-2', badgeClasses(nota.jenis)]"
+                                        >
+                                            {{ nota.jenis }}
+                                        </span>
+                                    </p>
+                                    <p :class="['text-sm', nota.sisa_anggaran <= 0 ? 'text-red-500' : 'text-gray-500']">
+                                        Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
+                                    </p>
+                                </div>
+                                <font-awesome-icon 
+                                    v-if="form.parent_ids.includes(nota.id)" 
+                                    icon="check-circle" 
+                                    class="text-green-600 text-lg" 
+                                />
                             </div>
-                            <font-awesome-icon 
-                                v-if="form.parent_ids.includes(nota.id)" 
-                                icon="check-circle" 
-                                class="text-green-600 text-lg" 
-                            />
+                        </div>
+                        <div v-else class="p-3 bg-red-50 rounded-md">
+                            <p class="text-red-800 text-center">Tidak ada nota induk yang sesuai dengan pencarian Anda.</p>
                         </div>
                     </div>
-                    <div v-if="parentNotes.length === 0 && !parentNotesLoading" class="p-3 bg-red-50 rounded-md">
-                        <p class="text-red-800 text-center">Belum ada nota dinas</p>
+                    <div v-if="parentNotes.length === 0 && !parentNotesLoading" class="p-3 bg-red-50 rounded-md mt-4">
+                        <p class="text-red-800 text-center">Belum ada nota dinas induk yang tersedia untuk tahun ini.</p>
                     </div>
                     <InputError :message="form.errors.parent_ids" />
                 </div>
 
-                <div class="flex justify-end space-x-3 pt-2">
+                <div class="flex justify-end space-x-3">
                     <SecondaryButton @click="closeModal" :disabled="form.processing">
                         Batal
                     </SecondaryButton>
                     <PrimaryButton :disabled="form.processing">
-                        <span v-if="form.processing">
-                            <font-awesome-icon icon="spinner" spin class="mr-2" /> 
+                        <span 
+                            v-if="form.processing"
+                            class="inline-flex items-center uppercase text-xs font-semibold tracking-widest"
+                        >
+                            <font-awesome-icon icon="spinner" spin class="mr-2" />
                             {{ isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
                         </span>
-                        <span v-else>{{ isEdit ? 'Update' : 'Simpan' }}</span>
+                        <span 
+                            v-else 
+                            class="uppercase text-xs font-semibold tracking-widest"
+                        >
+                            {{ isEdit ? 'Update' : 'Simpan' }}
+                        </span>
                     </PrimaryButton>
                 </div>
             </form>
@@ -283,6 +308,21 @@ const form = useForm({
     deleted_files: []
 });
 
+const existingLampiransDisplay = ref([]);
+const parentSearchTerm = ref('');
+
+const filteredParentNotes = computed(() => {
+    if (!props.parentNotes) return [];
+    if (!parentSearchTerm.value) {
+        return props.parentNotes;
+    }
+    const searchTermLower = parentSearchTerm.value.toLowerCase();
+    return props.parentNotes.filter(nota => {
+        return nota.nomor_nota.toLowerCase().includes(searchTermLower) ||
+               nota.perihal.toLowerCase().includes(searchTermLower);
+    });
+});
+
 const formattedAnggaran = computed(() => {
     if (form.anggaran === null || form.anggaran === '') return '';
     return parseFloat(form.anggaran).toLocaleString('id-ID');
@@ -302,7 +342,7 @@ const handleFileChange = (event) => {
         }
         return true;
     });
-
+    
     if (validFiles.length > 0) {
         form.lampirans = [...form.lampirans, ...validFiles];
     }
@@ -316,9 +356,9 @@ const removeExistingFile = (index) => {
     if (!form.deleted_files) {
         form.deleted_files = [];
     }
-    form.deleted_files.push(props.notaData.lampirans[index].id);
+    form.deleted_files.push(existingLampiransDisplay.value[index].id);
     
-    props.notaData.lampirans.splice(index, 1); 
+    existingLampiransDisplay.value.splice(index, 1); 
 };
 
 const formatFileSize = (bytes) => {
@@ -331,11 +371,10 @@ const formatFileSize = (bytes) => {
 
 const handleSubmit = () => {
     if (props.isEdit) {
-        form.transform(data => ({
-            ...data,
-            _method: 'PUT',
-            deleted_files: form.deleted_files
-        })).post(route('update-gutuls', form.id), {
+        form.put(route('update-gutuls', form.id), {
+            data: {
+                deleted_files: form.deleted_files
+            },
             onSuccess: () => {
                 closeModal();
                 emit('success');
@@ -346,9 +385,7 @@ const handleSubmit = () => {
             }
         });
     } else {
-        form.transform(data => ({
-             ...data
-        })).post(route('store-gutuls'), {
+        form.post(route('store-gutuls'), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
@@ -366,15 +403,21 @@ const closeModal = () => {
     form.clearErrors();
     form.deleted_files = [];
     form.lampirans = [];
+    existingLampiransDisplay.value = [];
+    parentSearchTerm.value = '';
     emit('close');
 };
 
 const toggleParentNota = (notaId) => {
-    const index = form.parent_ids.indexOf(notaId);
-    if (index === -1) {
-        form.parent_ids.push(notaId);
-    } else {
-        form.parent_ids.splice(index, 1);
+    const selectedNota = props.parentNotes.find(n => n.id === notaId);
+
+    if (selectedNota && selectedNota.sisa_anggaran > 0) {
+        const index = form.parent_ids.indexOf(notaId);
+        if (index === -1) {
+            form.parent_ids.push(notaId);
+        } else {
+            form.parent_ids.splice(index, 1);
+        }
     }
 };
 
@@ -383,6 +426,7 @@ const badgeClasses = (jenis) => {
         case 'GU': return 'bg-yellow-100 text-yellow-800';
         case 'TU': return 'bg-indigo-100 text-indigo-800';
         case 'LS': return 'bg-red-100 text-red-800';
+        case 'Pelaksanaan': return 'bg-lime-100 text-lime-700';
         default: return 'bg-gray-100 text-gray-800';
     }
 };
@@ -395,6 +439,8 @@ watch(
             form.clearErrors();
             form.deleted_files = [];
             form.lampirans = [];
+            existingLampiransDisplay.value = [];
+            parentSearchTerm.value = '';
 
             if (props.isEdit && props.notaData) {
                 form.id = props.notaData.id;
@@ -408,11 +454,14 @@ watch(
                 if (props.notaData.parents) {
                     form.parent_ids = props.notaData.parents.map(parent => parent.id);
                 }
+
+                if (props.notaData.lampirans) {
+                    existingLampiransDisplay.value = props.notaData.lampirans.map(l => ({ ...l }));
+                }
+
             } else {
                 form.skpd_id = props.skpd?.id || null;
             }
-        } else {
-            closeModal();
         }
     },
     { immediate: true }
@@ -432,6 +481,9 @@ watch(
 
              if (newNotaData.parents) {
                  form.parent_ids = newNotaData.parents.map(parent => parent.id);
+             }
+             if (newNotaData.lampirans) {
+                existingLampiransDisplay.value = newNotaData.lampirans.map(l => ({ ...l }));
              }
         }
     },

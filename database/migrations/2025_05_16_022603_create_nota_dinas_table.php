@@ -11,15 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::create('nota_dinas', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('nomor_nota');
-        //     $table->string('perihal');
-        //     $table->decimal('anggaran', 15,2);
-        //     $table->date('tanggal_pengajuan');
-        //     $table->foreignId('sub_kegiatan_id')->constrained('sub_kegiatans')->onDelete('cascade');
-        //     $table->timestamps();
-        // });
         Schema::create('nota_dinas', function (Blueprint $table) {
             $table->id();
             $table->string('nomor_nota');

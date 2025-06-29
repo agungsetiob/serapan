@@ -1,24 +1,17 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { ref, watch } from 'vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import KegiatanCard from './Partials/KegiatanCard.vue';
+import SubKegiatanList from './Partials/SubKegiatanList.vue';
 
 const props = defineProps({
   skpd: Object,
   tahunSelected: Number,
-  tahunTersedia: Object,
   rekap: Object,
+  tahunTersedia: Object,
 });
-
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-};
-
 const selectedYear = ref(props.tahunSelected);
-
 watch(
   () => props.tahunSelected,
   (newVal) => {
@@ -32,165 +25,157 @@ function gantiTahun() {
     tahun: selectedYear.value 
   }));
 }
+
+function formatNumber(value) {
+  if (typeof value !== 'number') return '0,00';
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
 </script>
 
 <template>
-  <Head :title="`Histori ${skpd.nama_skpd}`" />
+  <Head title="Rekap SKPD" />
   <AuthenticatedLayout>
     <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
-      <!-- Header -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:px-6 lg:px-6">
-        <h2 class="text-xl font-semibold text-white bg-blue-700 rounded-full px-3">
-            {{ skpd.nama_skpd }}
-        </h2>
-        
-        <!-- Dropdown Tahun -->
-        <div class="relative inline-flex items-center">
-          <select 
-            v-model="selectedYear"
-            @change="gantiTahun"
-            class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm hover:border-gray-400 transition-all duration-200"
+      <div class="max-w-8xl mx-auto lg:px-6 pb-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold">
+            Rekap: {{ skpd.nama_skpd }}
+          </h2>
+          <!-- Dropdown Tahun -->
+          <div class="relative inline-flex items-center">
+            <select 
+              v-model="selectedYear"
+              @change="gantiTahun"
+              class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm hover:border-gray-400 transition-all duration-200"
+            >
+              <option 
+                v-for="tahun in tahunTersedia" 
+                :key="tahun" 
+                :value="tahun"
+                class="text-sm"
+              >
+                {{ tahun }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rekap Anggaran SKPD Keseluruhan -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 lg:px-6">
+        <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-green-600">
+          <font-awesome-icon 
+            :icon="['fas', 'money-bill-wave']" 
+            class="text-green-600 text-2xl mr-3"
+          />
+          <div>
+            <p class="text-sm text-gray-500">Total Pagu SKPD</p>
+            <p class="text-lg font-semibold text-red-600">
+              Rp. {{ formatNumber(rekap.totalPagu) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-blue-700">
+          <font-awesome-icon 
+            :icon="['fas', 'money-bill-trend-up']" 
+            class="text-blue-700 text-2xl mr-3"
+          />
+          <div>
+            <p class="text-sm text-gray-500">Total Serapan SKPD</p>
+            <p class="text-lg font-semibold text-green-700">
+              Rp. {{ formatNumber(rekap.totalSerapan) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-red-700">
+          <font-awesome-icon 
+            :icon="['fas', 'percent']" 
+            class="text-red-700 text-2xl mr-3"
+          />
+          <div>
+            <p class="text-sm text-gray-500">Persentase Serapan SKPD</p>
+            <p class="text-lg font-semibold text-blue-700">
+              {{ rekap.persentaseSerapan }}%
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Programs List -->
+      <div class="space-y-8 lg:px-6 pb-1">
+        <div v-if="skpd.programs && skpd.programs.length > 0">
+          <div
+            v-for="program in skpd.programs"
+            :key="program.id"
+            class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 mb-4"
           >
-            <option 
-              v-for="tahun in tahunTersedia" 
-              :key="tahun" 
-              :value="tahun"
-              class="text-sm"
-            >
-              {{ tahun }}
-            </option>
-          </select>
-        </div>
-      </div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-indigo-700 flex items-center">
+                    <font-awesome-icon :icon="['fas', 'folder-open']" class="mr-2" />
+                     {{ program.nama }}
+                </h3>
+            </div>
+            
+            <!-- Rekapitulasi per Program -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-green-500">
+                    <font-awesome-icon :icon="['fas', 'coins']" class="text-green-500 text-xl mr-2" />
+                    <div>
+                        <p class="text-xs text-gray-500">Pagu Program</p>
+                        <p class="text-md font-semibold text-red-500">
+                            Rp. {{ formatNumber(program.pagu) }}
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-blue-600">
+                    <font-awesome-icon :icon="['fas', 'sack-dollar']" class="text-blue-600 text-xl mr-2" />
+                    <div>
+                        <p class="text-xs text-gray-500">Serapan Program</p>
+                        <p class="text-md font-semibold text-green-600">
+                            Rp. {{ formatNumber(program.total_serapan) }}
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-red-600">
+                    <font-awesome-icon :icon="['fas', 'chart-pie']" class="text-red-600 text-xl mr-2" />
+                    <div>
+                        <p class="text-xs text-gray-500">Persentase Serapan Program</p>
+                        <p class="text-md font-semibold text-blue-600">
+                            {{ formatNumber(program.presentase_serapan) }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Statistik -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 sm:px-6 lg:px-6">
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Total Sub Kegiatan</h3>
-          <p class="text-2xl font-bold mt-1">
-            {{ skpd.kegiatans.length }}
-          </p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Total Uraian Sub Kegiatan</h3>
-          <p class="text-2xl font-bold mt-1">
-            {{ skpd.kegiatans.reduce((acc, k) => acc + k.sub_kegiatans.length, 0) }}
-          </p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Persentase Serapan</h3>
-          <p class="text-2xl text-green-500 font-bold mt-1">
-            {{ rekap.persentaseSerapan }}%
-          </p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500">Tahun Anggaran</h3>
-          <p class="text-2xl font-bold mt-1 text-blue-600">
-            {{ selectedYear }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Daftar Kegiatan -->
-      <div class="space-y-6 sm:px-6 lg:px-6">
-        <div 
-          v-for="kegiatan in skpd.kegiatans" 
-          :key="kegiatan.id"
-          class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
-        >
-          <div class="bg-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-gray-800">
-              {{ kegiatan.nama }}
-            </h3>
-            <div class="flex flex-col md:flex-row md:items-center gap-2 mt-1 text-sm text-gray-600">
-              <div>
-                <span class="font-semibold">Pagu:</span>
-                Rp. {{ formatNumber(kegiatan.pagu) }}
-              </div>
-              <div class="hidden md:block mx-2">|</div>
-              <div>
-                <span class="font-semibold">Serapan:</span>
-                Rp {{ formatNumber(kegiatan.total_serapan) }}
-              </div>
-              <div class="hidden md:block mx-2">|</div>
-              <div class="flex items-center gap-1">
-                <span class="font-semibold">Persentase:</span>
-                <span
-                  class="font-medium"
-                  :class="{
-                    'text-red-600': kegiatan.presentase_serapan < 50,
-                    'text-yellow-600': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
-                    'text-green-600': kegiatan.presentase_serapan >= 80,
-                  }"
-                >{{ kegiatan.presentase_serapan }}%</span>
-                <div class="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    class="h-full transition-all duration-500 ease-out"
-                    :style="{ width: kegiatan.presentase_serapan + '%' }"
-                    :class="{
-                      'bg-red-500': kegiatan.presentase_serapan < 50,
-                      'bg-yellow-500': kegiatan.presentase_serapan >= 50 && kegiatan.presentase_serapan < 80,
-                      'bg-green-500': kegiatan.presentase_serapan >= 80,
-                    }"
-                  ></div>
+            <!-- Kegiatan List dalam Program -->
+            <div class="space-y-6">
+              <div v-if="program.kegiatans && program.kegiatans.length > 0">
+                <div
+                  v-for="kegiatan in program.kegiatans"
+                  :key="kegiatan.id"
+                  class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 mb-4"
+                >
+                  <KegiatanCard 
+                    :kegiatan="kegiatan"
+                    :showButtons="false"
+                  />
+                  
+                  <!-- Sub Kegiatan List -->
+                  <SubKegiatanList
+                    :kegiatan="kegiatan"
+                    :formatNumber="formatNumber"
+                    :showButtons="false"
+                  />
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Daftar Sub-Kegiatan -->
-          <div class="px-6 py-4 divide-y divide-gray-200">
-            <div 
-              v-for="sub in kegiatan.sub_kegiatans" 
-              :key="sub.id"
-              class="py-3 flex justify-between items-center"
-            >
-              <div class="flex-1">
-                <p class="text-blue-600 font-medium">{{ sub.kode_rekening }} - {{ sub.nama }}</p>
-                <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-600">
-                  <span>Pagu: Rp {{ formatNumber(sub.pagu) }}</span>
-                  <span>Serapan: Rp {{ formatNumber(sub.total_serapan) }}</span>
-                  <span class="flex items-center gap-1">
-                    Persentase:
-                    <span class="font-medium" :class="{
-                      'text-green-600': sub.presentase_serapan >= 80,
-                      'text-yellow-600': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
-                      'text-red-600': sub.presentase_serapan < 50
-                    }">
-                      {{ sub.presentase_serapan }}%
-                    </span>
-                  </span>
-                </div>
-                <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    class="h-2 rounded-full transition-all duration-500" 
-                    :class="{
-                      'bg-green-500': sub.presentase_serapan >= 80,
-                      'bg-yellow-500': sub.presentase_serapan >= 50 && sub.presentase_serapan < 80,
-                      'bg-red-500': sub.presentase_serapan < 50
-                    }"
-                    :style="{ width: `${sub.presentase_serapan}%` }"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Empty State -->
-        <div 
-          v-if="skpd.kegiatans.length === 0"
-          class="bg-white rounded-lg shadow-md p-8 text-center"
-        >
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 class="mt-2 text-lg font-medium text-gray-900">
-            Tidak ada data kegiatan
-          </h3>
-          <p class="mt-1 text-gray-500">
-            Pilih tahun lain atau tambahkan kegiatan baru.
-          </p>
         </div>
       </div>
     </div>
