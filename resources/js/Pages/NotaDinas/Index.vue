@@ -6,13 +6,29 @@ import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 
 const search = ref('');
+
+let searchTimeout = null;
 watch(search, (val) => {
-  router.get(route('nota-dinas.index'), { search: val }, { preserveState: true, replace: true });
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        router.get(route('nota-dinas.index'), { search: val }, {
+            preserveState: true,
+            replace: true,
+        });
+    }, 300);
 });
 
 const props = defineProps({
     skpds: Object,
+    initialSearch: {
+        type: String,
+        default: '',
+    },
 });
+
+if (props.initialSearch) {
+    search.value = props.initialSearch;
+}
 </script>
 
 <template>
@@ -28,31 +44,36 @@ const props = defineProps({
                             <SearchInput v-model:search="search" />
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div
+
+                    <div v-if="skpds.data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <Link
                             v-for="skpd in skpds.data"
                             :key="skpd.id"
-                            class="bg-gray-100 rounded-lg shadow-lg p-6 flex items-center gap-4 hover:shadow-xl transition duration-300"
+                            :href="route('nota-dinas.nota-gutuls', skpd.id)"
+                            preserve-scroll
+                            class="block border-gray-200 border rounded-lg shadow-lg p-6 hover:shadow-xl group transform transition duration-300 hover:scale-105 hover:border-red-300"
                         >
-                            <font-awesome-icon :icon="['fas', 'file-zipper']" class="text-3xl text-red-500" />
-                            <Link
-                                :href="route('nota-dinas.nota-gutuls', skpd.id)"
-                                preserve-scroll
-                                class="text-blue-600 font-semibold hover:text-green-600"
-                                >
-                                {{ skpd.nama_skpd }}
-                            </Link>
-                            <span class="text-sm text-gray-500">{{ skpd.kode_skpd }}</span> 
-
-                        </div>
-                        <div v-if="skpds.data.length === 0" class="col-span-full text-center text-gray-500">
-                            Belum ada SKPD
-                        </div>
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition duration-300">
+                                    <font-awesome-icon :icon="['fas', 'file-zipper']" class="text-2xl text-red-500" />
+                                </div>
+                                <div>
+                                    <p class="text-lg font-semibold text-gray-800 group-hover:text-red-600 transition">
+                                        {{ skpd.nama_skpd }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">{{ skpd.kode_skpd }}</p>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
 
-                    <div class="mt-8">
-                        <Pagination v-if="skpds.last_page > 1"
+                    <div v-else class="col-span-full text-center text-gray-500">
+                        Belum ada SKPD
+                    </div>
+
+                    <div class="mt-10">
+                        <Pagination
+                            v-if="skpds.last_page > 1"
                             :links="skpds.links"
                             :meta="{ from: skpds.from, to: skpds.to, total: skpds.total }"
                         />
