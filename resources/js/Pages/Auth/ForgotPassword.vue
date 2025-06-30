@@ -60,7 +60,8 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Email Password Reset Link
+                    <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+                    {{ form.processing ? 'Mengirim Link...' : 'Email Password Reset Link' }}
                 </PrimaryButton>
             </div>
         </form>

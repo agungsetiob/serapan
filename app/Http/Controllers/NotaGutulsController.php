@@ -24,7 +24,7 @@ class NotaGutulsController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nomor_nota', 'like', "%$search%")
-                    ->orWhere('perihal', 'like', "%$search%");
+                        ->orWhere('perihal', 'like', "%$search%");
                 });
             })
             ->with(['dikaitkanOleh.subKegiatan.kegiatan', 'dikaitkanOleh', 'lampirans'])
@@ -49,7 +49,6 @@ class NotaGutulsController extends Controller
             return $nota;
         });
 
-        //dd($notaDinas->getCollection());
         return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
             'notaDinas' => $notaDinas,
@@ -90,12 +89,12 @@ class NotaGutulsController extends Controller
 
             // Buat nota sekaligus isi skpd_id dan sub_kegiatan_id jika tersedia
             $notaDina = NotaDinas::create([
-                'nomor_nota'         => $request->nomor_nota,
-                'perihal'            => $request->perihal,
-                'anggaran'           => $request->anggaran,
-                'tanggal_pengajuan'  => $request->tanggal_pengajuan,
-                'jenis'              => $request->jenis,
-                'skpd_id'            => $skpdId,
+                'nomor_nota' => $request->nomor_nota,
+                'perihal' => $request->perihal,
+                'anggaran' => $request->anggaran,
+                'tanggal_pengajuan' => $request->tanggal_pengajuan,
+                'jenis' => $request->jenis,
+                'skpd_id' => $skpdId,
             ]);
 
             // Simpan lampiran
@@ -140,7 +139,7 @@ class NotaGutulsController extends Controller
         }
 
         // 4) wrap update + sync in a transaction
-        return DB::transaction(function() use ($request, $parents, $notaDina) {
+        return DB::transaction(function () use ($request, $parents, $notaDina) {
             $notaDina->update($request->only([
                 'nomor_nota',
                 'perihal',
@@ -174,20 +173,20 @@ class NotaGutulsController extends Controller
             : 'unique:nota_dinas,nomor_nota';
 
         $request->validate([
-            'nomor_nota'   => ['required', 'string', $uniqueNomor],
-            'perihal'      => 'required|string',
-            'anggaran'     => 'required|numeric|min:1',
+            'nomor_nota' => ['required', 'string', $uniqueNomor],
+            'perihal' => 'required|string',
+            'anggaran' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',
-            'jenis'        => 'required|in:GU,TU,LS',
-            'parent_ids'   => 'required|array|min:1',
+            'jenis' => 'required|in:GU,TU,LS',
+            'parent_ids' => 'required|array|min:1',
             'parent_ids.*' => 'exists:nota_dinas,id',
-            'lampirans'    => 'nullable|array',
-            'lampirans.*'  => 'file|mimes:pdf|max:3072',
+            'lampirans' => 'nullable|array',
+            'lampirans.*' => 'file|mimes:pdf|max:3072',
         ], [
-            'parent_ids.required'   => 'Nota induk wajib dipilih.',
-            'lampirans.*.max'       => 'Setiap file lampiran maksimal 3MB.',
-            'lampirans.*.mimes'     => 'Setiap file lampiran harus berupa file PDF.',
-            'lampirans.*.file'      => 'Setiap lampiran harus berupa file yang valid.',
+            'parent_ids.required' => 'Nota induk wajib dipilih.',
+            'lampirans.*.max' => 'Setiap file lampiran maksimal 3MB.',
+            'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
+            'lampirans.*.file' => 'Setiap lampiran harus berupa file yang valid.',
         ]);
     }
 
@@ -197,9 +196,10 @@ class NotaGutulsController extends Controller
      */
     private function calcTotalSisa(Collection $parents, $excludeChildId = null): float
     {
-        return $parents->reduce(function($carry, $parent) use ($excludeChildId) {
+        return $parents->reduce(function ($carry, $parent) use ($excludeChildId) {
             $used = $parent->terkait
-                ->when($excludeChildId,
+                ->when(
+                    $excludeChildId,
                     fn($cols) => $cols->filter(fn($c) => $c->id !== $excludeChildId)
                 )
                 ->sum(fn($c) => $c->pivot->anggaran ?? 0);
@@ -219,7 +219,8 @@ class NotaGutulsController extends Controller
 
         foreach ($parents as $parent) {
             $used = $parent->terkait
-                ->when($excludeChildId,
+                ->when(
+                    $excludeChildId,
                     fn($cols) => $cols->filter(fn($c) => $c->id !== $excludeChildId)
                 )
                 ->sum(fn($c) => $c->pivot->anggaran ?? 0);
@@ -250,19 +251,22 @@ class NotaGutulsController extends Controller
      */
     private function handleAttachments(Request $request, NotaDinas $notaDina, bool $isUpdate = false): void
     {
-        if (! $request->hasFile('lampirans')) {
+        if (!$request->hasFile('lampirans')) {
             return;
         }
 
         if ($isUpdate) {
-            $notaDina->lampirans()->delete();
+            foreach ($notaDina->lampirans as $lampiran) {
+                \Storage::disk('public')->delete($lampiran->path);
+                $lampiran->delete();
+            }
         }
 
         foreach ($request->file('lampirans') as $file) {
             $path = $file->store('nota_lampirans', 'public');
             $notaDina->lampirans()->create([
                 'nama_file' => $file->getClientOriginalName(),
-                'path'      => $path,
+                'path' => $path,
             ]);
         }
     }
@@ -274,199 +278,7 @@ class NotaGutulsController extends Controller
     {
         $first = $parents->first();
         return optional($first->subKegiatan?->kegiatan)->skpd_id
-             ?? $first->skpd_id;
+            ?? $first->skpd_id;
     }
 
-    // public function storeGuTuLs(Request $request)
-    // {
-    //     $request->validate([
-    //         'nomor_nota' => 'required|string',
-    //         'perihal' => 'required|string',
-    //         'anggaran' => 'required|numeric|min:0',
-    //         'tanggal_pengajuan' => 'required|date',
-    //         'jenis' => 'in:GU,TU,LS',
-    //         'parent_ids' => 'required|array',
-    //         'parent_ids.*' => 'exists:nota_dinas,id',
-    //         'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
-    //     ],
-    //     [
-    //         'lampirans.*.max' => 'Setiap file lampiran maksimal 3MB.',
-    //         'lampirans.*.mimes' => 'Setiap file lampiran harus berupa file PDF.',
-    //         'lampirans.*.file' => 'Setiap lampiran harus berupa file yang valid.',
-    //         'parent_ids.required' => 'Nota induk wajib dipilih.',
-    //     ]);
-
-    //     $anggaran = $request->input('anggaran');
-    //     $parentIds = $request->input('parent_ids');
-
-    //     $parentNotas = NotaDinas::with('terkait')->whereIn('id', $parentIds)->get();
-
-    //     $totalSisaAnggaran = 0;
-    //     foreach ($parentNotas as $parent) {
-    //         $terpakai = $parent->terkait->sum('pivot.anggaran');
-    //         $sisa     = $parent->anggaran - $terpakai;
-    //         $totalSisaAnggaran += max($sisa, 0);
-    //     }
-
-    //     if ($anggaran > $totalSisaAnggaran) {
-    //         return back()->withErrors([
-    //             'anggaran' => "Total anggaran melebihi sisa anggaran. Maksimum: Rp" . number_format($totalSisaAnggaran, 0, ',', '.')
-    //         ]);
-    //     }
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $notaDina = NotaDinas::create([
-    //             'nomor_nota' => $request->nomor_nota,
-    //             'perihal' => $request->perihal,
-    //             'anggaran' => $anggaran,
-    //             'tanggal_pengajuan' => $request->tanggal_pengajuan,
-    //             'jenis' => $request->jenis,
-    //         ]);
-
-    //         if ($request->hasFile('lampirans')) {
-    //             $attachments = [];
-    //             foreach ($request->file('lampirans') as $file) {
-    //                 $path = $file->store('nota_lampirans', 'public');
-    //                 $attachments[] = [
-    //                     'nota_dinas_id' => $notaDina->id,
-    //                     'nama_file' => $file->getClientOriginalName(),
-    //                     'path' => $path,
-    //                 ];
-    //             }
-    //             $notaDina->lampirans()->createMany($attachments);
-    //         }
-
-    //         $remaining = $anggaran;
-    //         $pivotData = [];
-
-    //         foreach ($parentNotas as $parent) {
-    //             $sisa = $parent->anggaran - $parent->terkait->sum('pivot.anggaran');
-    //             if ($sisa <= 0) continue;
-
-    //             $pakai = min($remaining, $sisa);
-    //             $pivotData[$parent->id] = ['anggaran' => $pakai];
-    //             $remaining -= $pakai;
-    //             if ($remaining <= 0) break;
-    //         }
-
-    //         if ($remaining > 0) {
-    //             DB::rollBack();
-    //             return back()->withErrors(['anggaran' => "Tidak cukup sisa anggaran di parent untuk alokasi."]);
-    //         }
-
-    //         $notaDina->dikaitkanOleh()->attach($pivotData);
-
-    //         DB::commit();
-
-    //         $firstParent = $parentNotas->first();
-    //         $skpdId = optional($firstParent->subKegiatan?->kegiatan)->skpd_id ?? $firstParent->skpd_id;
-
-    //         if (!$skpdId) {
-    //             return back()->withErrors(['parent_ids' => 'Tidak dapat menentukan SKPD dari nota parent yang dipilih.']);
-    //         }
-
-    //         return redirect()->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
-    //             ->with('success', 'Nota berhasil ditambahkan.');
-
-    //     } catch (\Throwable $e) {
-    //         DB::rollBack();
-    //         return back()->withErrors(['error' => 'Gagal menyimpan nota: ' . $e->getMessage()]);
-    //     }
-    // }
-    // public function updateGuTuLs(Request $request, NotaDinas $notaDina)
-    // {
-    //     $request->validate([
-    //         'nomor_nota' => 'required|string|unique:nota_dinas,nomor_nota,' . $notaDina->id,
-    //         'perihal' => 'required|string',
-    //         'anggaran' => 'required|numeric|min:0',
-    //         'tanggal_pengajuan' => 'required|date',
-    //         'jenis' => 'in:GU,TU,LS',
-    //         'parent_ids' => 'required|array',
-    //         'parent_ids.*' => 'exists:nota_dinas,id',
-    //         'lampirans.*' => 'nullable|file|max:3072|mimes:pdf',
-    //     ]);
-
-    //     $anggaran = $request->input('anggaran');
-    //     $parentIds = $request->input('parent_ids');
-
-    //     $parentNotas = NotaDinas::with('terkait')->whereIn('id', $parentIds)->get();
-
-    //     $totalSisaAnggaran = 0;
-    //     foreach ($parentNotas as $parent) {
-    //         $terpakai = $parent->terkait->filter(fn($child) => $child->id !== $notaDina->id)->sum(fn ($child) => $child->pivot->anggaran ?? 0);
-    //         $sisa     = $parent->anggaran - $terpakai;
-    //         $totalSisaAnggaran += max($sisa, 0);
-    //     }
-
-    //     if ($anggaran > $totalSisaAnggaran) {
-    //         return back()->withErrors([
-    //             'anggaran' => "Total anggaran melebihi sisa anggaran. Maksimum: Rp" . number_format($totalSisaAnggaran, 0, ',', '.')
-    //         ]);
-    //     }
-
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $notaDina->update([
-    //             'nomor_nota' => $request->nomor_nota,
-    //             'perihal' => $request->perihal,
-    //             'anggaran' => $anggaran,
-    //             'tanggal_pengajuan' => $request->tanggal_pengajuan,
-    //             'jenis' => $request->jenis,
-    //         ]);
-
-    //         if ($request->hasFile('lampirans')) {
-    //             $notaDina->lampirans()->delete(); // Hapus lampiran lama
-    //             $attachments = [];
-    //             foreach ($request->file('lampirans') as $file) {
-    //                 $path = $file->store('nota_lampirans', 'public');
-    //                 $attachments[] = [
-    //                     'nota_dinas_id' => $notaDina->id,
-    //                     'nama_file' => $file->getClientOriginalName(),
-    //                     'path' => $path,
-    //                 ];
-    //             }
-    //             $notaDina->lampirans()->createMany($attachments);
-    //         }
-
-    //         // Hitung ulang alokasi pivot
-    //         $remaining = $anggaran;
-    //         $pivotData = [];
-
-    //         foreach ($parentNotas as $parent) {
-    //             $terpakai = $parent->terkait->filter(fn($child) => $child->id !== $notaDina->id)->sum(fn ($child) => $child->pivot->anggaran ?? 0);
-    //             $sisa = $parent->anggaran - $terpakai;
-
-    //             if ($sisa <= 0) continue;
-
-    //             $pakai = min($remaining, $sisa);
-    //             $pivotData[$parent->id] = ['anggaran' => $pakai];
-    //             $remaining -= $pakai;
-
-    //             if ($remaining <= 0) break;
-    //         }
-
-    //         if ($remaining > 0) {
-    //             DB::rollBack();
-    //             return back()->withErrors(['anggaran' => "Tidak cukup sisa anggaran di parent untuk alokasi."]);
-    //         }
-
-    //         // Sinkronisasi ulang relasi parent
-    //         $notaDina->dikaitkanOleh()->sync($pivotData);
-
-    //         DB::commit();
-
-    //         $firstParent = $parentNotas->first();
-    //         $skpdId = optional($firstParent->subKegiatan?->kegiatan)->skpd_id ?? $firstParent->skpd_id;
-
-    //         return redirect()->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
-    //             ->with('success', 'Nota berhasil diperbarui.');
-
-    //     } catch (\Throwable $e) {
-    //         DB::rollBack();
-    //         return back()->withErrors(['error' => 'Gagal memperbarui nota: ' . $e->getMessage()]);
-    //     }
-    // }
 }

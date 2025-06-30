@@ -19,13 +19,8 @@
               @click="confirmDelete"
               :disabled="isDeleting"
               >
-              <span v-if="isDeleting">
-                  <font-awesome-icon icon="spinner" spin class="mr-2"/>
-                  Menghapus...
-              </span>
-              <span v-else>
-                  Hapus
-              </span>
+              <font-awesome-icon v-if="isDeleting" icon="spinner" spin class="mr-2" />
+              {{ isDeleting ? 'Menghapus...' : 'Hapus' }}
             </DangerButton>
         </div>
     </div>

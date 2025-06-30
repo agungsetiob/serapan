@@ -20,8 +20,8 @@ class SubKegiatanSeeder extends Seeder
         $kegiatanIds = DB::table('kegiatans')->pluck('id')->toArray();
 
         foreach ($kegiatanIds as $kegiatanId) {
-            for ($i = 1; $i <= 3; $i++) {
-                $namaSubKegiatan = "Sub Kegiatan " . $i . " - Kegiatan " . $kegiatanId;
+            for ($i = 1; $i <= 2; $i++) {
+                $namaSubKegiatan = "Sub Kegiatan " . $i . " - Kegiatan Tanah Bumbu BERAKSI" . $kegiatanId;
                 $pagu = 0;
                 $tahunAnggaran = 2025;
                 $totalSerapan = 0;

@@ -47,7 +47,8 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Confirm
+                    <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+                    {{ form.processing ? 'Confirming...' : 'Confirm' }}
                 </PrimaryButton>
             </div>
         </form>

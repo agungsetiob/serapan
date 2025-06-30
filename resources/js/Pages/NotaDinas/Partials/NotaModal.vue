@@ -12,10 +12,7 @@
         <p class="text-sm text-red-700">Sisa Anggaran: {{ formatCurrency(parentNota.sisa_anggaran) }}</p>
       </div>
 
-      <div
-        v-if="Object.keys(form.errors).length > 0"
-        class="mb-4 p-4 bg-red-50 border-l-4 border-red-500"
-      >
+      <div v-if="Object.keys(form.errors).length > 0" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500">
         <div class="flex">
           <div class="ml-3">
             <h3 class="text-sm font-medium text-red-800">
@@ -38,40 +35,30 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label for="nomor_nota" class="block font-medium">Nomor Nota<span class="text-red-600">*</span></label>
-            <input
-              type="text"
-              v-model="form.nomor_nota"
-              :class="[
-                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
-              ]"
-            >
+            <input type="text" v-model="form.nomor_nota" :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+              form.errors.nomor_nota ? 'border-red-500' : 'border-gray-300'
+            ]">
           </div>
 
           <div>
-            <label for="tanggal_pengajuan" class="block font-medium">Tanggal Pengajuan<span class="text-red-600">*</span></label>
-            <input
-              type="date"
-              v-model="form.tanggal_pengajuan"
-              :class="[
-                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
-              ]"
-            >
+            <label for="tanggal_pengajuan" class="block font-medium">Tanggal Pengajuan<span
+                class="text-red-600">*</span></label>
+            <input type="date" v-model="form.tanggal_pengajuan" :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+              form.errors.tanggal_pengajuan ? 'border-red-500' : 'border-gray-300'
+            ]">
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label for="jenis" class="block font-medium">Jenis Nota<span class="text-red-600">*</span></label>
-            <select v-if="form.parent_ids.length === 0"
-              v-model="form.jenis"
-              :class="[
-                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                form.errors.jenis ? 'border-red-500' : 'border-gray-300'
-              ]"
-            >
-              <option value="" disabled>--Pilih jenis--</option>  
+            <select v-if="form.parent_ids.length === 0" v-model="form.jenis" :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+              form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+            ]">
+              <option value="" disabled>--Pilih jenis--</option>
               <option value="Perda">Perda</option>
               <option value="Perbup">Perbup</option>
               <option value="SK">SK</option>
@@ -81,14 +68,11 @@
               <option value="Edaran">Surat Edaran</option>
               <option value="Instruksi">Instruksi</option>
             </select>
-            <select v-else
-              v-model="form.jenis"
-              :class="[
-                'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-                form.errors.jenis ? 'border-red-500' : 'border-gray-300'
-              ]"
-            >
-              <option value="" disabled>--Pilih jenis--</option>  
+            <select v-else v-model="form.jenis" :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+              form.errors.jenis ? 'border-red-500' : 'border-gray-300'
+            ]">
+              <option value="" disabled>--Pilih jenis--</option>
               <option value="GU">GU</option>
               <option value="TU">TU</option>
               <option value="LS">LS</option>
@@ -97,64 +81,39 @@
 
           <div>
             <label for="anggaran" class="block font-medium">Anggaran (Rp)</label>
-            <input
-              type="text"
-              :value="formattedAnggaran"
-              @input="updateAnggaran($event.target.value)"
-              :class="[
-                'mt-1 block w-full border rounded-md px-3 py-2 text-sm bg-gray-100',
-                form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-              ]"
-              readonly
-            >
+            <input type="text" :value="formattedAnggaran" @input="updateAnggaran($event.target.value)" :class="[
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm bg-gray-100',
+              form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
+            ]" readonly>
           </div>
         </div>
 
         <div class="mb-4">
           <label for="perihal" class="block font-medium">Perihal<span class="text-red-600">*</span></label>
-          <input
-            type="text"
-            v-model="form.perihal"
-            :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-              form.errors.perihal ? 'border-red-500' : 'border-gray-300'
-            ]"
-          >
+          <input type="text" v-model="form.perihal" :class="[
+            'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
+            form.errors.perihal ? 'border-red-500' : 'border-gray-300'
+          ]">
         </div>
 
         <div class="mb-4">
           <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
-          <input
-            type="file"
-            accept=".pdf"
-            multiple
-            @change="handleFileChange"
-            class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-          >
+          <input type="file" accept=".pdf" multiple @change="handleFileChange"
+            class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           <p class="mt-1 text-xs text-gray-500">PDF (maks. 3MB per file)</p>
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            @click="closeModal"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-200"
-          >
+          <SecondaryButton @click="closeModal" :disabled="form.processing">
             Batal
-          </button>
-          <button
-            type="submit"
-            :disabled="form.processing"
-            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            
-            >
-            <span v-if="form.processing">
-              <font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan...
-            </span>
-            <span v-else>
-              {{ isEdit ? 'Update' : 'Simpan' }}
-            </span>
-          </button>
+          </SecondaryButton>
+          <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+            {{ form.processing
+              ? (isEdit ? 'Mengupdate...' : 'Menyimpan...')
+              : (isEdit ? 'Update' : 'Simpan')
+            }}
+          </PrimaryButton>
         </div>
       </form>
     </div>
@@ -166,6 +125,8 @@ import { watch, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
 import { formatCurrency } from '@/Utils/formatters';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
   show: Boolean,
@@ -219,7 +180,7 @@ const initForm = () => {
     form.id = props.notaData.id;
     form.nomor_nota = props.notaData.nomor_nota;
     form.perihal = props.notaData.perihal;
-    form.anggaran = props.notaData.anggaran;
+    form.anggaran = props.notaData.anggaran ?? 0;
     form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
     form.jenis = props.notaData.jenis;
     form.parent_ids = props.notaData.dikaitkan_oleh ? props.notaData.dikaitkan_oleh.map(p => p.id) : [];
@@ -279,7 +240,7 @@ const handleSubmit = () => {
         emit('success');
       },
       preserveScroll: true,
-      forceFormData: true 
+      forceFormData: true
     });
   } else {
     form.transform(() => payload).post(route('nota-skpd.store'), {
@@ -288,7 +249,7 @@ const handleSubmit = () => {
         emit('success');
       },
       preserveScroll: true,
-      forceFormData: true 
+      forceFormData: true
     });
   }
 };

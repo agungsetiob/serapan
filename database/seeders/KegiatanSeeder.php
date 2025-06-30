@@ -30,7 +30,7 @@ class KegiatanSeeder extends Seeder
 
             foreach ($skpdProgramIds as $programId) {
                 for ($i = 1; $i <= 2; $i++) {
-                    $namaKegiatan = $faker->regexify('[0-9]{2}\.[0-9]{2}\.[0-9]{2}') . " - Kegiatan " . $i . " - Program " . $programId;
+                    $namaKegiatan = $faker->regexify('[0-9]{2}\.[0-9]{2}\.[0-9]{2}') . " - Kegiatan Nomor" . $i . " - Program Nomor" . $programId . " - Tanah Bumbu BERAKSI";
                     $pagu = 0;
                     $tahunAnggaran = 2025;
                     $totalSerapan = 0;

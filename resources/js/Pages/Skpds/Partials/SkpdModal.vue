@@ -2,6 +2,8 @@
 import { watch, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import Modal from '@/Components/Modal.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
   show: Boolean,
@@ -45,14 +47,14 @@ const submitForm = () => {
   }
 }
 
-const close = () => {
+const closeModal = () => {
   form.reset();
   emit('close');
 }
 </script>
 
 <template>
-  <Modal :show="show" @close="close" maxWidth="2xl">
+  <Modal :show="show" @close="closeModal" maxWidth="2xl">
     <div class="bg-white p-4 sm:p-6 rounded-lg w-11/12 sm:w-full">
       <h3 class="text-lg font-semibold mb-4">
         {{ isEdit ? 'Edit SKPD' : 'Tambah SKPD' }}
@@ -60,34 +62,18 @@ const close = () => {
       <form @submit.prevent="submitForm">
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Nama SKPD</label>
-          <input
-            v-model="form.nama_skpd"
-            type="text"
-            required
-            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
-          />
+          <input v-model="form.nama_skpd" type="text" required
+            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2" />
         </div>
 
         <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            @click="close"
-            class="px-3 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-          >
+          <SecondaryButton @click="closeModal" :disabled="form.processing">
             Batal
-          </button>
-          <button
-            type="submit"
-            :disabled="form.processing"
-            class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
-          >
-            <span v-if="form.processing">
-              <font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan..
-            </span>
-            <span v-else>
-              Simpan
-            </span>
-          </button>
+          </SecondaryButton>
+          <PrimaryButton :disabled="form.processing">
+            <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+            {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
+          </PrimaryButton>
         </div>
       </form>
     </div>

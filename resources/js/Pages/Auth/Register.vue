@@ -87,7 +87,8 @@ const submit = () => {
                                 :class="{ 'opacity-25': form.processing }"
                                 :disabled="form.processing"
                             >
-                                Save
+                                <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+                                {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
                             </PrimaryButton>
                         </div>
                     </div>

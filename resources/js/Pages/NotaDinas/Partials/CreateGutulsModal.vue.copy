@@ -132,10 +132,15 @@
                             class="flex items-center justify-between p-2 bg-gray-50 rounded mb-1">
                             <div class="flex items-center">
                                 <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
-                                <a href="#" target="_blank" class="text-sm text-blue-600 hover:underline">
+                                <a :href="file.path" target="_blank" class="text-sm text-blue-600 hover:underline">
                                     {{ file.nama_file }}
                                 </a>
                             </div>
+                            <button type="button" @click="removeExistingFile(index)"
+                                class="text-red-500 hover:text-red-700" aria-label="Remove file"
+                                v-if="!form.processing">
+                                <font-awesome-icon icon="times" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -199,12 +204,20 @@
                     <SecondaryButton @click="closeModal" :disabled="form.processing">
                         Batal
                     </SecondaryButton>
-                    <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                        <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
-                        {{ form.processing
-                            ? (isEdit ? 'Mengupdate...' : 'Menyimpan...')
-                            : (isEdit ? 'Update' : 'Simpan')
-                        }}
+                    <PrimaryButton :disabled="form.processing">
+                        <span 
+                            v-if="form.processing"
+                            class="inline-flex items-center uppercase text-xs font-semibold tracking-widest"
+                        >
+                            <font-awesome-icon icon="spinner" spin class="mr-2" />
+                            {{ isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
+                        </span>
+                        <span 
+                            v-else 
+                            class="uppercase text-xs font-semibold tracking-widest"
+                        >
+                            {{ isEdit ? 'Update' : 'Simpan' }}
+                        </span>
                     </PrimaryButton>
                 </div>
             </form>
@@ -306,37 +319,30 @@ const formatFileSize = (bytes) => {
 };
 
 const handleSubmit = () => {
-    const payload = {
-        nomor_nota: form.nomor_nota,
-        perihal: form.perihal,
-        anggaran: form.anggaran,
-        tanggal_pengajuan: form.tanggal_pengajuan,
-        jenis: form.jenis,
-        skpd_id: form.skpd_id,
-        lampirans: form.lampirans,
-        parent_ids: form.parent_ids
-    };
-
     if (props.isEdit) {
-        form.transform((data) => ({
-            ...payload,
-            _method: 'PUT'
-        })).post(route('update-gutuls', form.id), {
+        form.put(route('update-gutuls', form.id), {
+            data: {
+                deleted_files: form.deleted_files
+            },
             onSuccess: () => {
                 closeModal();
                 emit('success');
             },
             preserveScroll: true,
-            forceFormData: true
+            onError: (errors) => {
+                console.error("Error updating nota:", errors);
+            }
         });
     } else {
-        form.transform(() => payload).post(route('store-gutuls'), {
+        form.post(route('store-gutuls'), {
             onSuccess: () => {
                 closeModal();
                 emit('success');
             },
             preserveScroll: true,
-            forceFormData: true
+            onError: (errors) => {
+                console.error("Error creating nota:", errors);
+            }
         });
     }
 };

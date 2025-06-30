@@ -6,7 +6,7 @@
         <h3 class="font-semibold text-gray-700">Rekap Nota Dinas per Jenis</h3>
       </div>
       <div class="p-4">
-        <canvas ref="rekapjenisChart" class="h-72"></canvas>
+        <canvas ref="rekapjenisChart" class="h-96"></canvas>
       </div>
     </div>
 

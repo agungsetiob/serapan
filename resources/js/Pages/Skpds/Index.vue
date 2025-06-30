@@ -7,7 +7,6 @@ import SkpdModal from "@/Pages/Skpds/Partials/SkpdModal.vue";
 import SearchInput from '@/Components/SearchInput.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
-import { faChartPie } from '@fortawesome/free-solid-svg-icons';
 
 const search = ref('');
 watch(search, (val) => {
@@ -122,7 +121,7 @@ function toggleStatus(skpdId, currentStatus) {
                                                 :href="route('skpds.rekap-nota', skpd.id)"
                                                 class="px-2 py-1 text-md sm:text-lg font-semibold rounded transition text-fuchsia-600 hover:bg-fuchsia-100 inline-block"
                                             >
-                                                <font-awesome-icon :icon="faChartPie" />
+                                                <font-awesome-icon icon="fa-chart-pie" />
                                             </Link>
                                         </Tooltip>
                                     </td>

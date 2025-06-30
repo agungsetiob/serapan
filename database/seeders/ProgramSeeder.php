@@ -19,7 +19,7 @@ class ProgramSeeder extends Seeder
 
         for ($skpdId = 1; $skpdId <= 13; $skpdId++) {
             for ($i = 1; $i <= 2; $i++) {
-                $namaProgram = $faker->regexify('[A-Z]{3}-[0-9]{3}') . " - Program Unggulan " . $faker->word() . " SKPD " . $skpdId;
+                $namaProgram = $faker->regexify('[A-Z]{3}-[0-9]{3}') . " - Program Unggulan Tanah Bumbu BERAKSI" . $faker->word() . " SKPD " . $skpdId;
 
                 DB::table('programs')->insert([
                     'skpd_id' => $skpdId,

@@ -5,6 +5,8 @@ import Modal from '@/Components/Modal.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
   show: Boolean,
@@ -21,11 +23,11 @@ const form = useForm({
 watch(() => props.show, (show) => {
   if (show) {
     form.nama = 'Tanah Bumbu';
-    form.tahun_anggaran = props.kabupaten?.tahun_anggaran 
-      ? String(props.kabupaten.tahun_anggaran) 
+    form.tahun_anggaran = props.kabupaten?.tahun_anggaran
+      ? String(props.kabupaten.tahun_anggaran)
       : String(new Date().getFullYear());
-    form.pagu = props.kabupaten?.pagu !== null && props.kabupaten?.pagu !== undefined 
-      ? String(props.kabupaten.pagu) 
+    form.pagu = props.kabupaten?.pagu !== null && props.kabupaten?.pagu !== undefined
+      ? String(props.kabupaten.pagu)
       : '';
     form.clearErrors();
   }
@@ -64,30 +66,21 @@ function submit() {
 
         <div class="mb-4">
           <InputLabel value="Tahun Anggaran" />
-          <TextInput v-model="form.tahun_anggaran" type="number" class="w-full" readonly/>
+          <TextInput v-model="form.tahun_anggaran" type="number" class="w-full" readonly />
           <InputError :message="form.errors.tahun_anggaran" />
         </div>
 
         <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            @click="closeModal"
-            class="px-3 py-2 bg-gray-300 text-gray-700 text-sm sm:text-base rounded hover:bg-gray-400"
-          >
+          <SecondaryButton @click="closeModal" :disabled="form.processing">
             Batal
-          </button>
-          <button
-            type="submit"
-            :disabled="form.processing"
-            class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
-          >
-            <span v-if="form.processing">
-              <font-awesome-icon icon="spinner" spin class="mr-2" /> Menyimpan..
-            </span>
-            <span v-else>
-              Simpan
-            </span>
-          </button>
+          </SecondaryButton>
+          <PrimaryButton :disabled="form.processing">
+            <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+            {{ form.processing
+              ? (kabupaten ? 'Mengupdate...' : 'Menyimpan...')
+              : (kabupaten ? 'Update' : 'Simpan')
+            }}
+          </PrimaryButton>
         </div>
       </form>
     </div>

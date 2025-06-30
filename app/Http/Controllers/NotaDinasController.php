@@ -248,7 +248,7 @@ class NotaDinasController extends Controller
                 },
             ],
             'tanggal_pengajuan' => 'required|date',
-            'jenis' => 'required',
+            'jenis' => 'required|in:Pelaksanaan,TU,LS',
             'lampirans.*' => 'nullable|file|max:3072|mimes:pdf,doc,docx,xls,xlsx',
         ];
 

@@ -39,7 +39,7 @@ function submitProgram() {
       preserveScroll: true,
       onSuccess: () => {
         emit('success');
-        emit('close');
+        closeModal();
       },
     });
   } else {
@@ -51,7 +51,7 @@ function submitProgram() {
       preserveScroll: true,
       onSuccess: () => {
         emit('success');
-        emit('close');
+        closeModal();
       },
     });
   }
@@ -59,6 +59,7 @@ function submitProgram() {
 
 const closeModal = () => {
   form.reset();
+  form.clearErrors();
   emit('close');
 };
 </script>
@@ -95,22 +96,16 @@ const closeModal = () => {
           <InputError :message="form.errors.tahun_anggaran" class="mt-2" />
         </div>
 
-        <div class="flex justify-end">
-          <SecondaryButton @click="closeModal" class="mr-3">Batal</SecondaryButton>
+        <div class="flex justify-end gap-2">
+          <SecondaryButton @click="closeModal" :disabled="form.processing">
+            Batal
+          </SecondaryButton>
           <PrimaryButton :disabled="form.processing">
-            <span 
-              v-if="form.processing"
-              class="inline-flex items-center uppercase text-xs font-semibold tracking-widest"
-            >
-              <font-awesome-icon icon="spinner" spin class="mr-2" />
-              {{ isEdit ? 'Mengupdate...' : 'Menyimpan...' }}
-            </span>
-            <span 
-              v-else 
-              class="uppercase text-xs font-semibold tracking-widest"
-            >
-              {{ isEdit ? 'Update' : 'Simpan' }}
-            </span>
+            <font-awesome-icon v-if="form.processing" icon="spinner" spin class="mr-2" />
+            {{ form.processing
+              ? (isEditing ? 'Mengupdate...' : 'Menyimpan...')
+              : (isEditing ? 'Update' : 'Simpan')
+            }}
           </PrimaryButton>
         </div>
       </form>
