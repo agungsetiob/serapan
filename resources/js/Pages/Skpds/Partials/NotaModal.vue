@@ -93,12 +93,40 @@
             </select>
           </div>
         </div>
-
-        <div class="mb-4">
-          <label for="lampirans" class="block text-sm font-medium text-gray-700 mb-1">Lampiran (opsional)</label>
-          <input type="file" accept=".pdf" multiple @change="handleFileChange"
+        <div>
+          <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
+          <input id="lampirans" type="file" accept=".pdf" multiple @change="handleFileChange"
             class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-          <p class="mt-1 text-xs text-gray-500">Format: PDF (maks. 3MB per file)</p>
+          <p class="mt-1 text-xs text-gray-500">PDF (maks. 3MB per file)</p>
+
+          <!-- Selected files display -->
+          <div v-if="form.lampirans.length > 0" class="mt-2 space-y-2 mb-2">
+            <div v-for="(file, index) in form.lampirans" :key="index"
+              class="flex items-center justify-between p-2 bg-gray-100 rounded">
+              <div class="flex items-center">
+                <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
+                <span class="text-sm truncate max-w-xs">{{ file.name }}</span>
+                <span class="text-xs text-gray-500 ml-2">({{ formatFileSize(file.size) }})</span>
+              </div>
+              <button type="button" @click="removeFile(index)" class="text-red-500 hover:text-red-700"
+                aria-label="Remove file">
+                <font-awesome-icon icon="times" />
+              </button>
+            </div>
+          </div>
+          <!-- Existing files in edit mode -->
+          <div v-if="isEdit && existingLampiransDisplay.length" class="mt-2">
+            <p class="text-sm font-medium mb-1">File yang sudah diunggah:</p>
+            <div v-for="(file, index) in existingLampiransDisplay" :key="file.id"
+              class="flex items-center justify-between p-2 bg-gray-100 rounded mb-2">
+              <div class="flex items-center">
+                <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
+                <a href="#" target="_blank" class="text-sm text-blue-600">
+                  {{ file.nama_file }}
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="flex justify-end gap-2">
@@ -221,7 +249,19 @@ watch(
 );
 
 const handleFileChange = (event) => {
-  form.lampirans = event.target.files;
+  //form.lampirans = event.target.files;
+  const files = Array.from(event.target.files);
+  const validFiles = files.filter(file => {
+    if (file.size > 3 * 1024 * 1024) {
+      form.setError('lampirans', 'Ukuran file melebihi 3MB per file.');
+      return false;
+    }
+    return true;
+  });
+
+  if (validFiles.length > 0) {
+    form.lampirans = [...form.lampirans, ...validFiles];
+  }
 };
 
 const closeModal = () => {
@@ -262,4 +302,25 @@ const handleSubmit = () => {
     });
   }
 };
+
+const removeFile = (index) => {
+  form.lampirans.splice(index, 1);
+};
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+const existingLampiransDisplay = computed(() => {
+  if (!props.isEdit || !props.notaData || !props.notaData.lampirans) {
+    return [];
+  }
+  return props.notaData.lampirans.map(lampiran => ({
+    id: lampiran.id,
+    nama_file: lampiran.nama_file,
+    size: lampiran.size
+  }));
+});
 </script>

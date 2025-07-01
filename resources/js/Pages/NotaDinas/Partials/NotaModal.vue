@@ -127,7 +127,6 @@ import Modal from '@/Components/Modal.vue';
 import { formatNumber } from '@/Utils/formatters';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import { updateAnggaran } from '@/Utils/formatters';
 
 const props = defineProps({
   show: Boolean,
@@ -163,6 +162,10 @@ const formattedAnggaran = computed(() => {
   }
   return number.toLocaleString('id-ID');
 });
+const updateAnggaran = (value) => {
+  const cleanedValue = value.replace(/\D/g, '');
+  form.anggaran = cleanedValue;
+};
 
 const initForm = () => {
   if (props.isEdit && props.notaData) {

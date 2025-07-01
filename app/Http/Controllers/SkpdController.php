@@ -76,7 +76,7 @@ class SkpdController extends Controller
                                 ->with([
                                     'subKegiatans' => function ($sq) use ($tahun) {
                                         $sq->where('tahun_anggaran', $tahun)
-                                        ->with(['notaDinas.subKegiatan']);
+                                        ->with(['notaDinas.subKegiatan', 'notaDinas.lampirans']);
                                     }
                                 ]);
                         }

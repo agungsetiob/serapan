@@ -129,7 +129,7 @@
                     <div v-if="isEdit && existingLampiransDisplay.length" class="mt-2">
                         <p class="text-sm font-medium mb-1">File yang sudah diunggah:</p>
                         <div v-for="(file, index) in existingLampiransDisplay" :key="file.id"
-                            class="flex items-center justify-between p-2 bg-gray-50 rounded mb-1">
+                            class="flex items-center justify-between p-2 bg-gray-50 rounded mb-2">
                             <div class="flex items-center">
                                 <font-awesome-icon icon="file-pdf" class="text-red-500 mr-2" />
                                 <a href="#" target="_blank" class="text-sm text-blue-600 hover:underline">
@@ -288,15 +288,6 @@ const removeFile = (index) => {
     form.lampirans.splice(index, 1);
 };
 
-const removeExistingFile = (index) => {
-    if (!form.deleted_files) {
-        form.deleted_files = [];
-    }
-    form.deleted_files.push(existingLampiransDisplay.value[index].id);
-
-    existingLampiransDisplay.value.splice(index, 1);
-};
-
 const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -369,7 +360,6 @@ const badgeClasses = (jenis) => {
         case 'GU': return 'bg-yellow-100 text-yellow-800';
         case 'TU': return 'bg-indigo-100 text-indigo-800';
         case 'LS': return 'bg-red-100 text-red-800';
-        case 'Pelaksanaan': return 'bg-lime-100 text-lime-700';
         default: return 'bg-gray-100 text-gray-800';
     }
 };
