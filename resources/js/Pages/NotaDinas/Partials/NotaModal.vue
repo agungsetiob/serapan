@@ -8,8 +8,8 @@
         <h4 class="text-sm font-medium text-gray-800 mb-1">Untuk Nota Dinas:</h4>
         <p class="font-medium">No. Nota: {{ parentNota.nomor_nota }}</p>
         <p class="text-sm text-gray-600">Perihal: {{ parentNota.perihal }}</p>
-        <p class="text-sm text-gray-600">Anggaran: {{ formatCurrency(parentNota.anggaran) }}</p>
-        <p class="text-sm text-red-700">Sisa Anggaran: {{ formatCurrency(parentNota.sisa_anggaran) }}</p>
+        <p class="text-sm text-gray-600">Anggaran: Rp. {{ formatNumber(parentNota.anggaran) }}</p>
+        <p class="text-sm text-red-700">Sisa Anggaran: Rp. {{ formatNumber(parentNota.sisa_anggaran) }}</p>
       </div>
 
       <div v-if="Object.keys(form.errors).length > 0" class="mb-4 p-4 bg-red-50 border-l-4 border-red-500">
@@ -124,7 +124,7 @@
 import { watch, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
-import { formatCurrency } from '@/Utils/formatters';
+import { formatNumber } from '@/Utils/formatters';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 

@@ -7,7 +7,7 @@ import SearchInput from '@/Components/SearchInput.vue';
 import CreateGuTuLsModal from './Partials/CreateGutulsModal.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import LampiranModal from './Partials/LampiranModal.vue';
-import { formatCurrency } from '@/Utils/formatters';
+import { formatNumber } from '@/Utils/formatters';
 import DeleteNotaModal from '../NotaDinas/Partials/DeleteNotaModal.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
 
@@ -165,14 +165,14 @@ const badgeClasses = (jenis) => {
                                     </span>
                                 </h4>
                                 <p class="text-gray-700">{{ nota.perihal }}</p>
-                                <p class="text-sm text-gray-500">Anggaran: <span class="text-green-500">{{ formatCurrency(nota.anggaran) }}</span></p>
+                                <p class="text-sm text-gray-500">Anggaran: <span class="text-green-500">Rp. {{ formatNumber(nota.anggaran) }}</span></p>
 
                                 <div v-if="nota.parents && nota.parents.length > 0" class="mt-1 text-sm text-gray-600">
                                     <span class="font-semibold">Dari Nota:</span>
                                     <ul class="list-disc list-inside ml-4">
                                         <li v-for="parent in nota.parents" :key="parent.id" class="my-0.5">
                                             {{ parent.nomor_nota }} - {{ parent.perihal }} 
-                                            <span class="text-xs text-red-500">(Sisa: {{ formatCurrency(parent.sisa_anggaran) }})</span>
+                                            <span class="text-xs text-red-500">(Sisa: Rp. {{ formatNumber(parent.sisa_anggaran) }})</span>
                                         </li>
                                     </ul>
                                 </div>

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import Tooltip from '@/Components/Tooltip.vue';
+import { formatNumber, formatDate } from '@/Utils/formatters';
 
 const props = defineProps({
   kegiatan: Object,
@@ -29,11 +30,6 @@ const toggleNotaDinas = (subKegiatanId) => {
   } else {
     expandedSubKegiatans.value.splice(index, 1);
   }
-};
-
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('id-ID', options);
 };
 
 const badgeClasses = (jenis) => {

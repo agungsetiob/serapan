@@ -32,7 +32,7 @@
                 {{ child.perihal }}
               </td>
               <td class="px-4 py-2 whitespace-nowrap text-sm">
-                {{ formatCurrency(child.anggaran) }}
+                Rp. {{ formatNumber(child.anggaran) }}
               </td>
               <td class="px-4 py-2 whitespace-nowrap text-sm">
                 {{ formatDate(child.tanggal_pengajuan) }}
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { formatCurrency, formatDate } from '@/Utils/formatters';
+import { formatDate, formatNumber } from '@/Utils/formatters';
 import Tooltip from '@/Components/Tooltip.vue';
 
 const props = defineProps({

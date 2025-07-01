@@ -16,6 +16,7 @@ import LampiranModal from '../NotaDinas/Partials/LampiranModal.vue';
 import DeleteNotaModal from './Partials/DeleteNotaModal.vue';
 import ProgramModal from './Partials/ProgramModal.vue';
 import DeleteProgramModal from './Partials/DeleteProgramModal.vue';
+import { formatNumber } from '@/Utils/formatters';
 
 const props = defineProps({
   skpd: Object,
@@ -89,14 +90,6 @@ function submitSubKegiatan(kegiatanId) {
       handleSuccess();
     }
   });
-}
-
-function formatNumber(value) {
-  if (typeof value !== 'number') return '0,00';
-  return new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
 }
 
 const programModalState = ref({

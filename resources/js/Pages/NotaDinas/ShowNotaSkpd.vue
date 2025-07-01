@@ -70,14 +70,14 @@
                       </span>
                     </td>
                     <td class="px-4 py-2 text-sm font-medium space-x-1">
-                      <Tooltip text="Nota Dinas" bgColor="bg-green-500">
+                      <!-- <Tooltip text="Nota Dinas" bgColor="bg-green-500">
                         <button
                           @click="handleCreateNota(true, nota)"
                           class="text-green-600 px-2 py-1 rounded hover:bg-green-200 transition-colors"
                         >
                           <font-awesome-icon :icon="['fas', 'file-circle-plus']" />
                         </button>
-                      </Tooltip>
+                      </Tooltip> -->
                       <Tooltip text="Edit" bgColor="bg-blue-500">
                         <button
                           @click="handleEditNota(nota)"
@@ -181,7 +181,7 @@ import NotaModal from './Partials/NotaModal.vue';
 import DeleteNotaModal from '../NotaDinas/Partials/DeleteNotaModal.vue';
 import LampiranModal from './Partials/LampiranModal.vue';
 import ChildNotaRow from './Partials/ChildNotaRow.vue';
-import { formatCurrency, formatDate } from '@/Utils/formatters';
+import { formatDate } from '@/Utils/formatters';
 import SearchInput from '@/Components/SearchInput.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
