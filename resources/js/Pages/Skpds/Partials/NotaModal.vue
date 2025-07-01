@@ -62,13 +62,21 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
+          <div class="relative">
             <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran (Rp)<span
                 class="text-red-600">*</span></label>
-            <input type="text" :value="formattedAnggaran" @input="updateAnggaran($event.target.value)" :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
-              form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-            ]">
+
+            <div class="relative">
+              <input type="text" :value="formattedAnggaran" @input="updateAnggaran($event.target.value)" :class="[
+                'mt-1 block w-full border rounded-md px-3 py-2 pr-10 text-sm', // ← Tambahkan pr-10 agar tidak bentrok dengan tombol
+                form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
+              ]">
+              <button v-if="form.anggaran !== null && form.anggaran !== ''" type="button" @click="form.anggaran = null"
+                class="absolute right-2 top-[7px] text-gray-400 hover:text-gray-600 transition"
+                aria-label="Clear amount">
+                <font-awesome-icon icon="times" />
+              </button>
+            </div>
           </div>
 
           <div>
