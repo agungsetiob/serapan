@@ -18,18 +18,18 @@ class SkpdController extends Controller
     public function index(Request $request): Response
     {
         $query = Skpd::query();
-    
+
         if ($search = $request->search) {
             $query->where('nama_skpd', 'like', '%' . $search . '%');
         }
-    
+
         $skpds = $query->paginate(10);
-    
+
         return inertia('Skpds/Index', [
             'skpds' => $skpds,
         ]);
     }
-    
+
 
     /**
      * Store a newly created resource in storage.
@@ -76,13 +76,28 @@ class SkpdController extends Controller
                                 ->with([
                                     'subKegiatans' => function ($sq) use ($tahun) {
                                         $sq->where('tahun_anggaran', $tahun)
-                                        ->with(['notaDinas.subKegiatan', 'notaDinas.lampirans']);
+                                            ->with(['notaDinas.subKegiatan', 'notaDinas.lampirans']);
                                     }
                                 ]);
                         }
                     ]);
             }
         ]);
+        foreach ($skpd->programs as $program) {
+            $totalPagu = 0;
+            $totalSerapan = 0;
+
+            foreach ($program->kegiatans as $kegiatan) {
+                $totalPagu += $kegiatan->pagu;
+                $totalSerapan += $kegiatan->total_serapan;
+            }
+
+            $program->pagu = $totalPagu;
+            $program->total_serapan = $totalSerapan;
+            $program->presentase_serapan = $totalPagu > 0
+                ? round(($totalSerapan / $totalPagu) * 100, 2)
+                : 0;
+        }
 
         $totalPaguSkpd = 0;
         $totalSerapanSkpd = 0;
@@ -130,7 +145,7 @@ class SkpdController extends Controller
                                 ->with([
                                     'subKegiatans' => function ($sq) use ($tahun) {
                                         $sq->where('tahun_anggaran', $tahun)
-                                        ->with(['notaDinas.subKegiatan']);
+                                            ->with(['notaDinas.subKegiatan']);
                                     }
                                 ]);
                         }
@@ -154,10 +169,10 @@ class SkpdController extends Controller
 
         // Ambil tahun kegiatan yang tersedia
         $tahunTersedia = Kegiatan::where('skpd_id', $skpd->id)
-                                ->distinct()
-                                ->pluck('tahun_anggaran')
-                                ->sortDesc()
-                                ->values();
+            ->distinct()
+            ->pluck('tahun_anggaran')
+            ->sortDesc()
+            ->values();
 
         return Inertia::render('Skpds/ShowByYear', [
             'skpd' => $skpd,
