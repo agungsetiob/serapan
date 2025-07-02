@@ -74,8 +74,8 @@ function formatNumber(value) {
                                     <td class="px-4 py-2">{{ kabupaten.nama }}</td>
                                     <td class="px-4 py-2">{{ kabupaten.tahun_anggaran }}</td>
                                     <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.pagu) }}</td>
-                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.total_serapan) }}</td>
-                                    <td class="px-4 py-2">{{ kabupaten.presentase_serapan }}%</td>
+                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.total_serapan_dinamis) }}</td>
+                                    <td class="px-4 py-2">{{ kabupaten.presentase_serapan_dinamis }}%</td>
                                     <td class="px-4 py-2">
                                         <Tooltip text="Edit Kabupaten" bgColor="bg-blue-500">
                                             <button

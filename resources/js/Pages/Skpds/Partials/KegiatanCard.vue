@@ -7,7 +7,7 @@
           <div class="flex flex-col md:flex-row md:items-center gap-2 mt-1 text-sm text-gray-600">
             <div>
               <span class="font-semibold">Pagu:</span>
-              Rp. {{ formatNumber(kegiatan.pagu) }}
+              Rp {{ formatNumber(kegiatan.pagu) }}
             </div>
             <div class="hidden md:block mx-2">|</div>
             <div>
@@ -73,6 +73,7 @@
   
 <script setup>
 import Tooltip from '@/Components/Tooltip.vue';
+import { formatNumber } from '@/Utils/formatters.js';
 const props = defineProps({
   kegiatan: Object,
   showButtons: {
@@ -80,9 +81,6 @@ const props = defineProps({
     default: true,
   },
 });
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('id-ID').format(value || 0);
-};
 
 const emit = defineEmits(['edit', 'delete']);
 

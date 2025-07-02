@@ -14,7 +14,7 @@
 //   return new Date(dateString).toLocaleDateString('id-ID', options);
 // };
 export function formatNumber(value) {
-  if (typeof value !== 'number') return '0,00';
+  //if (typeof value !== 'number') return '0,00';
   return new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2

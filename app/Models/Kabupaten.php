@@ -22,4 +22,3 @@ class Kabupaten extends Model
         return $this->hasMany(SkpdTahun::class);
     }
 }
-
