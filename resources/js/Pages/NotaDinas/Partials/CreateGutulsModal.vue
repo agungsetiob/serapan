@@ -1,6 +1,6 @@
 <template>
     <Modal :show="show" @close="closeModal" max-width="5xl">
-        <div class="sm:p-6">
+        <div class="sm:p-6 scrollbar-hide">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">
                 {{ isEdit ? 'Edit Nota Dinas' : 'Buat Nota Dinas' }}
             </h2>

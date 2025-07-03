@@ -28,6 +28,7 @@
         "@inertiajs/inertia": "^0.11.1",
         "apexcharts": "^4.7.0",
         "chart.js": "^4.4.9",
+        "tailwind-scrollbar-hide": "^4.0.0",
         "vue3-apexcharts": "^1.8.0"
     }
 }
