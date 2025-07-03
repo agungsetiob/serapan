@@ -14,78 +14,89 @@ use App\Helpers\SerapanHelper;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
-    {
-        $role = auth()->user()->role;
-        $tahunSekarang = date('Y');
-
-        $totalSkpds = Skpd::count();
-        $notaDinas = NotaDinas::whereYear('tanggal_pengajuan', $tahunSekarang)->count();
-
-        $kabupaten = Kabupaten::with([
-            'skpds.programs' => function ($query) use ($tahunSekarang) {
-                $query->where('tahun_anggaran', $tahunSekarang)
-                    ->with([
-                        'kegiatans' => function ($q) use ($tahunSekarang) {
-                            $q->where('tahun_anggaran', $tahunSekarang)
-                                ->with([
-                                    'subKegiatans' => function ($sq) use ($tahunSekarang) {
-                                        $sq->where('tahun_anggaran', $tahunSekarang)
-                                            ->with(['notaDinas.terkait']);
-                                    }
-                                ]);
-                        }
-                    ]);
-            }
-        ])->where('tahun_anggaran', $tahunSekarang)->first();
-
-        $totalPagu = 0;
-        $totalSerapan = 0;
-
-        foreach ($kabupaten->skpds as $skpd) {
-            foreach ($skpd->programs as $program) {
-                SerapanHelper::hitungProgram($program);
-
-                $totalPagu += $program->pagu;
-                $totalSerapan += $program->total_serapan;
-            }
-        }
-
-        $presentaseSerapan = $totalPagu > 0
-            ? round(($totalSerapan / $totalPagu) * 100, 2)
-            : 0;
-
-        return match ($role) {
-            'admin' => inertia('Dashboard/Admin', [
-                'totalSkpds' => $totalSkpds,
-                'notaDinas' => $notaDinas,
-                'presentaseSerapan' => $presentaseSerapan,
-                'totalSerapan' => $totalSerapan,
-                'kabupaten' => $kabupaten
-            ]),
-            default => abort(403),
-        };
-    }
     // public function index(): Response
     // {
     //     $role = auth()->user()->role;
     //     $tahunSekarang = date('Y');
+
     //     $totalSkpds = Skpd::count();
     //     $notaDinas = NotaDinas::whereYear('tanggal_pengajuan', $tahunSekarang)->count();
 
-    //     $kabupaten = Kabupaten::where('tahun_anggaran', $tahunSekarang)->first();
+    //     $kabupaten = Kabupaten::with([
+    //         'skpds.programs' => function ($query) use ($tahunSekarang) {
+    //             $query->where('tahun_anggaran', $tahunSekarang)
+    //                 ->with([
+    //                     'kegiatans' => function ($q) use ($tahunSekarang) {
+    //                         $q->where('tahun_anggaran', $tahunSekarang)
+    //                             ->with([
+    //                                 'subKegiatans' => function ($sq) use ($tahunSekarang) {
+    //                                     $sq->where('tahun_anggaran', $tahunSekarang)
+    //                                         ->with(['notaDinas.terkait']);
+    //                                 }
+    //                             ]);
+    //                     }
+    //                 ]);
+    //         }
+    //     ])->where('tahun_anggaran', $tahunSekarang)->first();
+
+    //     $totalPagu = 0;
+    //     $totalSerapan = 0;
+    //     if (!$kabupaten) {
+    //         return match ($role) {
+    //             'admin' => inertia('Dashboard/Admin', [
+    //                 'totalSkpds' => $totalSkpds,
+    //                 'notaDinas' => $notaDinas,
+    //                 'presentaseSerapan' => 0,
+    //                 'totalSerapan' => 0,
+    //                 'kabupaten' => null
+    //             ]),
+    //             default => abort(403),
+    //         };
+    //     }
+    //     foreach ($kabupaten->skpds as $skpd) {
+    //         foreach ($skpd->programs as $program) {
+    //             SerapanHelper::hitungProgram($program);
+
+    //             $totalPagu += $program->pagu;
+    //             $totalSerapan += $program->total_serapan;
+    //         }
+    //     }
+
+    //     $presentaseSerapan = $totalPagu > 0
+    //         ? round(($totalSerapan / $totalPagu) * 100, 2)
+    //         : 0;
 
     //     return match ($role) {
     //         'admin' => inertia('Dashboard/Admin', [
     //             'totalSkpds' => $totalSkpds,
     //             'notaDinas' => $notaDinas,
-    //             'presentaseSerapan' => (float)$kabupaten?->presentase_serapan ?? 0,
-    //             'totalSerapan' => (float)$kabupaten?->total_serapan ?? 0,
-    //             'kabupaten' => $kabupaten 
+    //             'presentaseSerapan' => $presentaseSerapan,
+    //             'totalSerapan' => $totalSerapan,
+    //             'kabupaten' => $kabupaten
     //         ]),
     //         default => abort(403),
     //     };
-    // }  
+    // }
+    public function index(): Response
+    {
+        $role = auth()->user()->role;
+        $tahunSekarang = date('Y');
+        $totalSkpds = Skpd::count();
+        $notaDinas = NotaDinas::whereYear('tanggal_pengajuan', $tahunSekarang)->count();
+
+        $kabupaten = Kabupaten::where('tahun_anggaran', $tahunSekarang)->first();
+
+        return match ($role) {
+            'admin' => inertia('Dashboard/Admin', [
+                'totalSkpds' => $totalSkpds,
+                'notaDinas' => $notaDinas,
+                'presentaseSerapan' => (float)$kabupaten?->presentase_serapan ?? 0,
+                'totalSerapan' => (float)$kabupaten?->total_serapan ?? 0,
+                'kabupaten' => $kabupaten 
+            ]),
+            default => abort(403),
+        };
+    }  
     public function getNotaPerYear(): JsonResponse
     {
         $startYear = Carbon::now()->subYears(4)->year;

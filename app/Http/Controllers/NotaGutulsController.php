@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NotaDinas;
 use App\Models\Skpd;
+use App\Models\SubKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -102,7 +103,10 @@ class NotaGutulsController extends Controller
 
             // Hubungkan ke nota induk
             $pivot = $this->allocatePivot($parents, $request->anggaran);
+            
             $notaDina->dikaitkanOleh()->attach($pivot);
+            // Update budget absorption
+            $this->updateBudgetAbsorption($notaDina);
 
             return redirect()
                 ->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
@@ -154,6 +158,9 @@ class NotaGutulsController extends Controller
             // re-allocate pivot
             $pivot = $this->allocatePivot($parents, $request->anggaran, $notaDina->id);
             $notaDina->dikaitkanOleh()->sync($pivot);
+            // Update budget absorption
+            $this->updateBudgetAbsorption($notaDina);
+            
 
             // redirect
             $skpdId = $this->resolveSkpd($parents);
@@ -280,5 +287,59 @@ class NotaGutulsController extends Controller
         return optional($first->subKegiatan?->kegiatan)->skpd_id
             ?? $first->skpd_id;
     }
+
+    protected function updateBudgetAbsorption(NotaDinas $notaDina)
+    {
+        // Ambil semua nota induk dari nota terkait ini
+        $notaInduks = $notaDina->dikaitkanOleh()->with('subKegiatan.kegiatan.skpd.kabupatens')->get();
+
+        foreach ($notaInduks as $notaInduk) {
+            $subKegiatan = $notaInduk->subKegiatan;
+
+            // Hitung total serapan berdasarkan semua child terkait dari nota ini
+            $totalSerapanSub = $notaInduk->terkait->sum('pivot.anggaran');
+            $paguSub = $subKegiatan->pagu > 0 ? $subKegiatan->pagu : 1;
+
+            $subKegiatan->update([
+                'total_serapan' => $totalSerapanSub,
+                'presentase_serapan' => ($totalSerapanSub / $paguSub) * 100,
+            ]);
+
+            // Update kegiatan
+            $kegiatan = $subKegiatan->kegiatan;
+            $totalSerapanKegiatan = $kegiatan->subKegiatans()->sum('total_serapan');
+            $paguKeg = $kegiatan->pagu > 0 ? $kegiatan->pagu : 1;
+
+            $kegiatan->update([
+                'total_serapan' => $totalSerapanKegiatan,
+                'presentase_serapan' => ($totalSerapanKegiatan / $paguKeg) * 100,
+            ]);
+
+            // Update kabupaten berdasarkan skpd dan tahun
+            $skpd = $kegiatan->skpd;
+            $tahun = $kegiatan->tahun_anggaran;
+
+            $kabupaten = $skpd->kabupatens()
+                ->wherePivot('tahun_anggaran', $tahun)
+                ->first();
+
+            if ($kabupaten) {
+                $totalSerapanKab = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $tahun) {
+                    $query->where('tahun_anggaran', $tahun)
+                        ->whereHas('skpd', function ($q) use ($kabupaten) {
+                            $q->whereHas('kabupatens', fn($k) => $k->where('kabupatens.id', $kabupaten->id));
+                        });
+                })->sum('total_serapan');
+
+                $kabupaten->update([
+                    'total_serapan' => $totalSerapanKab,
+                    'presentase_serapan' => $kabupaten->pagu > 0
+                        ? ($totalSerapanKab / $kabupaten->pagu) * 100
+                        : 0,
+                ]);
+            }
+        }
+    }
+
 
 }

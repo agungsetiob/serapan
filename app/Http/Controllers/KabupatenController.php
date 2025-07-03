@@ -11,60 +11,60 @@ use App\Helpers\SerapanHelper;
 
 class KabupatenController extends Controller
 {
-    public function index()
-    {
-        $tahun = date('Y');
-
-        $kabupatens = Kabupaten::with([
-            'skpds.programs' => function ($query) use ($tahun) {
-                $query->where('tahun_anggaran', $tahun)
-                    ->with([
-                        'kegiatans' => function ($q) use ($tahun) {
-                            $q->where('tahun_anggaran', $tahun)
-                                ->with([
-                                    'subKegiatans' => function ($sq) use ($tahun) {
-                                        $sq->where('tahun_anggaran', $tahun)
-                                            ->with('notaDinas.terkait');
-                                    }
-                                ]);
-                        }
-                    ]);
-            }
-        ])
-            ->paginate(10)
-            ->through(function ($kab) {
-                $totalPagu = 0;
-                $totalSerapan = 0;
-
-                foreach ($kab->skpds as $skpd) {
-                    foreach ($skpd->programs as $program) {
-                        SerapanHelper::hitungProgram($program);
-                        $totalPagu += $program->pagu;
-                        $totalSerapan += $program->total_serapan;
-                    }
-                }
-
-                $kab->pagu_dinamis = $totalPagu;
-                $kab->total_serapan_dinamis = $totalSerapan;
-                $kab->presentase_serapan_dinamis = $totalPagu > 0
-                    ? round(($totalSerapan / $totalPagu) * 100, 2)
-                    : 0;
-
-                return $kab;
-            });
-
-        return Inertia::render('Kabupaten/Index', [
-            'kabupatens' => $kabupatens,
-        ]);
-    }
     // public function index()
     // {
-    //     $kabupatens = Kabupaten::paginate(10);
+    //     $tahun = date('Y');
+
+    //     $kabupatens = Kabupaten::with([
+    //         'skpds.programs' => function ($query) use ($tahun) {
+    //             $query->where('tahun_anggaran', $tahun)
+    //                 ->with([
+    //                     'kegiatans' => function ($q) use ($tahun) {
+    //                         $q->where('tahun_anggaran', $tahun)
+    //                             ->with([
+    //                                 'subKegiatans' => function ($sq) use ($tahun) {
+    //                                     $sq->where('tahun_anggaran', $tahun)
+    //                                         ->with('notaDinas.terkait');
+    //                                 }
+    //                             ]);
+    //                     }
+    //                 ]);
+    //         }
+    //     ])
+    //         ->paginate(10)
+    //         ->through(function ($kab) {
+    //             $totalPagu = 0;
+    //             $totalSerapan = 0;
+
+    //             foreach ($kab->skpds as $skpd) {
+    //                 foreach ($skpd->programs as $program) {
+    //                     SerapanHelper::hitungProgram($program);
+    //                     $totalPagu += $program->pagu;
+    //                     $totalSerapan += $program->total_serapan;
+    //                 }
+    //             }
+
+    //             $kab->pagu_dinamis = $totalPagu;
+    //             $kab->total_serapan_dinamis = $totalSerapan;
+    //             $kab->presentase_serapan_dinamis = $totalPagu > 0
+    //                 ? round(($totalSerapan / $totalPagu) * 100, 2)
+    //                 : 0;
+
+    //             return $kab;
+    //         });
 
     //     return Inertia::render('Kabupaten/Index', [
     //         'kabupatens' => $kabupatens,
     //     ]);
     // }
+    public function index()
+    {
+        $kabupatens = Kabupaten::paginate(10);
+
+        return Inertia::render('Kabupaten/Index', [
+            'kabupatens' => $kabupatens,
+        ]);
+    }
 
     public function store(Request $request)
     {

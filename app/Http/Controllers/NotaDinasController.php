@@ -65,7 +65,7 @@ class NotaDinasController extends Controller
                     $notaDina->lampirans()->createMany($attachments);
                 }
 
-                $this->updateBudgetAbsorption($notaDina);
+                //$this->updateBudgetAbsorption($notaDina);
 
                 return redirect()->back()->with('success', 'Nota dinas berhasil ditambahkan.');
             });
@@ -121,7 +121,7 @@ class NotaDinasController extends Controller
                     }
                 }
 
-                $this->updateBudgetAbsorption($notaDina);
+                //$this->updateBudgetAbsorption($notaDina);
 
                 return redirect()->back()->with('success', 'Nota dinas berhasil diperbarui.');
             });
@@ -144,7 +144,7 @@ class NotaDinasController extends Controller
 
                 $notaDina->delete();
 
-                $this->updateBudgetAbsorption($notaDina);
+                //$this->updateBudgetAbsorption($notaDina);
 
                 return redirect()->back()->with('success', 'Nota dinas berhasil dihapus.');
             });

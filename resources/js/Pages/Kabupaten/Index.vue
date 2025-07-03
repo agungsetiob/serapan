@@ -6,6 +6,7 @@ import Pagination from '@/Components/Pagination.vue';
 import KabupatenModal from "@/Pages/Kabupaten/Partials/KabupatenModal.vue";
 import Tooltip from '@/Components/Tooltip.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
+import { formatNumber } from '@/Utils/formatters';
 
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
@@ -28,13 +29,6 @@ function openModal(kabupaten = null) {
 function closeModal() {
     isModalOpen.value = false;
     selectedKabupaten.value = null;
-}
-
-function formatNumber(value) {
-    return new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(value);
 }
 </script>
 
@@ -74,8 +68,8 @@ function formatNumber(value) {
                                     <td class="px-4 py-2">{{ kabupaten.nama }}</td>
                                     <td class="px-4 py-2">{{ kabupaten.tahun_anggaran }}</td>
                                     <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.pagu) }}</td>
-                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.total_serapan_dinamis) }}</td>
-                                    <td class="px-4 py-2">{{ kabupaten.presentase_serapan_dinamis }}%</td>
+                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.total_serapan) }}</td>
+                                    <td class="px-4 py-2">{{ formatNumber(kabupaten.presentase_serapan) }}%</td>
                                     <td class="px-4 py-2">
                                         <Tooltip text="Edit Kabupaten" bgColor="bg-blue-500">
                                             <button
