@@ -15,13 +15,13 @@ class NotaDinasController extends Controller
     public function index(Request $request)
     {
         $query = Skpd::query();
-    
+
         if ($search = $request->search) {
             $query->where('nama_skpd', 'like', '%' . $search . '%');
         }
-    
+
         $skpds = $query->paginate(12);
-    
+
         return inertia('NotaDinas/Index', [
             'skpds' => $skpds,
         ]);
@@ -70,7 +70,7 @@ class NotaDinasController extends Controller
                 return redirect()->back()->with('success', 'Nota dinas berhasil ditambahkan.');
             });
         } catch (\Exception $e) {
-            Log::error('NotaDinas store error: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('NotaDinas store error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal menyimpan nota dinas: ' . $e->getMessage())
                 ->withInput();
@@ -88,7 +88,10 @@ class NotaDinasController extends Controller
         $totalSerapanLama = $subKegiatan->notaDinas()->sum('anggaran');
         $sisaPagu = ($subKegiatan->pagu - $totalSerapanLama) + $notaDina->anggaran;
 
-        $validated = $request->validate($this->getValidationRules($sisaPagu, true));
+        $validated = $request->validate(
+            $this->getValidationRules($sisaPagu, true, $notaDina->anggaran)
+        );
+
 
         try {
             return DB::transaction(function () use ($validated, $request, $notaDina) {
@@ -126,7 +129,7 @@ class NotaDinasController extends Controller
                 return redirect()->back()->with('success', 'Nota dinas berhasil diperbarui.');
             });
         } catch (\Exception $e) {
-            Log::error('NotaDinas update error: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('NotaDinas update error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal memperbarui nota dinas: ' . $e->getMessage())
                 ->withInput();
@@ -149,7 +152,7 @@ class NotaDinasController extends Controller
                 return redirect()->back()->with('success', 'Nota dinas berhasil dihapus.');
             });
         } catch (\Exception $e) {
-            Log::error('NotaDinas destroy error: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('NotaDinas destroy error: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()
                 ->with('error', 'Gagal menghapus nota dinas: ' . $e->getMessage());
         }
@@ -187,13 +190,13 @@ class NotaDinasController extends Controller
         if ($kabupaten) {
             // Hitung serapan skpd tahun anggaran berjalan
             $totalSerapan = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $kegiatan) {
-                    $query->whereHas('skpd', function ($q) use ($kabupaten) {
-                        $q->whereHas('kabupatens', function ($k) use ($kabupaten) {
-                            $k->where('kabupatens.id', $kabupaten->id);
-                        });
-                    })
-                    ->where('tahun_anggaran', $kegiatan->tahun_anggaran);
+                $query->whereHas('skpd', function ($q) use ($kabupaten) {
+                    $q->whereHas('kabupatens', function ($k) use ($kabupaten) {
+                        $k->where('kabupatens.id', $kabupaten->id);
+                    });
                 })
+                    ->where('tahun_anggaran', $kegiatan->tahun_anggaran);
+            })
                 ->sum('total_serapan');
 
             $kabupaten->update([
@@ -232,7 +235,7 @@ class NotaDinasController extends Controller
      * @param bool $isUpdate
      * @return array
      */
-    private function getValidationRules($sisaPagu, $isUpdate = false)
+    private function getValidationRules($sisaPagu, $isUpdate = false, $anggaranSebelumnya = null)
     {
         $rules = [
             'nomor_nota' => 'required|string|max:255',
@@ -241,9 +244,13 @@ class NotaDinasController extends Controller
                 'required',
                 'numeric',
                 'min:0',
-                function ($attribute, $value, $fail) use ($sisaPagu) {
+                function ($attribute, $value, $fail) use ($sisaPagu, $isUpdate, $anggaranSebelumnya) {
                     if ($value > $sisaPagu) {
                         $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
+                    }
+
+                    if ($isUpdate && $anggaranSebelumnya !== null && $value < $anggaranSebelumnya) {
+                        $fail('Anggaran baru tidak boleh $attribute lebih kecil dari anggaran yang sudah digunakan.');
                     }
                 },
             ],

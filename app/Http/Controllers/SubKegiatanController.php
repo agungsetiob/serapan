@@ -29,7 +29,7 @@ class SubKegiatanController extends Controller
 
         try {
             $kegiatan->subKegiatans()->create($validated);
-        
+
             $kegiatan->increment('pagu', $validated['pagu']);
             $kabupaten->increment('pagu', $validated['pagu']);
 
@@ -44,7 +44,20 @@ class SubKegiatanController extends Controller
     }
     public function update(Request $request, Kegiatan $kegiatan, $subKegiatanId)
     {
-        $subKegiatan = $kegiatan->subKegiatans()->with(['notaDinas', 'kegiatan.skpd.kabupatens'])->where('id', $subKegiatanId)->firstOrFail();
+        $subKegiatan = $kegiatan->subKegiatans()
+            ->with(['notaDinas', 'kegiatan.skpd.kabupatens'])
+            ->where('id', $subKegiatanId)
+            ->firstOrFail();
+
+        // Validasi: Pagu tidak boleh kurang dari total anggaran semua nota dinas milik SubKegiatan
+        $totalAnggaranNota = $subKegiatan->notaDinas->sum('anggaran');
+
+        if ($request->pagu < $totalAnggaranNota) {
+            return back()->withErrors([
+                'pagu' => 'Pagu tidak boleh lebih kecil dari total anggaran semua nota dinas aktif milik sub kegiatan ini. Total saat ini: Rp ' .
+                    number_format($totalAnggaranNota, 2, ',', '.')
+            ])->withInput();
+        }
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
@@ -57,52 +70,62 @@ class SubKegiatanController extends Controller
         try {
             $selisihPagu = $validated['pagu'] - $subKegiatan->pagu;
             $oldTotalSerapan = $subKegiatan->total_serapan;
-            $newTotalSerapan = $subKegiatan->notaDinas()->sum('anggaran');
 
-            // 1. Update SubKegiatan
+            // Recalculate total serapan subKegiatan berdasarkan nota dinas terkait
+            $newTotalSerapan = $subKegiatan->notaDinas->flatMap(function ($nota) {
+                return $nota->terkait;
+            })->sum('anggaran');
+
             $subKegiatan->update([
                 'nama' => $validated['nama'],
                 'pagu' => $validated['pagu'],
                 'kode_rekening' => $validated['kode_rekening'],
                 'tahun_anggaran' => $validated['tahun_anggaran'],
                 'total_serapan' => $newTotalSerapan,
-                'presentase_serapan' => $validated['pagu'] > 0 
-                    ? ($newTotalSerapan / $validated['pagu']) * 100 
+                'presentase_serapan' => $validated['pagu'] > 0
+                    ? ($newTotalSerapan / $validated['pagu']) * 100
                     : 0
             ]);
-            // 2. Update Kegiatan
+
+            // Hitung total serapan baru berdasarkan nota terkait
+            $newSerapanKegiatan = $kegiatan->subKegiatans->flatMap(function ($sub) {
+                return $sub->notaDinas->flatMap->terkait;
+            })->sum('anggaran');
+
             $kegiatan->increment('pagu', $selisihPagu);
             $kegiatan->decrement('total_serapan', $oldTotalSerapan);
-            $kegiatan->increment('total_serapan', $subKegiatan->notaDinas()->sum('anggaran'));
+            $kegiatan->increment('total_serapan', $newSerapanKegiatan);
             $kegiatan->update([
-                'presentase_serapan' => $kegiatan->pagu > 0 
-                    ? ($kegiatan->total_serapan / $kegiatan->pagu) * 100 
+                'presentase_serapan' => $kegiatan->pagu > 0
+                    ? ($kegiatan->total_serapan / $kegiatan->pagu) * 100
                     : 0,
             ]);
 
-            // 3. Update Kabupaten
+            // Update Kabupaten
             $kabupaten = $subKegiatan->kegiatan->skpd->kabupatens()
                 ->wherePivot('tahun_anggaran', $subKegiatan->tahun_anggaran)
                 ->first();
 
             if ($kabupaten) {
                 $kabupaten->increment('pagu', $selisihPagu);
-                
-                // Recalculate total serapan for kabupaten
-                $totalSerapanKabupaten = SubKegiatan::whereHas('kegiatan', function($query) use ($kabupaten, $subKegiatan) {
-                        $query->whereHas('skpd', function($q) use ($kabupaten) {
-                            $q->whereHas('kabupatens', function($k) use ($kabupaten) {
-                                $k->where('kabupatens.id', $kabupaten->id);
-                            });
-                        })
-                        ->where('tahun_anggaran', $subKegiatan->tahun_anggaran);
+
+                $totalSerapanKabupaten = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $subKegiatan) {
+                    $query->whereHas('skpd', function ($q) use ($kabupaten) {
+                        $q->whereHas('kabupatens', function ($k) use ($kabupaten) {
+                            $k->where('kabupatens.id', $kabupaten->id);
+                        });
+                    })->where('tahun_anggaran', $subKegiatan->tahun_anggaran);
+                })->with(['notaDinas.terkait'])
+                    ->get()
+                    ->flatMap(function ($sub) {
+                        return $sub->notaDinas->flatMap->terkait;
                     })
-                    ->sum('total_serapan');
+                    ->sum('anggaran');
 
                 $kabupaten->update([
                     'total_serapan' => $totalSerapanKabupaten,
-                    'presentase_serapan' => $kabupaten->pagu > 0 
-                        ? ($totalSerapanKabupaten / $kabupaten->pagu) * 100 
+                    'presentase_serapan' => $kabupaten->pagu > 0
+                        ? ($totalSerapanKabupaten / $kabupaten->pagu) * 100
                         : 0,
                 ]);
             }
@@ -114,6 +137,7 @@ class SubKegiatanController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())->withInput();
         }
     }
+
     public function destroy(Kegiatan $kegiatan, $subKegiatanId)
     {
         $subKegiatan = $kegiatan->subKegiatans()
@@ -147,28 +171,28 @@ class SubKegiatanController extends Controller
             $kegiatan->decrement('pagu', $subKegiatanPagu);
             $kegiatan->decrement('total_serapan', $subKegiatanSerapan);
             $kegiatan->update([
-                'presentase_serapan' => $kegiatan->pagu > 0 
-                    ? ($kegiatan->total_serapan / $kegiatan->pagu) * 100 
+                'presentase_serapan' => $kegiatan->pagu > 0
+                    ? ($kegiatan->total_serapan / $kegiatan->pagu) * 100
                     : 0,
             ]);
 
             $kabupaten->decrement('pagu', $subKegiatanPagu);
-            
+
             // Recalculate total serapan for kabupaten
-            $totalSerapanKabupaten = SubKegiatan::whereHas('kegiatan', function($query) use ($kabupaten, $subKegiatan) {
-                    $query->whereHas('skpd', function($q) use ($kabupaten) {
-                        $q->whereHas('kabupatens', function($k) use ($kabupaten) {
-                            $k->where('kabupatens.id', $kabupaten->id);
-                        });
-                    })
-                    ->where('tahun_anggaran', $subKegiatan->tahun_anggaran);
+            $totalSerapanKabupaten = SubKegiatan::whereHas('kegiatan', function ($query) use ($kabupaten, $subKegiatan) {
+                $query->whereHas('skpd', function ($q) use ($kabupaten) {
+                    $q->whereHas('kabupatens', function ($k) use ($kabupaten) {
+                        $k->where('kabupatens.id', $kabupaten->id);
+                    });
                 })
+                    ->where('tahun_anggaran', $subKegiatan->tahun_anggaran);
+            })
                 ->sum('total_serapan');
 
             $kabupaten->update([
                 'total_serapan' => $totalSerapanKabupaten,
-                'presentase_serapan' => $kabupaten->pagu > 0 
-                    ? ($totalSerapanKabupaten / $kabupaten->pagu) * 100 
+                'presentase_serapan' => $kabupaten->pagu > 0
+                    ? ($totalSerapanKabupaten / $kabupaten->pagu) * 100
                     : 0,
             ]);
 
@@ -178,6 +202,6 @@ class SubKegiatanController extends Controller
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
         }
-    }    
+    }
 
 }

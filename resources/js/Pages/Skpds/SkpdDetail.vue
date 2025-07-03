@@ -306,7 +306,7 @@ const handleSuccess = () => {
           <div>
             <p class="text-sm text-gray-500">Persentase Serapan SKPD</p>
             <p class="text-lg font-semibold text-blue-700">
-              {{ rekap.persentaseSerapan }}%
+              {{ formatNumber(rekap.persentaseSerapan) }}%
             </p>
           </div>
         </div>

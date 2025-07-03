@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Inertia\Inertia;
-use App\Helpers\SerapanHelper;
 
 class SkpdController extends Controller
 {
@@ -64,64 +63,6 @@ class SkpdController extends Controller
 
         return back()->with('success', 'SKPD berhasil diupdate.');
     }
-    // public function show(SKPD $skpd)
-    // {
-    //     $tahun = date('Y');
-
-    //     $skpd->load([
-    //         'programs' => function ($query) use ($tahun) {
-    //             $query->where('tahun_anggaran', $tahun)
-    //                 ->with([
-    //                     'kegiatans' => function ($q) use ($tahun) {
-    //                         $q->where('tahun_anggaran', $tahun)
-    //                             ->with([
-    //                                 'subKegiatans' => function ($sq) use ($tahun) {
-    //                                     $sq->where('tahun_anggaran', $tahun)
-    //                                         ->with([
-    //                                             'notaDinas.terkait',
-    //                                             'notaDinas.lampirans',
-    //                                         ]);
-
-    //                                 }
-    //                             ]);
-    //                     }
-    //                 ]);
-    //         }
-    //     ]);
-
-    //     $totalPaguSkpd = 0;
-    //     $totalSerapanSkpd = 0;
-
-    //     foreach ($skpd->programs as $program) {
-    //         SerapanHelper::hitungProgram($program);
-
-    //         $totalPaguSkpd += $program->pagu;
-    //         $totalSerapanSkpd += $program->total_serapan;
-    //     }
-
-
-    //     $persentaseSerapanSkpd = $totalPaguSkpd > 0
-    //         ? round(($totalSerapanSkpd / $totalPaguSkpd) * 100, 2)
-    //         : 0;
-    //     foreach ($skpd->programs as $program) {
-    //         foreach ($program->kegiatans as $kegiatan) {
-    //             foreach ($kegiatan->subKegiatans as $sub) {
-    //                 foreach ($sub->notaDinas as $nota) {
-    //                     $nota->dipakai_dari_induk = $nota->terkait->sum('pivot.anggaran');
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return Inertia::render('Skpds/SkpdDetail', [
-    //         'skpd' => $skpd,
-    //         'tahunSelected' => (int) $tahun,
-    //         'rekap' => [
-    //             'totalPagu' => $totalPaguSkpd,
-    //             'totalSerapan' => $totalSerapanSkpd,
-    //             'persentaseSerapan' => $persentaseSerapanSkpd,
-    //         ],
-    //     ]);
-    // }
 
     public function show(SKPD $skpd)
     {
@@ -200,11 +141,11 @@ class SkpdController extends Controller
 
         return back()->with('success', 'Status SKPD berhasil diubah.');
     }
+
     public function showByYear(SKPD $skpd, $tahun = null)
     {
         $tahun = $tahun ?: date('Y');
 
-        // Eager load dengan semua relasi yang dibutuhkan
         $skpd->load([
             'programs' => function ($query) use ($tahun) {
                 $query->where('tahun_anggaran', $tahun)
@@ -214,10 +155,7 @@ class SkpdController extends Controller
                                 ->with([
                                     'subKegiatans' => function ($sq) use ($tahun) {
                                         $sq->where('tahun_anggaran', $tahun)
-                                            ->with([
-                                                'notaDinas.terkait',
-                                                'notaDinas.lampirans',
-                                            ]);
+                                            ->with(['notaDinas.subKegiatan']);
                                     }
                                 ]);
                         }
@@ -229,10 +167,10 @@ class SkpdController extends Controller
         $totalSerapanSkpd = 0;
 
         foreach ($skpd->programs as $program) {
-            SerapanHelper::hitungProgram($program);
-
-            $totalPaguSkpd += $program->pagu;
-            $totalSerapanSkpd += $program->total_serapan;
+            foreach ($program->kegiatans as $kegiatan) {
+                $totalPaguSkpd += $kegiatan->pagu;
+                $totalSerapanSkpd += $kegiatan->total_serapan;
+            }
         }
 
         $persentaseSerapanSkpd = $totalPaguSkpd > 0
@@ -257,60 +195,6 @@ class SkpdController extends Controller
             ],
         ]);
     }
-
-    // public function showByYear(SKPD $skpd, $tahun = null)
-    // {
-    //     $tahun = $tahun ?: date('Y');
-
-    //     $skpd->load([
-    //         'programs' => function ($query) use ($tahun) {
-    //             $query->where('tahun_anggaran', $tahun)
-    //                 ->with([
-    //                     'kegiatans' => function ($q) use ($tahun) {
-    //                         $q->where('tahun_anggaran', $tahun)
-    //                             ->with([
-    //                                 'subKegiatans' => function ($sq) use ($tahun) {
-    //                                     $sq->where('tahun_anggaran', $tahun)
-    //                                         ->with(['notaDinas.subKegiatan']);
-    //                                 }
-    //                             ]);
-    //                     }
-    //                 ]);
-    //         }
-    //     ]);
-
-    //     $totalPaguSkpd = 0;
-    //     $totalSerapanSkpd = 0;
-
-    //     foreach ($skpd->programs as $program) {
-    //         foreach ($program->kegiatans as $kegiatan) {
-    //             $totalPaguSkpd += $kegiatan->pagu;
-    //             $totalSerapanSkpd += $kegiatan->total_serapan;
-    //         }
-    //     }
-
-    //     $persentaseSerapanSkpd = $totalPaguSkpd > 0
-    //         ? round(($totalSerapanSkpd / $totalPaguSkpd) * 100, 2)
-    //         : 0;
-
-    //     // Ambil tahun kegiatan yang tersedia
-    //     $tahunTersedia = Kegiatan::where('skpd_id', $skpd->id)
-    //         ->distinct()
-    //         ->pluck('tahun_anggaran')
-    //         ->sortDesc()
-    //         ->values();
-
-    //     return Inertia::render('Skpds/ShowByYear', [
-    //         'skpd' => $skpd,
-    //         'tahunSelected' => (int) $tahun,
-    //         'tahunTersedia' => $tahunTersedia,
-    //         'rekap' => [
-    //             'totalPagu' => $totalPaguSkpd,
-    //             'totalSerapan' => $totalSerapanSkpd,
-    //             'persentaseSerapan' => $persentaseSerapanSkpd,
-    //         ],
-    //     ]);
-    // }
     public function showRekap(Skpd $skpd, Request $request)
     {
         $tahun = $request->query('tahun', date('Y'));
