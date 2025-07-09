@@ -71,7 +71,7 @@ if (props.initialSearch) {
                         Belum ada SKPD
                     </div>
 
-                    <div class="mt-10">
+                    <div class="mt-4">
                         <Pagination
                             v-if="skpds.last_page > 1"
                             :links="skpds.links"

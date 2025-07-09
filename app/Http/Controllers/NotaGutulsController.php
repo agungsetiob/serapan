@@ -116,10 +116,8 @@ class NotaGutulsController extends Controller
 
     public function updateGuTuLs(Request $request, NotaDinas $notaDina)
     {
-        // 1) validate (ignore this nota's own nomor_nota)
         $this->validateGuTuLs($request, $notaDina->id);
 
-        // 2) fetch & lock parents
         $parents = NotaDinas::whereIn('id', $request->parent_ids)
             ->lockForUpdate()
             ->with('terkait')
@@ -131,7 +129,6 @@ class NotaGutulsController extends Controller
                 ->withInput();
         }
 
-        // 3) check sisa (exclude this nota’s current pivot)
         $totalSisa = $this->calcTotalSisa($parents, $notaDina->id);
         if ($request->anggaran > $totalSisa) {
             return back()
@@ -142,7 +139,6 @@ class NotaGutulsController extends Controller
                 ->withInput();
         }
 
-        // 4) wrap update + sync in a transaction
         return DB::transaction(function () use ($request, $parents, $notaDina) {
             $notaDina->update($request->only([
                 'nomor_nota',
@@ -161,8 +157,6 @@ class NotaGutulsController extends Controller
             // Update budget absorption
             $this->updateBudgetAbsorption($notaDina);
             
-
-            // redirect
             $skpdId = $this->resolveSkpd($parents);
             return redirect()
                 ->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])

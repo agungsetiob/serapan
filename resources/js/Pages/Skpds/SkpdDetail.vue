@@ -76,7 +76,7 @@ watch(
       });
     }
     if (newPrograms && newPrograms.length > 0 && !formKegiatan.program_id) {
-        formKegiatan.program_id = newPrograms[0].id;
+      formKegiatan.program_id = newPrograms[0].id;
     }
   },
   { immediate: true, deep: true }
@@ -251,32 +251,29 @@ const handleSuccess = () => {
 </script>
 
 <template>
+
   <Head title="Capaian SKPD" />
   <AuthenticatedLayout>
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <ErrorFlash :flash="flash" @clearFlash="clearFlash" />
-    <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
-      <div class="max-w-8xl mx-auto lg:px-6 pb-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold">
-            {{ skpd.nama_skpd }}
-          </h2>
-          <Link
-            :href="route('skpds.tahun', { skpd: skpd.id, tahun: new Date().getFullYear() })"
-            class="bg-blue-200 text-blue-800 hover:text-white text-sm font-medium px-3 py-1 rounded-full hover:bg-blue-500 transition-colors"
-          >
-            Histori
+    <div class="pt-6 sm:pt-24 mx-2 sm:px-2 space-y-4">
+      <div class="max-w-8xl mx-auto lg:px-6">
+        <div
+          class="bg-gradient-to-br from-indigo-600 to-blue-500 text-white rounded-lg p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div>
+            <h2 class="text-2xl font-bold">{{ skpd.nama_skpd }}</h2>
+          </div>
+          <Link :href="route('skpds.tahun', { skpd: skpd.id, tahun: new Date().getFullYear() })"
+            class="bg-blue-200 text-blue-800 hover:text-white text-sm font-medium px-3 py-1 rounded-full hover:bg-blue-800 transition-colors">
+          Histori
           </Link>
         </div>
       </div>
-      
+
       <!-- Rekap Anggaran SKPD Keseluruhan -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 lg:px-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:px-6">
         <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-green-600">
-          <font-awesome-icon 
-            :icon="['fas', 'money-bill-wave']" 
-            class="text-green-600 text-2xl mr-3"
-          />
+          <font-awesome-icon :icon="['fas', 'money-bill-wave']" class="text-green-600 text-2xl mr-3" />
           <div>
             <p class="text-sm text-gray-500">Total Pagu SKPD</p>
             <p class="text-lg font-semibold text-red-600">
@@ -286,10 +283,7 @@ const handleSuccess = () => {
         </div>
 
         <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-blue-700">
-          <font-awesome-icon 
-            :icon="['fas', 'money-bill-trend-up']" 
-            class="text-blue-700 text-2xl mr-3"
-          />
+          <font-awesome-icon :icon="['fas', 'money-bill-trend-up']" class="text-blue-700 text-2xl mr-3" />
           <div>
             <p class="text-sm text-gray-500">Total Serapan SKPD</p>
             <p class="text-lg font-semibold text-green-700">
@@ -299,10 +293,7 @@ const handleSuccess = () => {
         </div>
 
         <div class="bg-white shadow rounded-lg p-4 flex items-center border-l-4 border-l-red-700">
-          <font-awesome-icon 
-            :icon="['fas', 'percent']" 
-            class="text-red-700 text-2xl mr-3"
-          />
+          <font-awesome-icon :icon="['fas', 'percent']" class="text-red-700 text-2xl mr-3" />
           <div>
             <p class="text-sm text-gray-500">Persentase Serapan SKPD</p>
             <p class="text-lg font-semibold text-blue-700">
@@ -314,54 +305,47 @@ const handleSuccess = () => {
 
       <!-- Add Kegiatan Card -->
       <div class="max-w-8xl mx-auto lg:px-6">
-        <div class="bg-white rounded-lg shadow-md p-4 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-4">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">
               Tambah Kegiatan Baru
             </h3>
-            <button
-              @click="handleCreateProgram"
-              class="inline-flex items-center px-2 py-1.5 bg-green-500 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
-            >
+            <button @click="handleCreateProgram"
+              class="inline-flex items-center px-2 py-1.5 bg-green-500 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors">
               <font-awesome-icon :icon="['fas', 'plus']" class="mr-2" />
               Tambah Program
             </button>
           </div>
           <form @submit.prevent="submitKegiatan" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <InputLabel for="program_id" value="Pilih Program" />
-                    <select
-                        id="program_id"
-                        v-model="formKegiatan.program_id"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                        required
-                    >
-                        <option :value="null" disabled>-- Pilih Program --</option>
-                        <option v-for="program in skpd.programs" :key="program.id" :value="program.id">
-                            {{ program.nama }}
-                        </option>
-                    </select>
-                    <InputError :message="formKegiatan.errors.program_id" />
-                </div>
+              <div>
+                <InputLabel for="program_id" value="Pilih Program" />
+                <select id="program_id" v-model="formKegiatan.program_id"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  required>
+                  <option :value="null" disabled>-- Pilih Program --</option>
+                  <option v-for="program in skpd.programs" :key="program.id" :value="program.id">
+                    {{ program.nama }}
+                  </option>
+                </select>
+                <InputError :message="formKegiatan.errors.program_id" />
+              </div>
               <div class="md:col-span-1">
                 <InputLabel for="nama-kegiatan" value="Nama Kegiatan" />
-                <TextInput id="nama-kegiatan" v-model="formKegiatan.nama" class="w-full" placeholder="Masukkan nama kegiatan"/>
+                <TextInput id="nama-kegiatan" v-model="formKegiatan.nama" class="w-full"
+                  placeholder="Masukkan nama kegiatan" />
                 <InputError :message="formKegiatan.errors.nama" />
               </div>
 
               <div>
                 <InputLabel for="tahun-anggaran-kegiatan" value="Tahun Anggaran" />
-                <TextInput id="tahun-anggaran-kegiatan" v-model="formKegiatan.tahun_anggaran" class="w-full" readonly/>
+                <TextInput id="tahun-anggaran-kegiatan" v-model="formKegiatan.tahun_anggaran" class="w-full" readonly />
               </div>
             </div>
 
             <div class="flex justify-end">
-              <button
-                type="submit"
-                :disabled="formKegiatan.processing || !formKegiatan.program_id"
-                class="inline-flex items-center px-3 py-1.5 bg-indigo-500 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button type="submit" :disabled="formKegiatan.processing || !formKegiatan.program_id"
+                class="inline-flex items-center px-3 py-1.5 bg-indigo-500 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Simpan
               </button>
             </div>
@@ -372,90 +356,68 @@ const handleSuccess = () => {
       <!-- Programs List -->
       <div class="space-y-8 lg:px-6 pb-1">
         <div v-if="skpd.programs && skpd.programs.length > 0">
-          <div
-            v-for="program in skpd.programs"
-            :key="program.id"
-            class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 mb-4"
-          >
+          <div v-for="program in skpd.programs" :key="program.id"
+            class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-indigo-700 flex items-center">
-                    <font-awesome-icon :icon="['fas', 'folder-open']" class="mr-2" />
-                     {{ program.nama }}
-                </h3>
-                <div class="flex space-x-2">
-                    <button
-                        @click="editProgram(program)"
-                        class="inline-flex items-center px-3 py-1 bg-yellow-500 border border-transparent rounded-md font-semibold text-white text-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors"
-                    >
-                        <font-awesome-icon :icon="['fas', 'edit']" class="mr-1" /> Edit
-                    </button>
-                    <button
-                        @click="deleteProgram(program)"
-                        class="inline-flex items-center px-3 py-1 bg-red-500 border border-transparent rounded-md font-semibold text-white text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                    >
-                        <font-awesome-icon :icon="['fas', 'trash']" class="mr-1" /> Hapus
-                    </button>
-                </div>
+              <h3 class="text-xl font-bold text-indigo-700 flex items-center">
+                <font-awesome-icon :icon="['fas', 'folder-open']" class="mr-2" />
+                {{ program.nama }}
+              </h3>
+              <div class="flex space-x-2">
+                <button @click="editProgram(program)"
+                  class="inline-flex items-center px-3 py-1 bg-yellow-500 border border-transparent rounded-md font-semibold text-white text-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors">
+                  <font-awesome-icon :icon="['fas', 'edit']" class="mr-1" /> Edit
+                </button>
+                <button @click="deleteProgram(program)"
+                  class="inline-flex items-center px-3 py-1 bg-red-500 border border-transparent rounded-md font-semibold text-white text-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors">
+                  <font-awesome-icon :icon="['fas', 'trash']" class="mr-1" /> Hapus
+                </button>
+              </div>
             </div>
-            
+
             <!-- Rekapitulasi per Program -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-green-500">
-                    <font-awesome-icon :icon="['fas', 'coins']" class="text-green-500 text-xl mr-2" />
-                    <div>
-                        <p class="text-xs text-gray-500">Pagu Program</p>
-                        <p class="text-md font-semibold text-red-500">
-                            Rp. {{ formatNumber(program.pagu) }}
-                        </p>
-                    </div>
+              <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-green-500">
+                <font-awesome-icon :icon="['fas', 'coins']" class="text-green-500 text-xl mr-2" />
+                <div>
+                  <p class="text-xs text-gray-500">Pagu Program</p>
+                  <p class="text-md font-semibold text-red-500">
+                    Rp. {{ formatNumber(program.pagu) }}
+                  </p>
                 </div>
-                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-blue-600">
-                    <font-awesome-icon :icon="['fas', 'sack-dollar']" class="text-blue-600 text-xl mr-2" />
-                    <div>
-                        <p class="text-xs text-gray-500">Serapan Program</p>
-                        <p class="text-md font-semibold text-green-600">
-                            Rp. {{ formatNumber(program.total_serapan) }}
-                        </p>
-                    </div>
+              </div>
+              <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-blue-600">
+                <font-awesome-icon :icon="['fas', 'sack-dollar']" class="text-blue-600 text-xl mr-2" />
+                <div>
+                  <p class="text-xs text-gray-500">Serapan Program</p>
+                  <p class="text-md font-semibold text-green-600">
+                    Rp. {{ formatNumber(program.total_serapan) }}
+                  </p>
                 </div>
-                <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-red-600">
-                    <font-awesome-icon :icon="['fas', 'chart-pie']" class="text-red-600 text-xl mr-2" />
-                    <div>
-                        <p class="text-xs text-gray-500">Persentase Serapan Program</p>
-                        <p class="text-md font-semibold text-blue-600">
-                            {{ formatNumber(program.presentase_serapan) }}%
-                        </p>
-                    </div>
+              </div>
+              <div class="bg-white shadow rounded-lg p-3 flex items-center border-l-4 border-l-red-600">
+                <font-awesome-icon :icon="['fas', 'chart-pie']" class="text-red-600 text-xl mr-2" />
+                <div>
+                  <p class="text-xs text-gray-500">Persentase Serapan Program</p>
+                  <p class="text-md font-semibold text-blue-600">
+                    {{ formatNumber(program.presentase_serapan) }}%
+                  </p>
                 </div>
+              </div>
             </div>
 
             <!-- Kegiatan List dalam Program -->
             <div class="space-y-6">
               <div v-if="program.kegiatans && program.kegiatans.length > 0">
-                <div
-                  v-for="kegiatan in program.kegiatans"
-                  :key="kegiatan.id"
-                  class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 mb-4"
-                >
-                  <KegiatanCard 
-                    :kegiatan="kegiatan" 
-                    @edit="editKegiatan"
-                    @delete="deleteKegiatan"
-                  />
-                  
+                <div v-for="kegiatan in program.kegiatans" :key="kegiatan.id"
+                  class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 mb-4">
+                  <KegiatanCard :kegiatan="kegiatan" @edit="editKegiatan" @delete="deleteKegiatan" />
+
                   <!-- Sub Kegiatan List -->
-                  <SubKegiatanList
-                    :kegiatan="kegiatan"
-                    :formSubKegiatan="formSubKegiatan[kegiatan.id]"
-                    :formatNumber="formatNumber"
-                    :onSubmit="submitSubKegiatan"
-                    :onEdit="editSubKegiatan"
-                    :onDelete="deleteSubKegiatan"
-                    @create-nota-dinas="handleCreateNota"
-                    @edit-nota="handleEditNota"
-                    @delete-nota="handleDeleteNota"
-                    @view-attachment="handleViewAttachment"
-                  />
+                  <SubKegiatanList :kegiatan="kegiatan" :formSubKegiatan="formSubKegiatan[kegiatan.id]"
+                    :formatNumber="formatNumber" :onSubmit="submitSubKegiatan" :onEdit="editSubKegiatan"
+                    :onDelete="deleteSubKegiatan" @create-nota-dinas="handleCreateNota" @edit-nota="handleEditNota"
+                    @delete-nota="handleDeleteNota" @view-attachment="handleViewAttachment" />
                 </div>
               </div>
               <div v-else class="text-gray-500 text-center py-4">
@@ -469,57 +431,26 @@ const handleSuccess = () => {
         </div>
       </div>
     </div>
-    
-    <!-- Modals -->
-    <ProgramModal
-        :show="programModalState.show"
-        :isEditing="programModalState.isEditing"
-        :program="programModalState.program"
-        :skpdId="skpd.id"
-        @close="() => handleCloseModal('program')"
-        @success="handleSuccess"
-    />
-    <DeleteProgramModal
-        :show="deleteProgramModalState.show"
-        :program="deleteProgramModalState.program"
-        @close="() => handleCloseModal('deleteProgram')"
-        @success="handleSuccess"
-    />
 
-    <KegiatanModal
-      :show="modalKegiatan.show"
-      :isEditing="modalKegiatan.isEditing"
-      :kegiatan="modalKegiatan.kegiatan"
-      @close="modalKegiatan.show = false"
-      @success="handleSuccess"
-    />
-    
-    <SubKegiatanModal
-      :show="modalState.show"
-      :subKegiatan="modalState.subKegiatan"
-      :isEditing="modalState.isEditing"
-      :kegiatan="modalState.kegiatan"
-      @close="modalState.show = false"
-      @success="handleSuccess"
-    />
-    
-    <NotaModal
-      :show="notaModalState.show"
-      :isEdit="notaModalState.isEditing"
-      :notaData="notaModalState.notaDinas"
+    <!-- Modals -->
+    <ProgramModal :show="programModalState.show" :isEditing="programModalState.isEditing"
+      :program="programModalState.program" :skpdId="skpd.id" @close="() => handleCloseModal('program')"
+      @success="handleSuccess" />
+    <DeleteProgramModal :show="deleteProgramModalState.show" :program="deleteProgramModalState.program"
+      @close="() => handleCloseModal('deleteProgram')" @success="handleSuccess" />
+
+    <KegiatanModal :show="modalKegiatan.show" :isEditing="modalKegiatan.isEditing" :kegiatan="modalKegiatan.kegiatan"
+      @close="modalKegiatan.show = false" @success="handleSuccess" />
+
+    <SubKegiatanModal :show="modalState.show" :subKegiatan="modalState.subKegiatan" :isEditing="modalState.isEditing"
+      :kegiatan="modalState.kegiatan" @close="modalState.show = false" @success="handleSuccess" />
+
+    <NotaModal :show="notaModalState.show" :isEdit="notaModalState.isEditing" :notaData="notaModalState.notaDinas"
       :subKegiatan="notaModalState.subKegiatan || notaModalState.notaDinas?.sub_kegiatan"
-      @close="() => handleCloseModal('nota')"
-      @success="handleSuccess"
-    />
-    <LampiranModal
-      :show="attachmentModalState.show"
-      :notaId="attachmentModalState.notaId"
-      @close="() =>handleCloseModal('attachment')"
-    />
-    <DeleteNotaModal 
-      :show="deleteModalState.show" 
-      :notaDinas="deleteModalState.notaDinas"
-      @close="() =>handleCloseModal('delete')"
-    />
+      @close="() => handleCloseModal('nota')" @success="handleSuccess" />
+    <LampiranModal :show="attachmentModalState.show" :notaId="attachmentModalState.notaId"
+      @close="() => handleCloseModal('attachment')" />
+    <DeleteNotaModal :show="deleteModalState.show" :notaDinas="deleteModalState.notaDinas"
+      @close="() => handleCloseModal('delete')" />
   </AuthenticatedLayout>
 </template>

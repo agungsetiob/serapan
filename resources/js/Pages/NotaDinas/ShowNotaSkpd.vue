@@ -1,52 +1,49 @@
 <template>
+
   <Head :title="`${skpd.nama_skpd}`" />
 
   <AuthenticatedLayout>
     <SuccessFlash :flash="flash" @clearFlash="clearFlash" />
     <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
-      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6">        
+      <div class="max-w-8xl mx-auto sm:px-6 lg:px-6 space-y-4">
+        <div
+          class="bg-gradient-to-br from-indigo-600 to-blue-500 text-white rounded-lg p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div>
+            <h2 class="text-3xl font-bold">{{ skpd.nama_skpd }}</h2>
+            <p class="text-sm mt-1 opacity-80">Tahun: {{ tahun }}</p>
+          </div>
+        </div>
         <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-200 p-6">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">{{ skpd.nama_skpd }}</h2>
-            </div>
-            <div class="py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <SearchInput v-model:search="search" class="flex-grow" />
-                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <div class="w-full sm:w-40">
-                        <select
-                        v-model="tahun"
-                        @change="handleTahunChange(tahun)"
-                        class="w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                        >
-                        <option
-                            v-for="tahunOption in tahunOptions"
-                            :key="tahunOption"
-                            :value="tahunOption"
-                        >
-                            {{ tahunOption }}
-                        </option>
-                        </select>
-                    </div>
+          <div
+            class="py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <SearchInput v-model:search="search" class="flex-grow" />
+            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div class="w-full sm:w-40">
+                <select v-model="tahun" @change="handleTahunChange(tahun)"
+                  class="w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                  <option v-for="tahunOption in tahunOptions" :key="tahunOption" :value="tahunOption">
+                    {{ tahunOption }}
+                  </option>
+                </select>
+              </div>
 
-                    <button
-                        @click="handleCreateNota()"
-                        class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
-                    >
-                        + Buat Nota
-                    </button>
-                </div>
+              <button @click="handleCreateNota()"
+                class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                + Buat Nota
+              </button>
             </div>
+          </div>
 
           <div class="overflow-x-auto">
             <table class="table-auto w-full">
               <thead class="bg-gray-200">
                 <tr class="text-left">
-                    <th class="px-4 py-2">No. Nota</th>
-                    <th class="px-4 py-2">Perihal</th>
-                    <!-- <th class="px-4 py-2">Anggaran</th> -->
-                    <th class="px-4 py-2">Tanggal</th>
-                    <th class="px-4 py-2">Jenis</th>
-                    <th></th>
+                  <th class="px-4 py-2">No. Nota</th>
+                  <th class="px-4 py-2">Perihal</th>
+                  <!-- <th class="px-4 py-2">Anggaran</th> -->
+                  <th class="px-4 py-2">Tanggal</th>
+                  <th class="px-4 py-2">Jenis</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -79,50 +76,37 @@
                         </button>
                       </Tooltip> -->
                       <Tooltip text="Edit" bgColor="bg-blue-500">
-                        <button
-                          @click="handleEditNota(nota)"
-                          class="text-blue-600 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                        >
+                        <button @click="handleEditNota(nota)"
+                          class="text-blue-600 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
                           <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                         </button>
                       </Tooltip>
                       <Tooltip text="Lampiran" bgColor="bg-purple-500">
-                        <button
-                          @click="handleViewAttachment(nota)"
-                          class="text-purple-600 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
-                        >
+                        <button @click="handleViewAttachment(nota)"
+                          class="text-purple-600 px-2 py-1 rounded hover:bg-purple-200 transition-colors">
                           <font-awesome-icon :icon="['fas', 'paperclip']" />
                         </button>
                       </Tooltip>
                       <Tooltip text="Hapus" bgColor="bg-red-500">
-                        <button
-                          @click="handleDeleteNota(nota)"
-                          class="text-red-600 px-2 py-1 rounded hover:bg-red-200 transition-colors"
-                        >
+                        <button @click="handleDeleteNota(nota)"
+                          class="text-red-600 px-2 py-1 rounded hover:bg-red-200 transition-colors">
                           <font-awesome-icon :icon="['fas', 'trash']" />
                         </button>
                       </Tooltip>
-                      <Tooltip :text="expandedNotas.includes(nota.id) ? 'Tutup nota terkait' : 'Buka nota terkait'" bgColor="bg-gray-500">
-                        <button
-                          v-if="nota.terkait && nota.terkait.length > 0"
-                          @click="toggleExpand(nota.id)"
-                          class="p-1 rounded hover:bg-gray-300 transition-colors"
-                        >
-                          <font-awesome-icon 
-                            :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" 
-                          />
+                      <Tooltip :text="expandedNotas.includes(nota.id) ? 'Tutup nota terkait' : 'Buka nota terkait'"
+                        bgColor="bg-gray-500">
+                        <button v-if="nota.terkait && nota.terkait.length > 0" @click="toggleExpand(nota.id)"
+                          class="p-1 rounded hover:bg-gray-300 transition-colors">
+                          <font-awesome-icon
+                            :icon="expandedNotas.includes(nota.id) ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" />
                         </button>
                       </Tooltip>
                     </td>
                   </tr>
 
-                  <ChildNotaRow
-                    v-if="expandedNotas.includes(nota.id) && nota.terkait && nota.terkait.length > 0"
-                    :children="nota.terkait"
-                    @edit="handleEditNota"
-                    @view-attachment="handleViewAttachment"
-                    @delete="handleDeleteNota"
-                  />
+                  <ChildNotaRow v-if="expandedNotas.includes(nota.id) && nota.terkait && nota.terkait.length > 0"
+                    :children="nota.terkait" @edit="handleEditNota" @view-attachment="handleViewAttachment"
+                    @delete="handleDeleteNota" />
                 </template>
 
                 <tr v-if="filteredNotaDinas.length === 0">
@@ -136,39 +120,23 @@
             </table>
           </div>
           <div class="mt-4">
-            <Pagination v-if="notaDinas.last_page > 1"
-              :links="notaDinas.links"
-              :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" 
-            />
+            <Pagination v-if="notaDinas.last_page > 1" :links="notaDinas.links"
+              :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" />
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modals -->
-    <NotaModal
-      :show="notaModalState.show"
-      :isEdit="notaModalState.isEditing"
-      :notaData="notaModalState.notaDinas"
-      :skpd="notaModalState.skpd"
-      :isChild="notaModalState.isChild"
-      :parentNota="notaModalState.parentNota" 
-      @close="() => handleCloseModal('nota')"
-      @success="handleSuccess"
-    />
+    <NotaModal :show="notaModalState.show" :isEdit="notaModalState.isEditing" :notaData="notaModalState.notaDinas"
+      :skpd="notaModalState.skpd" :isChild="notaModalState.isChild" :parentNota="notaModalState.parentNota"
+      @close="() => handleCloseModal('nota')" @success="handleSuccess" />
 
-    <LampiranModal
-      :show="attachmentModalState.show"
-      :notaId="attachmentModalState.notaId"
-      @close="() => handleCloseModal('attachment')"
-    />
+    <LampiranModal :show="attachmentModalState.show" :notaId="attachmentModalState.notaId"
+      @close="() => handleCloseModal('attachment')" />
 
-    <DeleteNotaModal
-      :show="deleteModalState.show"
-      :notaDinas="deleteModalState.notaDinas"
-      @close="() => handleCloseModal('delete')"
-      @success="handleSuccess"
-    />
+    <DeleteNotaModal :show="deleteModalState.show" :notaDinas="deleteModalState.notaDinas"
+      @close="() => handleCloseModal('delete')" @success="handleSuccess" />
   </AuthenticatedLayout>
 </template>
 
@@ -198,7 +166,7 @@ watch(search, (val) => {
   router.get(route('nota-skpd.show', { nota_skpd: props.skpd.id }), { search: val }, { preserveState: true, replace: true });
 });
 
-const flash = computed(() => usePage().props.flash || {}); 
+const flash = computed(() => usePage().props.flash || {});
 const clearFlash = () => {
   flash.value.success = null;
 };
@@ -231,7 +199,7 @@ const filteredNotaDinas = computed(() => {
 
 const badgeClasses = (jenis) => {
   const base = 'px-2 py-1 rounded-full text-xs font-medium';
-  switch(jenis) {
+  switch (jenis) {
     case 'Perda': return `${base} bg-blue-100 text-blue-800`;
     case 'Perbup': return `${base} bg-green-100 text-green-800`;
     case 'SK': return `${base} bg-purple-100 text-purple-800`;

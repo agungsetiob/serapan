@@ -76,7 +76,7 @@ if (props.initialSearch) {
                         </p>
                     </div>
 
-                    <div class="mt-10">
+                    <div class="mt-4">
                         <Pagination v-if="skpds.last_page > 1" :links="skpds.links"
                             :meta="{ from: skpds.from, to: skpds.to, total: skpds.total }" />
                     </div>

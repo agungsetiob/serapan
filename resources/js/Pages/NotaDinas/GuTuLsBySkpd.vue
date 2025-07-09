@@ -85,13 +85,13 @@ const badgeClasses = (jenis) => {
 
                 <!-- HEADER CARD -->
                 <div
-                    class="bg-gradient-to-br from-indigo-600 to-blue-500 text-white rounded-xl p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    class="bg-gradient-to-br from-indigo-600 to-blue-500 text-white rounded-lg p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center">
                     <div>
                         <h2 class="text-3xl font-bold">{{ skpd.nama_skpd }}</h2>
                         <p class="text-sm mt-1 opacity-80">Tahun: {{ tahun }}</p>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow p-6 mt-4 space-y-6">
+                <div class="bg-white rounded-lg shadow p-6 mt-4 space-y-4">
                     <!-- SEARCH -->
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                         <SearchInput v-model:search="search" class="w-full sm:flex-1" />
@@ -108,7 +108,7 @@ const badgeClasses = (jenis) => {
 
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="nota in notaDinas.data" :key="nota.id"
-                            class="rounded-xl shadow-lg border hover:border-cyan-500 p-4 flex flex-col justify-between hover:shadow-md transition">
+                            class="rounded-lg shadow-lg border hover:border-cyan-500 p-4 flex flex-col justify-between hover:shadow-md transition">
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <h4 class="text-lg font-semibold text-indigo-700">
