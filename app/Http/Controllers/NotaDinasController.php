@@ -50,6 +50,8 @@ class NotaDinasController extends Controller
                     'jenis' => $validated['jenis'],
                     'sub_kegiatan_id' => $validated['sub_kegiatan_id'],
                     'skpd_id' => $subKegiatan->kegiatan->skpd_id,
+                    'user_id' => auth()->id(),
+                    'is_belanja_modal' => $request->boolean('is_belanja_modal'),
                 ]);
 
                 if ($request->hasFile('lampirans')) {
@@ -87,9 +89,10 @@ class NotaDinasController extends Controller
 
         $totalSerapanLama = $subKegiatan->notaDinas()->sum('anggaran');
         $sisaPagu = ($subKegiatan->pagu - $totalSerapanLama) + $notaDina->anggaran;
+        $terpakai = $notaDina->terkait->sum('anggaran');
 
         $validated = $request->validate(
-            $this->getValidationRules($sisaPagu, true, $notaDina->anggaran)
+            $this->getValidationRules($sisaPagu, true, $terpakai)
         );
 
 
@@ -102,6 +105,8 @@ class NotaDinasController extends Controller
                     'tanggal_pengajuan' => $validated['tanggal_pengajuan'],
                     'jenis' => $validated['jenis'],
                     'skpd_id' => $notaDina->subKegiatan->kegiatan->skpd_id,
+                    'user_id' => auth()->id(),
+                    'is_belanja_modal' => $request->boolean('is_belanja_modal'),
                 ]);
 
                 if ($request->hasFile('lampirans')) {
@@ -235,7 +240,7 @@ class NotaDinasController extends Controller
      * @param bool $isUpdate
      * @return array
      */
-    private function getValidationRules($sisaPagu, $isUpdate = false, $anggaranSebelumnya = null)
+    private function getValidationRules($sisaPagu, $isUpdate = false, $anggaranTerpakai = null)
     {
         $rules = [
             'nomor_nota' => 'required|string|max:255',
@@ -244,13 +249,13 @@ class NotaDinasController extends Controller
                 'required',
                 'numeric',
                 'min:0',
-                function ($attribute, $value, $fail) use ($sisaPagu, $isUpdate, $anggaranSebelumnya) {
+                function ($attribute, $value, $fail) use ($sisaPagu, $isUpdate, $anggaranTerpakai) {
                     if ($value > $sisaPagu) {
                         $fail('Anggaran melebihi sisa pagu sub kegiatan. Sisa pagu: Rp ' . number_format($sisaPagu, 2, ',', '.'));
                     }
 
-                    if ($isUpdate && $anggaranSebelumnya !== null && $value < $anggaranSebelumnya) {
-                        $fail('Anggaran baru tidak boleh $attribute lebih kecil dari anggaran yang sudah digunakan.');
+                    if ($isUpdate && $anggaranTerpakai !== null && $value < $anggaranTerpakai) {
+                        $fail('Anggaran baru tidak boleh lebih kecil dari anggaran yang sudah digunakan.');
                     }
                 },
             ],

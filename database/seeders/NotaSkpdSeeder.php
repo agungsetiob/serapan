@@ -13,6 +13,7 @@ class NotaSkpdSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
         $skpds = DB::table('skpds')->get();
+        $userIds = DB::table('users')->pluck('id')->toArray();
 
         $bulanRomawi = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
@@ -45,6 +46,7 @@ class NotaSkpdSeeder extends Seeder
                         'Perda', 'Perbup', 'SK', 'Rekomendasi', 'Surat',
                         'Telaah', 'Edaran', 'Instruksi', 'Pelaksanaan', 'GU', 'TU', 'LS'
                     ]),
+                    'user_id' => $faker->randomElement($userIds),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

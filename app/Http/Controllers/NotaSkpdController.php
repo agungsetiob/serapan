@@ -34,7 +34,7 @@ class NotaSkpdController extends Controller
 
         $query = NotaDinas::where('skpd_id', $nota_skpd->id)
             ->with(['skpd', 'lampirans', 'dikaitkanOleh', 'terkait.dikaitkanOleh', 'terkait'])
-            //->whereNotIn('jenis', ['Pelaksanaan', 'TU', 'LS', 'GU'])
+            ->whereNotIn('jenis', ['Pelaksanaan', 'TU', 'LS', 'GU'])
             ->whereYear('tanggal_pengajuan', $tahun)
             ->latest();
 
@@ -43,6 +43,9 @@ class NotaSkpdController extends Controller
                 $q->where('nomor_nota', 'like', '%' . $search . '%')
                     ->orWhere('perihal', 'like', '%' . $search . '%');
             });
+        }
+        if ($jenis = $request->jenis) {
+            $query->where('jenis', $jenis);
         }
 
         $notaDinas = $query->with('terkait')->paginate(10);
@@ -54,11 +57,20 @@ class NotaSkpdController extends Controller
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');
 
+        $jenisOptions = NotaDinas::where('skpd_id', $nota_skpd->id)
+            ->whereNotNull('jenis')
+            ->select('jenis')
+            ->distinct()
+            ->whereNotIn('jenis', ['Pelaksanaan', 'TU', 'LS', 'GU'])
+            ->pluck('jenis');
+
         return inertia('NotaDinas/ShowNotaSkpd', [
             'skpd' => $nota_skpd,
             'notaDinas' => $notaDinas,
             'tahunOptions' => $tahunOptions,
             'tahunSelected' => (int) $tahun,
+            'jenisOptions' => $jenisOptions,
+            'jenisSelected' => $request->jenis,
         ]);
     }
     public function store(NotaSkpdRequest $request)

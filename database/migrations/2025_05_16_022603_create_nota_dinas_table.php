@@ -22,11 +22,13 @@ return new class extends Migration
             $table->enum('jenis', [
                 'Pelaksanaan', 'GU', 'TU', 'LS', 'Perda', 'Perbup', 'SK', 'Rekomendasi', 'Surat', 'Telaah', 'Edaran', 'Instruksi'
                 ])->default('Pelaksanaan');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->boolean('is_belanja_modal')->default(false);
             $table->timestamps();
         });
     }
 
-    /**
+    /*
      * Reverse the migrations.
      */
     public function down(): void

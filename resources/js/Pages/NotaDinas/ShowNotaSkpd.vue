@@ -15,22 +15,32 @@
         </div>
         <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden border border-gray-200 p-6">
           <div
-            class="py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <SearchInput v-model:search="search" class="flex-grow" />
-            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <div class="w-full sm:w-40">
+            class="py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="w-full sm:flex-1">
+              <SearchInput v-model:search="search" class="w-full" />
+            </div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+              <div>
                 <select v-model="tahun" @change="handleTahunChange(tahun)"
-                  class="w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                  class="w-full sm:w-40 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                   <option v-for="tahunOption in tahunOptions" :key="tahunOption" :value="tahunOption">
                     {{ tahunOption }}
                   </option>
                 </select>
               </div>
-
-              <button @click="handleCreateNota()"
-                class="inline-flex items-center justify-center w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
-                + Buat Nota
-              </button>
+              <div>
+                <select v-model="jenis" @change="handleJenisChange(jenis)"
+                  class="w-full sm:w-40 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                  <option value="">Semua Jenis</option>
+                  <option v-for="item in jenisOptions" :key="item" :value="item">{{ item }}</option>
+                </select>
+              </div>
+              <div>
+                <button @click="handleCreateNota()"
+                  class="w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                  + Buat Nota
+                </button>
+              </div>
             </div>
           </div>
 
@@ -159,7 +169,10 @@ const props = defineProps({
   notaDinas: Object,
   tahunOptions: Array,
   tahunSelected: Number,
+  jenisOptions: Array,
+  jenisSelected: String,
 });
+
 
 const search = ref('');
 watch(search, (val) => {
@@ -219,6 +232,21 @@ const handleTahunChange = (newTahun) => {
     { preserveState: true, replace: true }
   );
 };
+
+const jenis = ref(props.jenisSelected || '');
+
+const handleJenisChange = (newJenis) => {
+  jenis.value = newJenis;
+  router.get(route('nota-skpd.show', props.skpd.id), 
+    { 
+      search: search.value,
+      tahun: tahun.value,
+      jenis: newJenis 
+    }, 
+    { preserveState: true, replace: true }
+  );
+};
+
 
 const toggleExpand = (notaId) => {
   const index = expandedNotas.value.indexOf(notaId);

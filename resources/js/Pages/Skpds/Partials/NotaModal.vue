@@ -93,6 +93,15 @@
             </select>
           </div>
         </div>
+        <div class="mb-4">
+          <label class="flex items-center space-x-1 cursor-pointer">
+            <input type="checkbox" v-model="form.is_belanja_modal"
+              class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out" />
+            <span class="text-sm text-gray-800 font-medium select-none">
+              Tandai sebagai <span class="text-indigo-600 font-semibold">Belanja Modal</span>
+            </span>
+          </label>
+        </div>
         <div>
           <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
           <input id="lampirans" type="file" accept=".pdf" multiple @change="handleFileChange"
@@ -171,6 +180,7 @@ const form = useForm({
   tanggal_pengajuan: '',
   sub_kegiatan_id: '',
   jenis: '',
+  is_belanja_modal: false,
   lampirans: []
 });
 
@@ -208,6 +218,7 @@ const initForm = () => {
     form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
     form.jenis = props.notaData.jenis;
     form.sub_kegiatan_id = props.notaData.sub_kegiatan_id;
+    form.is_belanja_modal = Boolean(props.notaData.is_belanja_modal);
     currentSubKegiatan.value = props.subKegiatan;
   } else if (props.subKegiatan) {
     form.sub_kegiatan_id = props.subKegiatan.id;
@@ -278,6 +289,7 @@ const handleSubmit = () => {
     tanggal_pengajuan: form.tanggal_pengajuan,
     jenis: form.jenis,
     sub_kegiatan_id: form.sub_kegiatan_id,
+    is_belanja_modal: form.is_belanja_modal,
     lampirans: form.lampirans
   };
 

@@ -109,6 +109,7 @@ const badgeClasses = (jenis) => {
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div v-for="nota in notaDinas.data" :key="nota.id"
                             class="rounded-lg shadow-lg border hover:border-cyan-500 p-4 flex flex-col justify-between hover:shadow-md transition">
+
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <h4 class="text-lg font-semibold text-indigo-700">
@@ -116,31 +117,41 @@ const badgeClasses = (jenis) => {
                                     </h4>
                                     <span
                                         :class="['text-xs px-2 py-0.5 rounded-full font-medium', badgeClasses(nota.jenis)]">
-                                        {{ nota.jenis }}
+                                        {{ nota.jenis }} {{ nota.user_id }}
                                     </span>
                                 </div>
+
                                 <p class="text-gray-700">{{ nota.perihal }}</p>
+
                                 <p class="text-sm text-gray-500 mt-1">
-                                    Anggaran: 
+                                    Anggaran:
                                     <span class="text-green-600">Rp. {{ formatNumber(nota.anggaran) }}</span>
                                     <span class="text-gray-700 mx-2">|</span>
                                     Pengajuan:
-                                    <span class="text-gray-700"> {{ formatDate(nota.tanggal_pengajuan) }} </span>
+                                    <span class="text-gray-700">{{ formatDate(nota.tanggal_pengajuan) }}</span>
                                 </p>
+                                <div v-if="nota.is_belanja_modal" class="mt-2">
+                                    <span
+                                        class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                        Belanja Modal {{ nota.is_belanja_modal ? '✔️' : '❌' }}
+                                    </span>
+                                </div>
+
+                                <!-- Parent Info -->
                                 <div class="mt-2 text-sm text-gray-600">
                                     <span class="font-medium">Dari Nota:</span>
                                     <div v-if="nota.parents && nota.parents.length > 0" class="mt-1">
                                         <ul class="list-disc ml-4">
                                             <li v-for="parent in nota.parents" :key="parent.id">
                                                 {{ parent.nomor_nota }} - {{ parent.perihal }}
-                                                <span class="text-xs text-red-500">(Sisa: Rp. {{
-                                                    formatNumber(parent.sisa_anggaran) }})</span>
+                                                <span class="text-xs text-red-500">
+                                                    (Sisa: Rp. {{ formatNumber(parent.sisa_anggaran) }})
+                                                </span>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="flex justify-end mt-2 gap-1">
                                 <Tooltip text="Lampiran" bgColor="bg-purple-600">
                                     <button @click="handleViewAttachment(nota)"
@@ -163,6 +174,7 @@ const badgeClasses = (jenis) => {
                             </div>
                         </div>
                     </div>
+
 
                     <!-- PAGINATION -->
                     <Pagination v-if="notaDinas.last_page > 1" :links="notaDinas.links"

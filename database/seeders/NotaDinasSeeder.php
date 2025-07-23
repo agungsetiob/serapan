@@ -12,6 +12,8 @@ class NotaDinasSeeder extends Seeder
     public function run()
     {
         $faker = Faker::create('id_ID');
+        $userIds = DB::table('users')->pluck('id')->toArray();
+
 
         // Format bulan Romawi
         $bulanRomawi = [
@@ -53,6 +55,8 @@ class NotaDinasSeeder extends Seeder
                     'sub_kegiatan_id' => $subKegiatan->sub_kegiatan_id,
                     'skpd_id' => $subKegiatan->skpd_id,
                     'jenis' => $faker->randomElement(['Pelaksanaan', 'TU', 'LS']),
+                    'user_id' => $faker->randomElement($userIds),
+                    'is_belanja_modal' => $faker->boolean(20),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

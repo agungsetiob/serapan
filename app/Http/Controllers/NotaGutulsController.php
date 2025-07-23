@@ -87,7 +87,6 @@ class NotaGutulsController extends Controller
         // Buat nota dan relasi dalam transaksi
         return DB::transaction(function () use ($request, $parents) {
             $skpdId = $this->resolveSkpd($parents);
-
             // Buat nota sekaligus isi skpd_id dan sub_kegiatan_id jika tersedia
             $notaDina = NotaDinas::create([
                 'nomor_nota' => $request->nomor_nota,
@@ -96,6 +95,8 @@ class NotaGutulsController extends Controller
                 'tanggal_pengajuan' => $request->tanggal_pengajuan,
                 'jenis' => $request->jenis,
                 'skpd_id' => $skpdId,
+                'user_id' => auth()->id(),
+                'is_belanja_modal' => $request->boolean('is_belanja_modal'),
             ]);
 
             // Simpan lampiran
@@ -146,6 +147,8 @@ class NotaGutulsController extends Controller
                 'anggaran',
                 'tanggal_pengajuan',
                 'jenis',
+                'user_id' => auth()->id(),
+                'is_belanja_modal' => $request->boolean('is_belanja_modal'),
             ]));
 
             // replace attachments if new ones uploaded

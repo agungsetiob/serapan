@@ -82,9 +82,9 @@
           <div>
             <label for="anggaran" class="block font-medium">Anggaran (Rp)</label>
             <input type="text" :value="formattedAnggaran" @input="updateAnggaran($event.target.value)" :class="[
-              'mt-1 block w-full border rounded-md px-3 py-2 text-sm bg-gray-100',
+              'mt-1 block w-full border rounded-md px-3 py-2 text-sm',
               form.errors.anggaran ? 'border-red-500' : 'border-gray-300'
-            ]" readonly>
+            ]">
           </div>
         </div>
 

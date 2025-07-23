@@ -146,7 +146,8 @@ const badgeClasses = (jenis) => {
                   <tbody class="bg-white divide-y divide-gray-200">
                     <tr v-for="nota in sub.nota_dinas" :key="nota.id" class=" hover:bg-gray-100">
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
-                        {{ nota.nomor_nota }}
+                        {{ nota.nomor_nota }} 
+                        <font-awesome-icon v-if="nota.is_belanja_modal" icon="fas fa-square-check" class="text-green-600" />
                       </td>
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
                         {{ formatDate(nota.tanggal_pengajuan) }}

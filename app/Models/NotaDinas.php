@@ -14,7 +14,9 @@ class NotaDinas extends Model
         'tanggal_pengajuan',
         'sub_kegiatan_id',
         'skpd_id',
-        'jenis'
+        'jenis',
+        'user_id',
+        'is_belanja_modal',
         
     ];
 
@@ -82,5 +84,6 @@ class NotaDinas extends Model
     protected $casts = [
         'anggaran' => 'float',
         'tanggal_pengajuan' => 'date:Y-m-d',
+        'is_belanja_modal' => 'boolean',
     ];
 }

@@ -102,6 +102,15 @@
                         ]" />
                     <InputError :id="'perihal-error'" :message="form.errors.perihal" />
                 </div>
+                <div>
+                    <label class="flex items-center space-x-1 cursor-pointer">
+                        <input type="checkbox" v-model="form.is_belanja_modal"
+                            class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out" />
+                        <span class="text-sm text-gray-800 font-medium select-none">
+                            Tandai sebagai <span class="text-indigo-600 font-semibold">Belanja Modal</span>
+                        </span>
+                    </label>
+                </div>
 
                 <div>
                     <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
@@ -240,6 +249,7 @@ const form = useForm({
     jenis: '',
     parent_ids: [],
     skpd_id: props.skpd?.id || null,
+    is_belanja_modal: false,
     lampirans: [],
     deleted_files: []
 });
@@ -305,6 +315,7 @@ const handleSubmit = () => {
         jenis: form.jenis,
         skpd_id: form.skpd_id,
         lampirans: form.lampirans,
+        is_belanja_modal: form.is_belanja_modal,
         parent_ids: form.parent_ids
     };
 
@@ -383,6 +394,7 @@ watch(
                 form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
                 form.jenis = props.notaData.jenis;
                 form.skpd_id = props.notaData.skpd_id;
+                form.is_belanja_modal = Boolean(props.notaData.is_belanja_modal);
 
                 if (props.notaData.parents) {
                     form.parent_ids = props.notaData.parents.map(parent => parent.id);
@@ -411,6 +423,7 @@ watch(
             form.tanggal_pengajuan = newNotaData.tanggal_pengajuan;
             form.jenis = newNotaData.jenis;
             form.skpd_id = newNotaData.skpd_id;
+            form.is_belanja_modal = Boolean(newNotaData.is_belanja_modal);
 
             if (newNotaData.parents) {
                 form.parent_ids = newNotaData.parents.map(parent => parent.id);

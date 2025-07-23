@@ -11,16 +11,18 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('users')->insert([
-            'name' => 'Admin',
-            'email' => 'admin@mail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('12345678'),
-            'remember_token' => Str::random(10),
-            'role' => 'admin',
-            'status' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('users')->insert([
+                'name' => 'User ' . $i,
+                'email' => 'user' . $i . '@mail.com',
+                'email_verified_at' => now(),
+                'password' => Hash::make('12345678'),
+                'remember_token' => Str::random(10),
+                'role' => 'admin',
+                'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }
