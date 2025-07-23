@@ -117,26 +117,22 @@ const badgeClasses = (jenis) => {
                                     </h4>
                                     <span
                                         :class="['text-xs px-2 py-0.5 rounded-full font-medium', badgeClasses(nota.jenis)]">
-                                        {{ nota.jenis }} {{ nota.user_id }}
+                                        {{ nota.jenis }}
                                     </span>
                                 </div>
-
                                 <p class="text-gray-700">{{ nota.perihal }}</p>
-
                                 <p class="text-sm text-gray-500 mt-1">
                                     Anggaran:
                                     <span class="text-green-600">Rp. {{ formatNumber(nota.anggaran) }}</span>
                                     <span class="text-gray-700 mx-2">|</span>
                                     Pengajuan:
                                     <span class="text-gray-700">{{ formatDate(nota.tanggal_pengajuan) }}</span>
-                                </p>
-                                <div v-if="nota.is_belanja_modal" class="mt-2">
-                                    <span
+                                    <span v-if="nota.is_belanja_modal" class="text-gray-700 mx-2">|</span>
+                                    <span v-if="nota.is_belanja_modal"
                                         class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                                        Belanja Modal {{ nota.is_belanja_modal ? '✔️' : '❌' }}
+                                        Belanja Modal
                                     </span>
-                                </div>
-
+                                </p>
                                 <!-- Parent Info -->
                                 <div class="mt-2 text-sm text-gray-600">
                                     <span class="font-medium">Dari Nota:</span>

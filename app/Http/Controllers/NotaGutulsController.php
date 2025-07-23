@@ -104,7 +104,7 @@ class NotaGutulsController extends Controller
 
             // Hubungkan ke nota induk
             $pivot = $this->allocatePivot($parents, $request->anggaran);
-            
+
             $notaDina->dikaitkanOleh()->attach($pivot);
             // Update budget absorption
             $this->updateBudgetAbsorption($notaDina);
@@ -141,15 +141,17 @@ class NotaGutulsController extends Controller
         }
 
         return DB::transaction(function () use ($request, $parents, $notaDina) {
-            $notaDina->update($request->only([
+            $data = $request->only([
                 'nomor_nota',
                 'perihal',
                 'anggaran',
                 'tanggal_pengajuan',
                 'jenis',
-                'user_id' => auth()->id(),
-                'is_belanja_modal' => $request->boolean('is_belanja_modal'),
-            ]));
+                'is_belanja_modal',
+            ]);
+
+            $data['user_id'] = auth()->id();
+            $notaDina->update($data);
 
             // replace attachments if new ones uploaded
             $this->handleAttachments($request, $notaDina, $isUpdate = true);
@@ -159,7 +161,7 @@ class NotaGutulsController extends Controller
             $notaDina->dikaitkanOleh()->sync($pivot);
             // Update budget absorption
             $this->updateBudgetAbsorption($notaDina);
-            
+
             $skpdId = $this->resolveSkpd($parents);
             return redirect()
                 ->route('nota-dinas.nota-gutuls', ['skpd' => $skpdId])
@@ -186,6 +188,7 @@ class NotaGutulsController extends Controller
             'parent_ids.*' => 'exists:nota_dinas,id',
             'lampirans' => 'nullable|array',
             'lampirans.*' => 'file|mimes:pdf|max:3072',
+            'is_belanja_modal' => 'boolean',
         ], [
             'parent_ids.required' => 'Nota induk wajib dipilih.',
             'lampirans.*.max' => 'Setiap file lampiran maksimal 3MB.',
