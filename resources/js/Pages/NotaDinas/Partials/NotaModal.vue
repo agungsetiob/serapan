@@ -144,7 +144,7 @@ const form = useForm({
   id: '',
   nomor_nota: '',
   perihal: '',
-  anggaran: null,
+  anggaran: 0,
   tanggal_pengajuan: '',
   jenis: '',
   parent_ids: [],
@@ -153,18 +153,14 @@ const form = useForm({
 });
 
 const formattedAnggaran = computed(() => {
-  if (form.anggaran === null || form.anggaran === '') {
-    return '';
-  }
   const number = parseFloat(form.anggaran);
-  if (isNaN(number)) {
-    return '';
-  }
+  if (isNaN(number)) return '0';
   return number.toLocaleString('id-ID');
 });
+
 const updateAnggaran = (value) => {
   const cleanedValue = value.replace(/\D/g, '');
-  form.anggaran = cleanedValue;
+  form.anggaran = cleanedValue ? parseInt(cleanedValue) : 0;
 };
 
 const initForm = () => {
@@ -181,12 +177,12 @@ const initForm = () => {
     form.reset();
     form.parent_ids = [props.parentNota.id];
     form.skpd_id = props.skpd?.id || null;
-    form.anggaran = null;
+    form.anggaran = 0;
   } else {
     form.reset();
     form.parent_ids = [];
     form.skpd_id = props.skpd?.id || null;
-    form.anggaran = null;
+    form.anggaran = 0;
   }
 };
 

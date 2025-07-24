@@ -30,7 +30,7 @@ class NotaSkpdRequest extends FormRequest
             'parent_ids'      => 'nullable|array',
             'parent_ids.*'    => 'exists:nota_dinas,id',
             'lampirans.*'     => 'nullable|file|max:3072|mimes:pdf',
-            'user_id'         => 'required|exists:users,id',
+            'user_id'         => 'exists:users,id',
             'is_belanja_modal' => 'boolean',
         ];
     }

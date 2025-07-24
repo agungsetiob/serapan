@@ -87,6 +87,9 @@ class NotaSkpdController extends Controller
     {
         $isNew = is_null($nota);
         $data = $request->validated();
+        if (!isset($data['user_id'])) {
+            $data['user_id'] = auth()->id();
+        }
         $amount = isset($data['anggaran']) ? (float) $data['anggaran'] : 0;
         $parentIds = $data['parent_ids'] ?? [];
         $skpdId = $data['skpd_id'];
@@ -141,7 +144,6 @@ class NotaSkpdController extends Controller
                 ->with('error', 'Gagal menyimpan nota: ' . $e->getMessage());
         }
     }
-
 
     private function checkParentBudget(array $parentIds, float $amount, ?int $currentNotaId = null)
     {
