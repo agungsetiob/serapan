@@ -7,6 +7,7 @@ import SkpdModal from "@/Pages/Skpds/Partials/SkpdModal.vue";
 import SearchInput from '@/Components/SearchInput.vue';
 import Tooltip from '@/Components/Tooltip.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
+import { formatDate } from '@/Utils/formatters';
 
 const search = ref('');
 watch(search, (val) => {
@@ -73,6 +74,7 @@ function toggleStatus(skpdId, currentStatus) {
                             <thead>
                                 <tr class="bg-gray-300 text-left">
                                     <th class="px-4 py-2">Nama SKPD</th>
+                                    <th class="px-4 py-2">Dibuat</th>
                                     <th class="px-4 py-2">Status</th>
                                     <th class="px-4 py-2"></th>
                                 </tr>
@@ -86,6 +88,9 @@ function toggleStatus(skpdId, currentStatus) {
                                             class="text-blue-600 hover:text-green-600">
                                             {{ skpd.nama_skpd }}
                                         </Link>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        {{ formatDate(skpd.created_at) }}
                                     </td>
                                     <td class="px-4 py-2">
                                         <button
