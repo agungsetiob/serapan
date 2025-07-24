@@ -103,13 +103,11 @@
                     <InputError :id="'perihal-error'" :message="form.errors.perihal" />
                 </div>
                 <div>
-                    <label class="flex items-center space-x-1 cursor-pointer">
-                        <input type="checkbox" v-model="form.is_belanja_modal"
-                            class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out" />
-                        <span class="text-sm text-gray-800 font-medium select-none">
-                            Tandai sebagai <span class="text-indigo-600 font-semibold">Belanja Modal</span>
-                        </span>
-                    </label>
+                    <input type="checkbox" v-model="form.is_belanja_modal"
+                        class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out" />
+                    <span class="text-sm text-gray-800 font-medium select-none">
+                        Tandai sebagai <span class="text-indigo-600 font-semibold">Belanja Modal</span>
+                    </span>
                 </div>
 
                 <div>
@@ -186,6 +184,10 @@
                                     </p>
                                     <p :class="['text-sm', nota.sisa_anggaran <= 0 ? 'text-red-500' : 'text-gray-500']">
                                         Sisa: Rp. {{ nota.sisa_anggaran.toLocaleString('id-ID') }}
+                                        <span v-if="nota.is_belanja_modal"
+                                            class="inline-block bg-blue-100 text-xs px-2 py-0.5 rounded-full">
+                                            Belanja Modal
+                                        </span>
                                     </p>
                                 </div>
                                 <font-awesome-icon v-if="form.parent_ids.includes(nota.id)" icon="check-circle"
@@ -371,7 +373,7 @@ const badgeClasses = (jenis) => {
         case 'GU': return 'bg-yellow-100 text-yellow-800';
         case 'TU': return 'bg-indigo-100 text-indigo-800';
         case 'LS': return 'bg-red-100 text-red-800';
-        default: return 'bg-gray-100 text-gray-800';
+        default: return 'bg-gray-200 text-gray-800';
     }
 };
 

@@ -16,23 +16,35 @@ class NotaGutulsController extends Controller
     {
         $search = $request->input('search');
         $tahun = $request->input('tahun') ?? date('Y');
+        $jenis = $request->input('jenis');
+        $isBelanjaModal = $request->input('is_belanja_modal');
 
-        // Query untuk nota GU/TU/LS
-        $notaDinas = NotaDinas::whereIn('jenis', ['GU', 'TU', 'LS'])
+        // Query utama untuk nota GU/TU/LS
+        $notaDinasQuery = NotaDinas::whereIn('jenis', ['GU', 'TU', 'LS'])
             ->whereHas('dikaitkanOleh.subKegiatan.kegiatan', function ($query) use ($skpd) {
                 $query->where('skpd_id', $skpd->id);
             })
+            ->whereYear('tanggal_pengajuan', $tahun)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nomor_nota', 'like', "%$search%")
                         ->orWhere('perihal', 'like', "%$search%");
                 });
             })
-            ->with(['dikaitkanOleh.subKegiatan.kegiatan', 'dikaitkanOleh', 'lampirans'])
+            ->when($jenis, function ($query, $jenis) {
+                $query->where('jenis', $jenis);
+            })
+            ->when(isset($isBelanjaModal), function ($query) use ($isBelanjaModal) {
+                $query->where('is_belanja_modal', filter_var($isBelanjaModal, FILTER_VALIDATE_BOOLEAN));
+            })
+            ->with(['dikaitkanOleh.subKegiatan.kegiatan', 'dikaitkanOleh', 'lampirans']);
+
+        $notaDinas = $notaDinasQuery
+            ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        // Query untuk parent notes (digunakan modal create dan edit untuk pilihan)
+        // Data untuk parent notes (dipakai modal create/edit)
         $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
             ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
             ->whereYear('tanggal_pengajuan', $tahun)
@@ -50,12 +62,29 @@ class NotaGutulsController extends Controller
             return $nota;
         });
 
+        // Filter dropdown
+        $tahunOptions = NotaDinas::where('skpd_id', $skpd->id)
+            ->selectRaw('YEAR(tanggal_pengajuan) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $jenisOptions = NotaDinas::where('skpd_id', $skpd->id)
+            ->whereNotNull('jenis')
+            ->whereIn('jenis', ['GU', 'TU', 'LS'])
+            ->distinct()
+            ->pluck('jenis');
+
         return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
             'notaDinas' => $notaDinas,
             'parentNotes' => $parentNotes,
             'tahun' => $tahun,
             'search' => $search,
+            'jenis' => $jenis,
+            'is_belanja_modal' => $isBelanjaModal,
+            'tahunOptions' => $tahunOptions,
+            'jenisOptions' => $jenisOptions,
         ]);
     }
     public function storeGuTuLs(Request $request)
@@ -340,6 +369,4 @@ class NotaGutulsController extends Controller
             }
         }
     }
-
-
 }

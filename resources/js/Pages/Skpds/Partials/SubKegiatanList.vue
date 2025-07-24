@@ -147,7 +147,7 @@ const badgeClasses = (jenis) => {
                     <tr v-for="nota in sub.nota_dinas" :key="nota.id" class=" hover:bg-gray-100">
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
                         {{ nota.nomor_nota }} 
-                        <font-awesome-icon v-if="nota.is_belanja_modal" icon="fas fa-square-check" class="text-green-600" />
+                        <font-awesome-icon v-if="nota.is_belanja_modal" icon="fas fa-check-circle" class="text-green-600" />
                       </td>
                       <td class="px-4 py-3 whitespace-nowrap text-sm">
                         {{ formatDate(nota.tanggal_pengajuan) }}
@@ -229,8 +229,8 @@ const badgeClasses = (jenis) => {
           </div>
         </div>
         <div class="flex justify-end">
-          <button type="submit"
-            class="inline-flex px-3 py-1.5 border text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <button type="submit" :disabled="!formSubKegiatan.kode_rekening || !formSubKegiatan.nama || !formSubKegiatan.pagu"
+            class="inline-flex px-3 py-1.5 border text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Simpan
           </button>
         </div>

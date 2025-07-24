@@ -45,12 +45,11 @@ function submitKegiatan() {
   formKegiatan.post(route('kegiatans.store', { skpd: props.skpd.id }), {
     preserveScroll: true,
     onSuccess: () => {
-      formKegiatan.reset();
-      if (props.skpd.programs.length > 0) {
-        formKegiatan.program_id = props.skpd.programs[0].id;
-      }
+      formKegiatan.reset('program_id', 'nama');
+      formKegiatan.program_id = null;
       handleSuccess();
     }
+
   });
 }
 
@@ -74,9 +73,6 @@ watch(
           });
         }
       });
-    }
-    if (newPrograms && newPrograms.length > 0 && !formKegiatan.program_id) {
-      formKegiatan.program_id = newPrograms[0].id;
     }
   },
   { immediate: true, deep: true }
@@ -323,7 +319,7 @@ const handleSuccess = () => {
                 <select id="program_id" v-model="formKegiatan.program_id"
                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                   required>
-                  <option :value="null" disabled>-- Pilih Program --</option>
+                  <option :value="null" selected disabled>-- Pilih Program --</option>
                   <option v-for="program in skpd.programs" :key="program.id" :value="program.id">
                     {{ program.nama }}
                   </option>

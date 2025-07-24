@@ -94,13 +94,11 @@
           </div>
         </div>
         <div class="mb-4">
-          <label class="flex items-center space-x-1 cursor-pointer">
             <input type="checkbox" v-model="form.is_belanja_modal"
               class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition duration-150 ease-in-out" />
             <span class="text-sm text-gray-800 font-medium select-none">
               Tandai sebagai <span class="text-indigo-600 font-semibold">Belanja Modal</span>
             </span>
-          </label>
         </div>
         <div>
           <label for="lampirans" class="block font-medium">Lampiran (opsional)</label>
@@ -125,7 +123,6 @@
           </div>
           <!-- Existing files in edit mode -->
           <div v-if="isEdit && existingLampiransDisplay.length" class="mt-2">
-            <p class="text-sm font-medium mb-1">File yang sudah diunggah:</p>
             <div v-for="(file, index) in existingLampiransDisplay" :key="file.id"
               class="flex items-center justify-between p-2 bg-gray-100 rounded mb-2">
               <div class="flex items-center">

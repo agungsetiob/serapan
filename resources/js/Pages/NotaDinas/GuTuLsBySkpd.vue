@@ -16,7 +16,10 @@ const props = defineProps({
     notaDinas: Object,
     search: String,
     parentNotes: Array,
-    tahun: String
+    tahun: String,
+    jenisOptions: Array,
+    jenisSelected: String,
+    is_belanja_modal: String,
 });
 
 const search = ref(props.search || '');
@@ -72,6 +75,31 @@ const badgeClasses = (jenis) => {
     };
     return classes[jenis] || 'bg-gray-100 text-gray-800';
 };
+
+const jenis = ref(props.jenisSelected || '');
+
+const handleJenisChange = (newJenis) => {
+    jenis.value = newJenis;
+    router.get(route('nota-dinas.nota-gutuls', props.skpd.id),
+        {
+            search: search.value,
+            jenis: newJenis
+        },
+        { preserveState: true, replace: true }
+    );
+};
+const isBelanjaModal = ref(props.is_belanja_modal || '');
+const handleBelanjaModalChange = (checked) => {
+    isBelanjaModal.value = checked ? 'true' : '';
+    router.get(route('nota-dinas.nota-gutuls', props.skpd.id),
+        {
+            search: search.value,
+            jenis: jenis.value,
+            is_belanja_modal: isBelanjaModal.value,
+        },
+        { preserveState: true, replace: true }
+    );
+};
 </script>
 
 <template>
@@ -93,14 +121,28 @@ const badgeClasses = (jenis) => {
                 </div>
                 <div class="bg-white rounded-lg shadow p-6 mt-4 space-y-4">
                     <!-- SEARCH -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <SearchInput v-model:search="search" class="w-full sm:flex-1" />
-                        <button @click="openCreateModal"
-                            class="bg-indigo-600 text-white font-medium px-6 py-2.5 rounded-md shadow hover:bg-indigo-700 transition w-full sm:w-auto">
-                            + Buat Nota
-                        </button>
+                        <div class="flex items-center space-x-1">
+                            <input id="belanjaModal" type="checkbox" :checked="isBelanjaModal === 'true'"
+                                @change="e => handleBelanjaModalChange(e.target.checked)"
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" />
+                            <label for="belanjaModal" class="text-sm text-gray-700">Belanja Modal</label>
+                        </div>
+                        <div>
+                            <select v-model="jenis" @change="handleJenisChange(jenis)"
+                                class="w-full sm:w-30 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Semua Jenis</option>
+                                <option v-for="item in jenisOptions" :key="item" :value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button @click="openCreateModal"
+                                class="w-full sm:w-auto px-3 py-2 bg-indigo-500 text-white text-sm font-medium rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm">
+                                + Buat Nota
+                            </button>
+                        </div>
                     </div>
-
                     <!-- NOTA LIST -->
                     <div v-if="notaDinas.data.length === 0" class="text-center text-gray-500 py-10">
                         <p class="text-lg">Belum ada nota GU/TU/LS yang tercatat.</p>
@@ -129,7 +171,7 @@ const badgeClasses = (jenis) => {
                                     <span class="text-gray-700">{{ formatDate(nota.tanggal_pengajuan) }}</span>
                                     <span v-if="nota.is_belanja_modal" class="text-gray-700 mx-2">|</span>
                                     <span v-if="nota.is_belanja_modal"
-                                        class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                        class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
                                         Belanja Modal
                                     </span>
                                 </p>

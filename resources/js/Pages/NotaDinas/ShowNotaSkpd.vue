@@ -22,7 +22,7 @@
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <div>
                 <select v-model="tahun" @change="handleTahunChange(tahun)"
-                  class="w-full sm:w-40 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                  class="w-full sm:w-30 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                   <option v-for="tahunOption in tahunOptions" :key="tahunOption" :value="tahunOption">
                     {{ tahunOption }}
                   </option>
@@ -30,7 +30,7 @@
               </div>
               <div>
                 <select v-model="jenis" @change="handleJenisChange(jenis)"
-                  class="w-full sm:w-40 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                  class="w-full sm:w-30 rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                   <option value="">Semua Jenis</option>
                   <option v-for="item in jenisOptions" :key="item" :value="item">{{ item }}</option>
                 </select>
