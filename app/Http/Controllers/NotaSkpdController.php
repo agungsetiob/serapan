@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\NotaSkpdRequest;
 use App\Models\NotaDinas;
-use App\Models\SKPD;
+use App\Models\Skpd;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
