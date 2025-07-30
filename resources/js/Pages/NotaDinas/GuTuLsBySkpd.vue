@@ -20,6 +20,8 @@ const props = defineProps({
     jenisOptions: Array,
     jenisSelected: String,
     is_belanja_modal: String,
+    kegiatanOptions: Array,
+    subKegiatanOptions: Array,
 });
 
 const search = ref(props.search || '');
@@ -110,8 +112,6 @@ const handleBelanjaModalChange = (checked) => {
 
         <div class="pt-6 sm:pt-24 mx-2 sm:px-2">
             <div class="max-w-8xl mx-auto lg:px-6 pb-4 space-y-4">
-
-                <!-- HEADER CARD -->
                 <div
                     class="bg-gradient-to-br from-indigo-600 to-blue-500 text-white rounded-lg p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center">
                     <div>
@@ -120,7 +120,6 @@ const handleBelanjaModalChange = (checked) => {
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6 mt-4 space-y-4">
-                    <!-- SEARCH -->
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <SearchInput v-model:search="search" class="w-full sm:flex-1" />
                         <div class="flex items-center space-x-1">
@@ -212,8 +211,6 @@ const handleBelanjaModalChange = (checked) => {
                             </div>
                         </div>
                     </div>
-
-
                     <!-- PAGINATION -->
                     <Pagination v-if="notaDinas.last_page > 1" :links="notaDinas.links"
                         :meta="{ from: notaDinas.from, to: notaDinas.to, total: notaDinas.total }" class="mt-8" />
@@ -223,7 +220,8 @@ const handleBelanjaModalChange = (checked) => {
 
         <!-- MODALS -->
         <CreateGuTuLsModal :show="showModal" :isEdit="!!editedNota" :notaData="editedNota" :skpd="skpd"
-            :parent-notes="parentNotes" :tahun="tahun" @close="showModal = false" @success="handleSuccess" />
+            :parent-notes="parentNotes" :tahun="tahun" :kegiatan-options="props.kegiatanOptions"
+            :sub-kegiatan-options="props.subKegiatanOptions" @close="showModal = false" @success="handleSuccess" />
 
         <LampiranModal :show="attachmentModalState.show" :notaId="attachmentModalState.notaId"
             @close="() => handleCloseModal('attachment')" />

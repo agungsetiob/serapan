@@ -146,6 +146,27 @@
                         </div>
                     </div>
                 </div>
+                <!-- Kegiatan -->
+                <div class="mb-4">
+                    <label for="kegiatan" class="block font-medium">Pilih Kegiatan</label>
+                    <select id="kegiatan" v-model="selectedKegiatanId"
+                        class="mt-1 block w-full border rounded-md px-3 py-2 text-sm border-gray-300">
+                        <option value="">-- Pilih Kegiatan --</option>
+                        <option v-for="keg in props.kegiatanOptions" :key="keg.id" :value="keg.id">
+                            {{ keg.nama }}</option>
+                    </select>
+                </div>
+
+                <!-- Sub Kegiatan -->
+                <div v-if="selectedKegiatanId" class="mb-4">
+                    <label for="sub_kegiatan" class="block font-medium">Pilih Sub Kegiatan</label>
+                    <select id="sub_kegiatan" v-model="selectedSubKegiatanId"
+                        class="mt-1 block w-full border rounded-md px-3 py-2 text-sm border-gray-300">
+                        <option value="">-- Pilih Sub Kegiatan --</option>
+                        <option v-for="sub in filteredSubKegiatan" :key="sub.id" :value="sub.id">{{
+                            sub.nama }}</option>
+                    </select>
+                </div>
 
                 <div>
                     <label v-if="parentNotes.length > 0" class="block font-medium">
@@ -237,7 +258,9 @@ const props = defineProps({
     notaData: Object,
     parentNotes: Array,
     skpd: Object,
-    parentNotesLoading: Boolean
+    parentNotesLoading: Boolean,
+    kegiatanOptions: Array,
+    subKegiatanOptions: Array
 });
 
 const emit = defineEmits(['close', 'success']);
@@ -259,17 +282,17 @@ const form = useForm({
 const existingLampiransDisplay = ref([]);
 const parentSearchTerm = ref('');
 
-const filteredParentNotes = computed(() => {
-    if (!props.parentNotes) return [];
-    if (!parentSearchTerm.value) {
-        return props.parentNotes;
-    }
-    const searchTermLower = parentSearchTerm.value.toLowerCase();
-    return props.parentNotes.filter(nota => {
-        return nota.nomor_nota.toLowerCase().includes(searchTermLower) ||
-            nota.perihal.toLowerCase().includes(searchTermLower);
-    });
-});
+// const filteredParentNotes = computed(() => {
+//     if (!props.parentNotes) return [];
+//     if (!parentSearchTerm.value) {
+//         return props.parentNotes;
+//     }
+//     const searchTermLower = parentSearchTerm.value.toLowerCase();
+//     return props.parentNotes.filter(nota => {
+//         return nota.nomor_nota.toLowerCase().includes(searchTermLower) ||
+//             nota.perihal.toLowerCase().includes(searchTermLower);
+//     });
+// });
 
 const formattedAnggaran = computed(() => {
     if (form.anggaran === null || form.anggaran === '') return '';
@@ -437,5 +460,30 @@ watch(
     },
     { deep: true }
 );
+
+const selectedKegiatanId = ref('');
+const selectedSubKegiatanId = ref('');
+
+const filteredSubKegiatan = computed(() =>
+    props.subKegiatanOptions?.filter(sk => sk.kegiatan_id === selectedKegiatanId.value) || []
+);
+
+const filteredParentNotes = computed(() => {
+    let result = props.parentNotes || [];
+
+    if (selectedSubKegiatanId.value) {
+        result = result.filter(nota => nota.sub_kegiatan_id === selectedSubKegiatanId.value);
+    }
+
+    if (parentSearchTerm.value) {
+        const searchTermLower = parentSearchTerm.value.toLowerCase();
+        result = result.filter(nota =>
+            nota.nomor_nota.toLowerCase().includes(searchTermLower) ||
+            nota.perihal.toLowerCase().includes(searchTermLower)
+        );
+    }
+
+    return result;
+});
 
 </script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kegiatan;
 use App\Models\NotaDinas;
 use App\Models\Skpd;
 use App\Models\SubKegiatan;
@@ -48,11 +49,12 @@ class NotaGutulsController extends Controller
         $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
             ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
             ->whereYear('tanggal_pengajuan', $tahun)
-            ->with('terkait')
+            ->with(['terkait', 'subKegiatan'])
             ->get()
             ->map(function ($nota) {
                 $nota->total_terkait = $nota->terkait->sum('anggaran');
                 $nota->sisa_anggaran = $nota->anggaran - $nota->total_terkait;
+                $nota->sub_kegiatan_id = $nota->sub_kegiatan_id ?? $nota->subKegiatan?->id;
                 return $nota;
             });
 
@@ -74,6 +76,17 @@ class NotaGutulsController extends Controller
             ->whereIn('jenis', ['GU', 'TU', 'LS'])
             ->distinct()
             ->pluck('jenis');
+        // Ambil kegiatan dan sub kegiatan aktif milik SKPD
+        $kegiatanOptions = Kegiatan::where('skpd_id', $skpd->id)
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        $subKegiatanOptions = SubKegiatan::whereIn('kegiatan_id', $kegiatanOptions->pluck('id'))
+            ->select('id', 'kegiatan_id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
 
         return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
@@ -85,6 +98,8 @@ class NotaGutulsController extends Controller
             'is_belanja_modal' => $isBelanjaModal,
             'tahunOptions' => $tahunOptions,
             'jenisOptions' => $jenisOptions,
+            'kegiatanOptions' => $kegiatanOptions,
+            'subKegiatanOptions' => $subKegiatanOptions,
         ]);
     }
     public function storeGuTuLs(Request $request)
@@ -203,12 +218,12 @@ class NotaGutulsController extends Controller
      */
     private function validateGuTuLs(Request $request, $ignoreId = null)
     {
-        $uniqueNomor = $ignoreId
-            ? Rule::unique('nota_dinas', 'nomor_nota')->ignore($ignoreId)
-            : 'unique:nota_dinas,nomor_nota';
+        // $uniqueNomor = $ignoreId
+        //     ? Rule::unique('nota_dinas', 'nomor_nota')->ignore($ignoreId)
+        //     : 'unique:nota_dinas,nomor_nota';
 
         $request->validate([
-            'nomor_nota' => ['required', 'string', $uniqueNomor],
+            'nomor_nota' => ['required', 'string'],
             'perihal' => 'required|string',
             'anggaran' => 'required|numeric|min:1',
             'tanggal_pengajuan' => 'required|date',

@@ -8,7 +8,7 @@ class Kabupaten extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama', 'pagu', 'tahun_anggaran', 'total_serapan', 'presentase_serapan'];
+    protected $fillable = ['nama', 'pagu', 'tahun_anggaran', 'total_serapan', 'presentase_serapan', 'copied_from'];
 
     public function skpds()
     {
