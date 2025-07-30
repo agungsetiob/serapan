@@ -41,10 +41,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/users', [RegisteredUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}/toggle-status', [RegisteredUserController::class, 'toggleStatus'])->name('users.toggle-status');
-        
+
         Route::resource('skpds', SkpdController::class);
         Route::patch('skpds/{skpd}/toggle-status', [SkpdController::class, 'toggleStatus'])->name('skpds.toggle-status');
         Route::get('/skpds/{skpd}/rekap-nota', [SkpdController::class, 'showRekap'])->name('skpds.rekap-nota');
+        Route::post('/kabupaten/{kabupaten}/copy-from-previous', [KabupatenController::class, 'copyFromPrevious'])
+            ->name('kabupaten.copyFromPrevious');
         // Define API routes for SkpdController
         Route::prefix('skpds/{skpd}/api')->controller(SkpdController::class)->group(function () {
             Route::get('/rekap-nota-per-jenis', 'apiRekapNotaPerJenis')->name('skpds.api.rekap-nota-per-jenis');
@@ -64,4 +66,4 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

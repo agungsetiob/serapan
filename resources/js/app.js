@@ -9,7 +9,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
-    faEdit, faTrashCan, faEnvelope, faCopy // Added faCopy to regular icons
+    faEdit, faTrashCan, faEnvelope
 } from '@fortawesome/free-regular-svg-icons';
 
 import { 
@@ -19,18 +19,18 @@ import {
     faWallet, faSquareCheck, faTrash, faPaperclip, faEye, faEyeSlash, 
     faChevronUp, faSpinner, faEdit as faEditSolid, faTrashCan as faTrashCanSolid,
     faTriangleExclamation, faCheckCircle, faPlus, faFolderOpen, faCoins, faSackDollar,
-    faChartPie, faTimes, faFilePdf, faFilter, faCopy as faCopySolid // Added faCopySolid to solid icons
+    faChartPie, faTimes, faFilePdf, faFilter, faCopy
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
-    faEdit, faTrashCan, faEnvelope, faCopy, // Regular icons
+    faEdit, faTrashCan, faEnvelope, // Regular icons
     faHome, faUser, faSitemap, faFileLines, faLayerGroup, 
     faMoneyBillWave, faMoneyBillTrendUp, faPercent, faSuitcase, 
     faChevronDown, faFileCirclePlus, faBuilding, faFileZipper, 
     faWallet, faSquareCheck, faTrash, faPaperclip, faEye, faEyeSlash, 
     faChevronUp, faSpinner, faEditSolid, faTrashCanSolid, faTriangleExclamation,
     faCheckCircle, faPlus, faFolderOpen, faCoins, faSackDollar, faChartPie,
-    faTimes, faFilePdf, faFilter, faCopySolid // Solid icons
+    faTimes, faFilePdf, faFilter, faCopy // Solid icons
 );
 
 const appName = import.meta.env.VITE_APP_NAME || 'MONALISA';
