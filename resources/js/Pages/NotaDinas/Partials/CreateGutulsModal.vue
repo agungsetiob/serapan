@@ -179,7 +179,7 @@
                         <!-- Search input for parent -->
                         <div class="mb-3">
                             <label for="parent_notes_search" class="sr-only">Cari Nota Induk</label>
-                            <input id="parent_notes_search" type="text" v-model="parentSearchTerm"
+                            <input v-if="parentNotes.length > 0" id="parent_notes_search" type="text" v-model="parentSearchTerm"
                                 placeholder="Cari nomor nota atau perihal..."
                                 class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                         </div>
@@ -251,14 +251,18 @@ import Modal from '@/Components/Modal.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import axios from 'axios';
+
+const parentNotes = ref([]);
+const parentNotesLoading = ref(false);
 
 const props = defineProps({
     show: Boolean,
     isEdit: Boolean,
     notaData: Object,
-    parentNotes: Array,
+    //parentNotes: Array,
     skpd: Object,
-    parentNotesLoading: Boolean,
+    //parentNotesLoading: Boolean,
     kegiatanOptions: Array,
     subKegiatanOptions: Array
 });
@@ -281,18 +285,6 @@ const form = useForm({
 
 const existingLampiransDisplay = ref([]);
 const parentSearchTerm = ref('');
-
-// const filteredParentNotes = computed(() => {
-//     if (!props.parentNotes) return [];
-//     if (!parentSearchTerm.value) {
-//         return props.parentNotes;
-//     }
-//     const searchTermLower = parentSearchTerm.value.toLowerCase();
-//     return props.parentNotes.filter(nota => {
-//         return nota.nomor_nota.toLowerCase().includes(searchTermLower) ||
-//             nota.perihal.toLowerCase().includes(searchTermLower);
-//     });
-// });
 
 const formattedAnggaran = computed(() => {
     if (form.anggaran === null || form.anggaran === '') return '';
@@ -379,7 +371,7 @@ const closeModal = () => {
 };
 
 const toggleParentNota = (notaId) => {
-    const selectedNota = props.parentNotes.find(n => n.id === notaId);
+    const selectedNota = parentNotes.value.find(n => n.id === notaId);
 
     if (selectedNota && selectedNota.sisa_anggaran > 0) {
         const index = form.parent_ids.indexOf(notaId);
@@ -399,67 +391,99 @@ const badgeClasses = (jenis) => {
         default: return 'bg-gray-200 text-gray-800';
     }
 };
+const initializeForm = () => {
+    form.reset();
+    form.clearErrors();
+    form.deleted_files = [];
+    form.lampirans = [];
+    existingLampiransDisplay.value = [];
+    parentSearchTerm.value = '';
 
+    if (props.isEdit && props.notaData) {
+        form.id = props.notaData.id;
+        form.nomor_nota = props.notaData.nomor_nota;
+        form.perihal = props.notaData.perihal;
+        form.anggaran = props.notaData.anggaran;
+        form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+        form.jenis = props.notaData.jenis;
+        form.skpd_id = props.notaData.skpd_id;
+        form.is_belanja_modal = Boolean(props.notaData.is_belanja_modal);
+        form.parent_ids = props.notaData.parents?.map(parent => parent.id) || [];
+        existingLampiransDisplay.value = props.notaData.lampirans?.map(l => ({ ...l })) || [];
+    } else {
+        form.skpd_id = props.skpd?.id || null;
+    }
+};
 watch(
-    () => props.show,
-    (show) => {
+    [() => props.show, () => props.notaData],
+    ([show, notaData]) => {
         if (show) {
-            form.reset();
-            form.clearErrors();
-            form.deleted_files = [];
-            form.lampirans = [];
-            existingLampiransDisplay.value = [];
-            parentSearchTerm.value = '';
-
-            if (props.isEdit && props.notaData) {
-                form.id = props.notaData.id;
-                form.nomor_nota = props.notaData.nomor_nota;
-                form.perihal = props.notaData.perihal;
-                form.anggaran = props.notaData.anggaran;
-                form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
-                form.jenis = props.notaData.jenis;
-                form.skpd_id = props.notaData.skpd_id;
-                form.is_belanja_modal = Boolean(props.notaData.is_belanja_modal);
-
-                if (props.notaData.parents) {
-                    form.parent_ids = props.notaData.parents.map(parent => parent.id);
-                }
-
-                if (props.notaData.lampirans) {
-                    existingLampiransDisplay.value = props.notaData.lampirans.map(l => ({ ...l }));
-                }
-
-            } else {
-                form.skpd_id = props.skpd?.id || null;
-            }
+            initializeForm();
         }
     },
-    { immediate: true }
+    { immediate: true, deep: true }
 );
 
-watch(
-    () => props.notaData,
-    (newNotaData) => {
-        if (props.show && props.isEdit && newNotaData) {
-            form.id = newNotaData.id;
-            form.nomor_nota = newNotaData.nomor_nota;
-            form.perihal = newNotaData.perihal;
-            form.anggaran = newNotaData.anggaran;
-            form.tanggal_pengajuan = newNotaData.tanggal_pengajuan;
-            form.jenis = newNotaData.jenis;
-            form.skpd_id = newNotaData.skpd_id;
-            form.is_belanja_modal = Boolean(newNotaData.is_belanja_modal);
+// watch(
+//     () => props.show,
+//     (show) => {
+//         if (show) {
+//             form.reset();
+//             form.clearErrors();
+//             form.deleted_files = [];
+//             form.lampirans = [];
+//             existingLampiransDisplay.value = [];
+//             parentSearchTerm.value = '';
 
-            if (newNotaData.parents) {
-                form.parent_ids = newNotaData.parents.map(parent => parent.id);
-            }
-            if (newNotaData.lampirans) {
-                existingLampiransDisplay.value = newNotaData.lampirans.map(l => ({ ...l }));
-            }
-        }
-    },
-    { deep: true }
-);
+//             if (props.isEdit && props.notaData) {
+//                 form.id = props.notaData.id;
+//                 form.nomor_nota = props.notaData.nomor_nota;
+//                 form.perihal = props.notaData.perihal;
+//                 form.anggaran = props.notaData.anggaran;
+//                 form.tanggal_pengajuan = props.notaData.tanggal_pengajuan;
+//                 form.jenis = props.notaData.jenis;
+//                 form.skpd_id = props.notaData.skpd_id;
+//                 form.is_belanja_modal = Boolean(props.notaData.is_belanja_modal);
+
+//                 if (props.notaData.parents) {
+//                     form.parent_ids = props.notaData.parents.map(parent => parent.id);
+//                 }
+
+//                 if (props.notaData.lampirans) {
+//                     existingLampiransDisplay.value = props.notaData.lampirans.map(l => ({ ...l }));
+//                 }
+
+//             } else {
+//                 form.skpd_id = props.skpd?.id || null;
+//             }
+//         }
+//     },
+//     { immediate: true }
+// );
+
+// watch(
+//     () => props.notaData,
+//     (newNotaData) => {
+//         if (props.show && props.isEdit && newNotaData) {
+//             form.id = newNotaData.id;
+//             form.nomor_nota = newNotaData.nomor_nota;
+//             form.perihal = newNotaData.perihal;
+//             form.anggaran = newNotaData.anggaran;
+//             form.tanggal_pengajuan = newNotaData.tanggal_pengajuan;
+//             form.jenis = newNotaData.jenis;
+//             form.skpd_id = newNotaData.skpd_id;
+//             form.is_belanja_modal = Boolean(newNotaData.is_belanja_modal);
+
+//             if (newNotaData.parents) {
+//                 form.parent_ids = newNotaData.parents.map(parent => parent.id);
+//             }
+//             if (newNotaData.lampirans) {
+//                 existingLampiransDisplay.value = newNotaData.lampirans.map(l => ({ ...l }));
+//             }
+//         }
+//     },
+//     { deep: true }
+// );
 
 const selectedKegiatanId = ref('');
 const selectedSubKegiatanId = ref('');
@@ -469,7 +493,7 @@ const filteredSubKegiatan = computed(() =>
 );
 
 const filteredParentNotes = computed(() => {
-    let result = props.parentNotes || [];
+    let result = parentNotes.value;
 
     if (selectedSubKegiatanId.value) {
         result = result.filter(nota => nota.sub_kegiatan_id === selectedSubKegiatanId.value);
@@ -486,4 +510,21 @@ const filteredParentNotes = computed(() => {
     return result;
 });
 
+watch(selectedSubKegiatanId, async (id) => {
+    if (id) {
+        parentNotesLoading.value = true;
+        try {
+            const { data } = await axios.get(route('nota-induk.index', props.skpd.id), {
+                params: { tahun: props.tahun, sub_kegiatan_id: id }
+            });
+            parentNotes.value = data;
+        } catch (err) {
+            console.error('Gagal mengambil parent notes:', err);
+        } finally {
+            parentNotesLoading.value = false;
+        }
+    } else {
+        parentNotes.value = [];
+    }
+});
 </script>

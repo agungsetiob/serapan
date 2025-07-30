@@ -163,10 +163,8 @@ const handleBelanjaModalChange = (checked) => {
                                 </div>
                                 <p class="text-gray-700">{{ nota.perihal }}</p>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    Anggaran:
                                     <span class="text-green-600">Rp. {{ formatNumber(nota.anggaran) }}</span>
                                     <span class="text-gray-700 mx-2">|</span>
-                                    Pengajuan:
                                     <span class="text-gray-700">{{ formatDate(nota.tanggal_pengajuan) }}</span>
                                     <span v-if="nota.is_belanja_modal" class="text-gray-700 mx-2">|</span>
                                     <span v-if="nota.is_belanja_modal"

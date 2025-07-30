@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/skpds/{skpd}/nota-gutuls', [NotaGutulsController::class, 'notaGuTuLsBySkpd'])->name('nota-dinas.nota-gutuls');
     Route::post('/store-gutuls', [NotaGutulsController::class, 'storeGuTuLs'])->name('store-gutuls');
     Route::put('/update-gutuls/{notaDina}', [NotaGutulsController::class, 'updateGuTuLs'])->name('update-gutuls');
+    Route::get('/skpd/{skpd}/nota-induk', [NotaGutulsController::class, 'index'])->name('nota-induk.index');
     Route::resource('nota-skpd', NotaSkpdController::class);
 
     Route::post('/skpds/{skpd}/programs', [ProgramController::class, 'store'])->name('programs.store');

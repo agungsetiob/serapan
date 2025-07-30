@@ -46,17 +46,17 @@ class NotaGutulsController extends Controller
             ->withQueryString();
 
         // Data untuk parent notes (dipakai modal create/edit)
-        $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
-            ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
-            ->whereYear('tanggal_pengajuan', $tahun)
-            ->with(['terkait', 'subKegiatan'])
-            ->get()
-            ->map(function ($nota) {
-                $nota->total_terkait = $nota->terkait->sum('anggaran');
-                $nota->sisa_anggaran = $nota->anggaran - $nota->total_terkait;
-                $nota->sub_kegiatan_id = $nota->sub_kegiatan_id ?? $nota->subKegiatan?->id;
-                return $nota;
-            });
+        // $parentNotes = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
+        //     ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
+        //     ->whereYear('tanggal_pengajuan', $tahun)
+        //     ->with(['terkait', 'subKegiatan'])
+        //     ->get()
+        //     ->map(function ($nota) {
+        //         $nota->total_terkait = $nota->terkait->sum('anggaran');
+        //         $nota->sisa_anggaran = $nota->anggaran - $nota->total_terkait;
+        //         $nota->sub_kegiatan_id = $nota->sub_kegiatan_id ?? $nota->subKegiatan?->id;
+        //         return $nota;
+        //     });
 
         $notaDinas->getCollection()->transform(function ($nota) {
             $nota->parents = $nota->dikaitkanOleh;
@@ -91,7 +91,7 @@ class NotaGutulsController extends Controller
         return inertia('NotaDinas/GuTuLsBySkpd', [
             'skpd' => $skpd,
             'notaDinas' => $notaDinas,
-            'parentNotes' => $parentNotes,
+            //'parentNotes' => $parentNotes,
             'tahun' => $tahun,
             'search' => $search,
             'jenis' => $jenis,
@@ -101,6 +101,29 @@ class NotaGutulsController extends Controller
             'kegiatanOptions' => $kegiatanOptions,
             'subKegiatanOptions' => $subKegiatanOptions,
         ]);
+    }
+    public function index(Skpd $skpd, Request $request)
+    {
+        $tahun = $request->input('tahun') ?? date('Y');
+        $subKegiatanId = $request->input('sub_kegiatan_id');
+
+        $query = NotaDinas::whereIn('jenis', ['Pelaksanaan', 'TU', 'LS'])
+            ->whereHas('subKegiatan.kegiatan', fn($q) => $q->where('skpd_id', $skpd->id))
+            ->whereYear('tanggal_pengajuan', $tahun)
+            ->with(['terkait', 'subKegiatan']);
+
+        if ($subKegiatanId) {
+            $query->where('sub_kegiatan_id', $subKegiatanId);
+        }
+
+        $notes = $query->get()->map(function ($nota) {
+            $nota->total_terkait = $nota->terkait->sum('anggaran');
+            $nota->sisa_anggaran = $nota->anggaran - $nota->total_terkait;
+            $nota->sub_kegiatan_id = $nota->sub_kegiatan_id ?? $nota->subKegiatan?->id;
+            return $nota;
+        });
+        //sleep(2); // Simulate delay for testing purposes
+        return response()->json($notes);
     }
     public function storeGuTuLs(Request $request)
     {
