@@ -118,7 +118,7 @@ function resetCopyState() {
                                                 <font-awesome-icon icon="edit" />
                                             </button>
                                         </Tooltip>
-                                        <Tooltip text="Copy Data dari Tahun Lalu" bgColor="bg-green-500">
+                                        <Tooltip text="Copy Data Tahun Lalu" bgColor="bg-green-500">
                                             <button @click="confirmCopy(kabupaten)"
                                                 class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-green-600 hover:bg-green-100">
                                                 <font-awesome-icon icon="copy" />
