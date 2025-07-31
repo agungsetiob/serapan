@@ -86,7 +86,7 @@ class KabupatenController extends Controller
         $kabupatenSumber = Kabupaten::where('nama', $kabupaten->nama)
             ->where('tahun_anggaran', $tahunLalu)
             ->first();
-
+        sleep(2);
         if (!$kabupatenSumber) {
             return back()->with('error', 'Data tahun sebelumnya tidak ditemukan.');
         }
@@ -154,6 +154,9 @@ class KabupatenController extends Controller
                     $new->tahun_anggaran = $kabupaten->tahun_anggaran;
                     $new->save();
                 }
+                // 4. Update copied_from
+                $kabupaten->copied_from = $kabupatenSumber->tahun_anggaran;
+                $kabupaten->save();
             });
 
             return back()->with('success', 'Data berhasil dicopy dari tahun sebelumnya.');

@@ -4,6 +4,7 @@ import { computed, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import KabupatenModal from "@/Pages/Kabupaten/Partials/KabupatenModal.vue";
+import ConfirmationCopyModal from "@/Pages/Kabupaten/Partials/ConfirmationCopyModal.vue";
 import Tooltip from '@/Components/Tooltip.vue';
 import SuccessFlash from '@/Components/SuccessFlash.vue';
 import ErrorFlash from '@/Components/ErrorFlash.vue';
@@ -22,6 +23,15 @@ const props = defineProps({
 
 const isModalOpen = ref(false);
 const selectedKabupaten = ref(null);
+const isConfirmModalOpen = ref(false);
+const kabupatenToCopy = ref(null);
+const isCopying = ref(false);
+const tahunSumber = computed(() =>
+    kabupatenToCopy.value ? Number(kabupatenToCopy.value.tahun_anggaran) - 1 : null
+);
+const tahunTarget = computed(() =>
+    kabupatenToCopy.value ? Number(kabupatenToCopy.value.tahun_anggaran) : null
+);
 
 function openModal(kabupaten = null) {
     selectedKabupaten.value = kabupaten;
@@ -32,10 +42,34 @@ function closeModal() {
     isModalOpen.value = false;
     selectedKabupaten.value = null;
 }
-function copyFromPreviousYear(kabupaten) {
-    if (confirm(`Yakin mau copy semua data dari tahun ${kabupaten.tahun_anggaran - 1} ke ${kabupaten.tahun_anggaran}?`)) {
-        router.post(route('kabupaten.copyFromPrevious', kabupaten.id));
-    }
+function confirmCopy(kabupaten) {
+    kabupatenToCopy.value = kabupaten;
+    isConfirmModalOpen.value = true;
+}
+
+function doCopy() {
+    isCopying.value = true;
+
+    router.post(
+        route('kabupaten.copyFromPrevious', kabupatenToCopy.value.id),
+        {},
+        {
+            onSuccess: () => {
+                resetCopyState();
+            },
+            onError: () => {
+                resetCopyState();
+            },
+            onFinish: () => {
+                isCopying.value = false;
+            }
+        }
+    );
+}
+
+function resetCopyState() {
+    isConfirmModalOpen.value = false;
+    kabupatenToCopy.value = null;
 }
 </script>
 
@@ -62,31 +96,30 @@ function copyFromPreviousYear(kabupaten) {
                         <table class="table-auto w-full">
                             <thead>
                                 <tr class="bg-gray-100 text-left">
-                                    <th class="px-4 py-2">Nama Kabupaten</th>
-                                    <th class="px-4 py-2">Tahun</th>
-                                    <th class="px-4 py-2">Pagu</th>
-                                    <th class="px-4 py-2">Total Serapan</th>
-                                    <th class="px-4 py-2">Persentase Serapan</th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-3 py-2">Nama Kabupaten</th>
+                                    <th class="px-3 py-2">Tahun</th>
+                                    <th class="px-3 py-2">Pagu</th>
+                                    <th class="px-3 py-2">Total Serapan</th>
+                                    <th class="px-3 py-2">Persentase Serapan</th>
+                                    <th class="px-3 py-2"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="kabupaten in kabupatens.data" :key="kabupaten.id" class="hover:bg-gray-100">
-                                    <td class="px-4 py-2">{{ kabupaten.nama }}</td>
-                                    <td class="px-4 py-2">{{ kabupaten.tahun_anggaran }}</td>
-                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.pagu) }}</td>
-                                    <td class="px-4 py-2">Rp. {{ formatNumber(kabupaten.total_serapan) }}</td>
-                                    <td class="px-4 py-2">{{ formatNumber(kabupaten.presentase_serapan) }}%</td>
-                                    <td class="px-4 py-2">
+                                    <td class="px-3 py-2">{{ kabupaten.nama }}</td>
+                                    <td class="px-3 py-2">{{ kabupaten.tahun_anggaran }}</td>
+                                    <td class="px-3 py-2">Rp. {{ formatNumber(kabupaten.pagu) }}</td>
+                                    <td class="px-3 py-2">Rp. {{ formatNumber(kabupaten.total_serapan) }}</td>
+                                    <td class="px-3 py-2">{{ formatNumber(kabupaten.presentase_serapan) }}%</td>
+                                    <td class="px-3 py-2">
                                         <Tooltip text="Edit Kabupaten" bgColor="bg-blue-500">
                                             <button @click="openModal(kabupaten)"
                                                 class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-blue-600 hover:bg-blue-100">
                                                 <font-awesome-icon icon="edit" />
                                             </button>
                                         </Tooltip>
-                                        <Tooltip v-if="kabupaten.tahun_anggaran == new Date().getFullYear()"
-                                            text="Copy Data dari Tahun Sebelumnya" bgColor="bg-green-500">
-                                            <button @click="copyFromPreviousYear(kabupaten)"
+                                        <Tooltip text="Copy Data dari Tahun Lalu" bgColor="bg-green-500">
+                                            <button @click="confirmCopy(kabupaten)"
                                                 class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-green-600 hover:bg-green-100">
                                                 <font-awesome-icon icon="copy" />
                                             </button>
@@ -107,5 +140,7 @@ function copyFromPreviousYear(kabupaten) {
         </div>
 
         <KabupatenModal :show="isModalOpen" :kabupaten="selectedKabupaten" @close="closeModal" />
+        <ConfirmationCopyModal :show="isConfirmModalOpen" :tahunSumber="tahunSumber" :tahunTarget="tahunTarget"
+            :isCopying="isCopying" @confirm="doCopy" @cancel="isConfirmModalOpen = false" />
     </AuthenticatedLayout>
 </template>

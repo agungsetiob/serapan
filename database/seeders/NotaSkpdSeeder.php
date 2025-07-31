@@ -44,7 +44,7 @@ class NotaSkpdSeeder extends Seeder
                     'skpd_id' => $skpd->id,
                     'jenis' => $faker->randomElement([
                         'Perda', 'Perbup', 'SK', 'Rekomendasi', 'Surat',
-                        'Telaah', 'Edaran', 'Instruksi', 'Pelaksanaan', 'GU', 'TU', 'LS'
+                        'Telaah', 'Edaran', 'Instruksi'
                     ]),
                     'user_id' => $faker->randomElement($userIds),
                     'created_at' => now(),

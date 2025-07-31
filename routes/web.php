@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/skpds/{skpd}/rekap-nota', [SkpdController::class, 'showRekap'])->name('skpds.rekap-nota');
         Route::post('/kabupaten/{kabupaten}/copy-from-previous', [KabupatenController::class, 'copyFromPrevious'])
             ->name('kabupaten.copyFromPrevious');
-        // Define API routes for SkpdController
+        // API routes for SkpdController
         Route::prefix('skpds/{skpd}/api')->controller(SkpdController::class)->group(function () {
             Route::get('/rekap-nota-per-jenis', 'apiRekapNotaPerJenis')->name('skpds.api.rekap-nota-per-jenis');
             Route::get('/tren-nota-per-bulan', 'apiTrenNotaPerBulan')->name('skpds.api.tren-nota-per-bulan');

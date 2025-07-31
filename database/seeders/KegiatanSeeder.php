@@ -17,7 +17,7 @@ class KegiatanSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        for ($skpdId = 1; $skpdId <= 13; $skpdId++) {
+        for ($skpdId = 1; $skpdId <= 71; $skpdId++) {
             $skpdProgramIds = DB::table('programs')
                                 ->where('skpd_id', $skpdId)
                                 ->where('tahun_anggaran', 2025)

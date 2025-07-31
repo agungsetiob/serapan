@@ -17,7 +17,7 @@ class ProgramSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        for ($skpdId = 1; $skpdId <= 13; $skpdId++) {
+        for ($skpdId = 1; $skpdId <= 71; $skpdId++) {
             for ($i = 1; $i <= 2; $i++) {
                 $namaProgram = $faker->regexify('[A-Z]{3}-[0-9]{3}') . " - Program Unggulan Tanah Bumbu BERAKSI" . $faker->word() . " SKPD " . $skpdId;
 
