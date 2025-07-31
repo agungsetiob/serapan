@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Skpd;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,12 +20,29 @@ class RegisteredUserController extends Controller
     public function index(Request $request): Response
     {
         $users = User::latest()->paginate(10);
-    
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $users = User::where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->latest()
+                ->paginate(10);
+
+            if ($users->isEmpty()) {
+                session()->flash('error', 'Tidak ditemukan hasil pencarian untuk "' . $search . '"');
+            } else {
+                session()->flash('success', 'Ditemukan ' . $users->total() . ' pengguna');
+            }
+        }
+
         return Inertia::render('Users/Index', [
             'users' => $users,
+            'filters' => $request->only(['search']),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
         ]);
     }
-    
 
     /**
      * Display the registration view.

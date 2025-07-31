@@ -110,7 +110,7 @@ function isActive(routeName) {
       <!-- Bottom Navigation -->
       <header class="border bg-white shadow fixed bottom-0 left-0 right-0 z-40 h-12 sm:sticky sm:top-16 sm:h-auto">
         <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
-          <nav class="flex overflow-x-auto whitespace-nowrap scrollbar-hide w-full gap-8 justify-center">
+          <nav class="flex overflow-x-auto whitespace-nowrap w-full gap-8 justify-start">
             <template v-for="menu in menus" :key="menu.route">
               <Link :href="route(menu.route)" class="flex flex-col items-center text-sm sm:text-base" :class="{
                 'border-b-2 border-cyan-500': isActive(menu.route)
