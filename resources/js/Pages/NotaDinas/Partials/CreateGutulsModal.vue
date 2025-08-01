@@ -179,8 +179,8 @@
                         <!-- Search input for parent -->
                         <div class="mb-3">
                             <label for="parent_notes_search" class="sr-only">Cari Nota Induk</label>
-                            <input v-if="parentNotes.length > 0" id="parent_notes_search" type="text" v-model="parentSearchTerm"
-                                placeholder="Cari nomor nota atau perihal..."
+                            <input v-if="parentNotes.length > 0" id="parent_notes_search" type="text"
+                                v-model="parentSearchTerm" placeholder="Cari nomor nota atau perihal..."
                                 class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                         </div>
 
@@ -215,7 +215,7 @@
                                     class="text-green-600 text-lg" />
                             </div>
                         </div>
-                        <div v-else class="p-3 bg-red-50 rounded-md">
+                        <div v-else-if="parentSearchTerm.trim() !== ''" class="p-3 bg-red-50 rounded-md">
                             <p class="text-red-800 text-center">Tidak ada nota induk yang sesuai dengan pencarian Anda.
                             </p>
                         </div>
