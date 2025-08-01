@@ -221,7 +221,7 @@
                         </div>
                     </div>
                     <div v-if="parentNotes.length === 0 && !parentNotesLoading" class="p-3 bg-red-50 rounded-md mt-4">
-                        <p class="text-red-800 text-center">Belum ada nota dinas induk yang tersedia untuk tahun ini.
+                        <p class="text-red-800 text-center">Belum ada nota dinas induk yang tersedia.
                         </p>
                     </div>
                     <InputError :message="form.errors.parent_ids" />
