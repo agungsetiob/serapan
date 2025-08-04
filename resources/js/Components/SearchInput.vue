@@ -4,7 +4,7 @@
         type="text"
         v-model="searchTerm"
         @input="onSearch"
-        class="w-full sm:w-1/3 px-4 py-2 border-gray-300 rounded shadow-sm focus:ring focus:ring-indigo-400"
+        class="w-full sm:w-1/3 px-4 py-2 border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-indigo-400"
         placeholder="Cari..."
       />
     </div>

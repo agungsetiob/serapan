@@ -64,19 +64,91 @@ class SkpdController extends Controller
         return back()->with('success', 'SKPD berhasil diupdate.');
     }
 
-    public function show(SKPD $skpd)
+    // public function show(SKPD $skpd)
+    // {
+    //     $tahun = date('Y');
+
+    //     $skpd->load([
+    //         'programs' => function ($query) use ($tahun) {
+    //             $query->where('tahun_anggaran', $tahun)
+    //                 ->with([
+    //                     'kegiatans' => function ($q) use ($tahun) {
+    //                         $q->where('tahun_anggaran', $tahun)
+    //                             ->with([
+    //                                 'subKegiatans' => function ($sq) use ($tahun) {
+    //                                     $sq->where('tahun_anggaran', $tahun)
+    //                                         ->with(['notaDinas.subKegiatan', 'notaDinas.lampirans']);
+    //                                 }
+    //                             ]);
+    //                     }
+    //                 ]);
+    //         }
+    //     ]);
+    //     foreach ($skpd->programs as $program) {
+    //         $totalPagu = 0;
+    //         $totalSerapan = 0;
+
+    //         foreach ($program->kegiatans as $kegiatan) {
+    //             $totalPagu += $kegiatan->pagu;
+    //             $totalSerapan += $kegiatan->total_serapan;
+    //         }
+
+    //         $program->pagu = $totalPagu;
+    //         $program->total_serapan = $totalSerapan;
+    //         $program->presentase_serapan = $totalPagu > 0
+    //             ? round(($totalSerapan / $totalPagu) * 100, 2)
+    //             : 0;
+    //     }
+
+    //     $totalPaguSkpd = 0;
+    //     $totalSerapanSkpd = 0;
+
+    //     foreach ($skpd->programs as $program) {
+    //         foreach ($program->kegiatans as $kegiatan) {
+    //             $totalPaguSkpd += $kegiatan->pagu;
+    //             $totalSerapanSkpd += $kegiatan->total_serapan;
+    //         }
+    //     }
+
+    //     $persentaseSerapanSkpd = $totalPaguSkpd > 0
+    //         ? round(($totalSerapanSkpd / $totalPaguSkpd) * 100, 2)
+    //         : 0;
+    //     foreach ($skpd->programs as $program) {
+    //         foreach ($program->kegiatans as $kegiatan) {
+    //             foreach ($kegiatan->subKegiatans as $sub) {
+    //                 foreach ($sub->notaDinas as $nota) {
+    //                     $nota->dipakai_dari_induk = $nota->terkait->sum('pivot.anggaran');
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return Inertia::render('Skpds/SkpdDetail', [
+    //         'skpd' => $skpd,
+    //         'tahunSelected' => (int) $tahun,
+    //         'rekap' => [
+    //             'totalPagu' => $totalPaguSkpd,
+    //             'totalSerapan' => $totalSerapanSkpd,
+    //             'persentaseSerapan' => $persentaseSerapanSkpd,
+    //         ],
+    //     ]);
+    // }
+    public function show(Request $request, Skpd $skpd)
     {
         $tahun = date('Y');
+        $search = $request->search;
 
         $skpd->load([
-            'programs' => function ($query) use ($tahun) {
+            'programs' => function ($query) use ($tahun, $search) {
                 $query->where('tahun_anggaran', $tahun)
                     ->with([
-                        'kegiatans' => function ($q) use ($tahun) {
+                        'kegiatans' => function ($q) use ($tahun, $search) {
                             $q->where('tahun_anggaran', $tahun)
                                 ->with([
-                                    'subKegiatans' => function ($sq) use ($tahun) {
+                                    'subKegiatans' => function ($sq) use ($tahun, $search) {
                                         $sq->where('tahun_anggaran', $tahun)
+                                            ->when($search, function ($subQuery) use ($search) {
+                                                $subQuery->where('nama', 'like', '%' . $search . '%');
+                                            })
                                             ->with(['notaDinas.subKegiatan', 'notaDinas.lampirans']);
                                     }
                                 ]);
@@ -84,6 +156,7 @@ class SkpdController extends Controller
                     ]);
             }
         ]);
+
         foreach ($skpd->programs as $program) {
             $totalPagu = 0;
             $totalSerapan = 0;
@@ -113,6 +186,7 @@ class SkpdController extends Controller
         $persentaseSerapanSkpd = $totalPaguSkpd > 0
             ? round(($totalSerapanSkpd / $totalPaguSkpd) * 100, 2)
             : 0;
+
         foreach ($skpd->programs as $program) {
             foreach ($program->kegiatans as $kegiatan) {
                 foreach ($kegiatan->subKegiatans as $sub) {
@@ -122,9 +196,11 @@ class SkpdController extends Controller
                 }
             }
         }
+
         return Inertia::render('Skpds/SkpdDetail', [
             'skpd' => $skpd,
             'tahunSelected' => (int) $tahun,
+            'search' => $search,
             'rekap' => [
                 'totalPagu' => $totalPaguSkpd,
                 'totalSerapan' => $totalSerapanSkpd,
@@ -132,6 +208,7 @@ class SkpdController extends Controller
             ],
         ]);
     }
+
     /**
      * Toggle the status of a SKPD.
      */

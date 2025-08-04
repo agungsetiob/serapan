@@ -112,16 +112,22 @@ function resetCopyState() {
                                     <td class="px-3 py-2">Rp. {{ formatNumber(kabupaten.total_serapan) }}</td>
                                     <td class="px-3 py-2">{{ formatNumber(kabupaten.presentase_serapan) }}%</td>
                                     <td class="px-3 py-2">
-                                        <Tooltip text="Edit Kabupaten" bgColor="bg-blue-500">
+                                        <Tooltip v-if="kabupaten.tahun_anggaran == new Date().getFullYear()" text="Edit Kabupaten" bgColor="bg-blue-500">
                                             <button @click="openModal(kabupaten)"
                                                 class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-blue-600 hover:bg-blue-100">
                                                 <font-awesome-icon icon="edit" />
                                             </button>
                                         </Tooltip>
-                                        <Tooltip text="Copy Data Tahun Lalu" bgColor="bg-green-500">
+                                        <Tooltip v-if="kabupaten.tahun_anggaran == new Date().getFullYear()" text="Copy Data Tahun Lalu" bgColor="bg-green-500">
                                             <button @click="confirmCopy(kabupaten)"
                                                 class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-green-600 hover:bg-green-100">
                                                 <font-awesome-icon icon="copy" />
+                                            </button>
+                                        </Tooltip>
+                                        <Tooltip v-if="kabupaten.tahun_anggaran != new Date().getFullYear()" text="Tahun Anggaran Terkunci" bgColor="bg-red-500">
+                                            <button
+                                                class="px-2 py-1 text-sm sm:text-lg font-semibold rounded transition text-red-600 hover:bg-red-100">
+                                                <font-awesome-icon icon="lock" />
                                             </button>
                                         </Tooltip>
                                     </td>

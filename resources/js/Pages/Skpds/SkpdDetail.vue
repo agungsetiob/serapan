@@ -17,13 +17,17 @@ import DeleteNotaModal from './Partials/DeleteNotaModal.vue';
 import ProgramModal from './Partials/ProgramModal.vue';
 import DeleteProgramModal from './Partials/DeleteProgramModal.vue';
 import { formatNumber } from '@/Utils/formatters';
+import SearchInput from '@/Components/SearchInput.vue';
 
 const props = defineProps({
   skpd: Object,
   tahunSelected: Number,
   rekap: Object,
 });
-
+const search = ref('');
+watch(search, (val) => {
+  router.get(route('skpds.show', props.skpd.id), { search: val }, { preserveState: true, replace: true });
+});
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
 const clearFlash = () => {
@@ -348,7 +352,11 @@ const handleSuccess = () => {
           </form>
         </div>
       </div>
-
+      <div class="max-w-8xl mx-auto lg:px-6">
+        <div class="bg-white rounded-lg shadow-md p-4">
+          <SearchInput v-model:search="search" class="pt-2"/>
+        </div>
+      </div>
       <!-- Programs List -->
       <div class="space-y-8 lg:px-6 pb-1">
         <div v-if="skpd.programs && skpd.programs.length > 0">
