@@ -27,7 +27,7 @@ const emit = defineEmits(['confirm', 'cancel']);
                 </SecondaryButton>
                 <PrimaryButton :disabled="isCopying" @click="$emit('confirm')" class="disabled:cursor-not-allowed">
                     <font-awesome-icon v-if="isCopying" icon="spinner" spin class="mr-2" />
-                    {{ isCopying ? 'Sedang menyalin...' : 'Ya, Copy' }}
+                    {{ isCopying ? 'Sedang menyalin...' : 'Ya, Salin' }}
                 </PrimaryButton>
             </div>
         </div>
