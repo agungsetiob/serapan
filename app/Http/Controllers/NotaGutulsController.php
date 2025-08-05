@@ -79,11 +79,13 @@ class NotaGutulsController extends Controller
         // Ambil kegiatan dan sub kegiatan aktif milik SKPD
         $kegiatanOptions = Kegiatan::where('skpd_id', $skpd->id)
             ->select('id', 'nama')
+            ->where('tahun_anggaran', $tahun)
             ->orderBy('nama')
             ->get();
 
         $subKegiatanOptions = SubKegiatan::whereIn('kegiatan_id', $kegiatanOptions->pluck('id'))
             ->select('id', 'kegiatan_id', 'nama')
+            ->where('tahun_anggaran', $tahun)
             ->orderBy('nama')
             ->get();
 
