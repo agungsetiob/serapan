@@ -354,7 +354,7 @@ const handleSuccess = () => {
       </div>
       <div class="max-w-8xl mx-auto lg:px-6">
         <div class="bg-white rounded-lg shadow-md p-4">
-          <SearchInput v-model:search="search" class="pt-2"/>
+          <SearchInput v-model:search="search" class="pt-2" placeholder="Cari sub kegiatan..."/>
         </div>
       </div>
       <!-- Programs List -->

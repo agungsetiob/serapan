@@ -121,7 +121,7 @@ const handleBelanjaModalChange = (checked) => {
                 </div>
                 <div class="bg-white rounded-lg shadow p-6 mt-4 space-y-4">
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <SearchInput v-model:search="search" class="w-full sm:flex-1" />
+                        <SearchInput v-model:search="search" class="w-full sm:flex-1" placeholder="Cari no/perihal..."/>
                         <div class="flex items-center space-x-1">
                             <input id="belanjaModal" type="checkbox" :checked="isBelanjaModal === 'true'"
                                 @change="e => handleBelanjaModalChange(e.target.checked)"
