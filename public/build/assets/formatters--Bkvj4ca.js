@@ -1,0 +1,1 @@
+function r(t){return new Intl.NumberFormat("id-ID",{minimumFractionDigits:2,maximumFractionDigits:2}).format(t)}const a=t=>{const n={year:"numeric",month:"long",day:"numeric"};return new Date(t).toLocaleDateString("id-ID",n)};export{a,r as f};
